@@ -1,13 +1,23 @@
-import { app, BrowserWindow, globalShortcut, Tray, Menu } from "electron";
+import {
+  app,
+  BrowserWindow,
+  globalShortcut,
+  Tray,
+  Menu,
+  clipboard,
+} from "electron";
 import { screen } from "electron/main";
-import { clipboard } from "electron";
 import path from "path";
+import { fileURLToPath } from "url";
 
 let mainWindow;
 let lastText = "";
 
 function createWindow() {
-  const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize; // screen width
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize;
   const windowWidth = 400;
   const windowHeight = 500;
 
@@ -21,13 +31,39 @@ function createWindow() {
     fullscreenable: false,
     x: screenWidth - windowWidth - 10,
     y: 10,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
   });
 
-  mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"));
+  // Fix: HTML file path check karein
+  mainWindow.loadFile(path.join(__dirname, "../../dist-react/index.html"));
+
+  // Fix: Development ke liye DevTools open karein
+  if (process.env.NODE_ENV === "development") {
+    mainWindow.webContents.openDevTools();
+  }
 
   mainWindow.on("close", (event) => {
     event.preventDefault();
     mainWindow.hide();
+  });
+
+  // Fix: Window ready hone ka wait karein
+  mainWindow.once("ready-to-show", () => {
+    console.log("Window is ready to show");
+  });
+
+  // Fix: Load complete hone ka check karein
+  mainWindow.webContents.once("did-finish-load", () => {
+    console.log("Content loaded successfully");
+    // Initial clipboard text send karein
+    const initialText = clipboard.readText();
+    if (initialText) {
+      mainWindow.webContents.send("clipboard-update", initialText);
+    }
   });
 }
 
@@ -61,6 +97,7 @@ app.whenReady().then(() => {
     }
   });
 
+  // Fix: Clipboard monitoring ko improve karein
   setInterval(() => {
     const text = clipboard.readText();
 
@@ -69,7 +106,10 @@ app.whenReady().then(() => {
     lastText = text;
     console.log("Copied text:", text);
 
-    mainWindow.webContents.send("clipboard-update", text);
+    // Fix: Window ready hai ya nahi check karein
+    if (mainWindow && mainWindow.webContents) {
+      mainWindow.webContents.send("clipboard-update", text);
+    }
   }, 1000);
 });
 
