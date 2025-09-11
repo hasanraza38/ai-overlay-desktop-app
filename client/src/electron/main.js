@@ -1,13 +1,23 @@
-import { app, BrowserWindow, globalShortcut, Tray, Menu } from "electron";
+import {
+  app,
+  BrowserWindow,
+  globalShortcut,
+  Tray,
+  Menu,
+  clipboard,
+} from "electron";
 import { screen } from "electron/main";
-import { clipboard } from "electron";
 import path from "path";
+import { fileURLToPath } from "url";
 
 let mainWindow;
 let lastText = "";
 
 function createWindow() {
-  const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize; // screen width
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize;
   const windowWidth = 400;
   const windowHeight = 500;
 
@@ -21,13 +31,34 @@ function createWindow() {
     fullscreenable: false,
     x: screenWidth - windowWidth - 10,
     y: 10,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
   });
 
-  mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"));
+  mainWindow.loadFile(path.join(__dirname, "../../dist-react/index.html"));
+
+  if (process.env.NODE_ENV === "development") {
+    mainWindow.webContents.openDevTools();
+  }
 
   mainWindow.on("close", (event) => {
     event.preventDefault();
     mainWindow.hide();
+  });
+
+  mainWindow.once("ready-to-show", () => {
+    console.log("Window is ready to show");
+  });
+
+  mainWindow.webContents.once("did-finish-load", () => {
+    console.log("Content loaded successfully");
+    const initialText = clipboard.readText();
+    if (initialText) {
+      mainWindow.webContents.send("clipboard-update", initialText);
+    }
   });
 }
 
@@ -48,7 +79,6 @@ app.whenReady().then(() => {
   tray.setContextMenu(contextMenu);
   tray.setToolTip("AI Overlay");
 
-  // Global hotkey
   globalShortcut.register("Alt+X", () => {
     if (!mainWindow) return;
 
@@ -69,7 +99,9 @@ app.whenReady().then(() => {
     lastText = text;
     console.log("Copied text:", text);
 
-    mainWindow.webContents.send("clipboard-update", text);
+    if (mainWindow && mainWindow.webContents) {
+      mainWindow.webContents.send("clipboard-update", text);
+    }
   }, 1000);
 });
 
