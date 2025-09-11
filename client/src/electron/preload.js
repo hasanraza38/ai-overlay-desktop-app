@@ -1,7 +1,6 @@
 const { contextBridge, ipcRenderer, clipboard } = require("electron");
 
 contextBridge.exposeInMainWorld("electronAPI", {
-  // Fix: Error handling ke saath clipboard read karein
   readClipboard: () => {
     try {
       const text = clipboard.readText();
@@ -13,7 +12,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     }
   },
   
-  // Fix: Cleanup function return karein
   onClipboardUpdate: (callback) => {
     const handleUpdate = (event, text) => {
       console.log('Clipboard update received in preload:', text);
@@ -22,7 +20,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     
     ipcRenderer.on("clipboard-update", handleUpdate);
     
-    // Return cleanup function
     return () => {
       ipcRenderer.removeListener("clipboard-update", handleUpdate);
     };

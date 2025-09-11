@@ -38,10 +38,8 @@ function createWindow() {
     },
   });
 
-  // Fix: HTML file path check karein
   mainWindow.loadFile(path.join(__dirname, "../../dist-react/index.html"));
 
-  // Fix: Development ke liye DevTools open karein
   if (process.env.NODE_ENV === "development") {
     mainWindow.webContents.openDevTools();
   }
@@ -51,15 +49,12 @@ function createWindow() {
     mainWindow.hide();
   });
 
-  // Fix: Window ready hone ka wait karein
   mainWindow.once("ready-to-show", () => {
     console.log("Window is ready to show");
   });
 
-  // Fix: Load complete hone ka check karein
   mainWindow.webContents.once("did-finish-load", () => {
     console.log("Content loaded successfully");
-    // Initial clipboard text send karein
     const initialText = clipboard.readText();
     if (initialText) {
       mainWindow.webContents.send("clipboard-update", initialText);
@@ -84,7 +79,6 @@ app.whenReady().then(() => {
   tray.setContextMenu(contextMenu);
   tray.setToolTip("AI Overlay");
 
-  // Global hotkey
   globalShortcut.register("Alt+X", () => {
     if (!mainWindow) return;
 
@@ -97,7 +91,6 @@ app.whenReady().then(() => {
     }
   });
 
-  // Fix: Clipboard monitoring ko improve karein
   setInterval(() => {
     const text = clipboard.readText();
 
@@ -106,7 +99,6 @@ app.whenReady().then(() => {
     lastText = text;
     console.log("Copied text:", text);
 
-    // Fix: Window ready hai ya nahi check karein
     if (mainWindow && mainWindow.webContents) {
       mainWindow.webContents.send("clipboard-update", text);
     }
