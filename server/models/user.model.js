@@ -16,11 +16,7 @@ const userSchema = new mongoose.Schema(
     name: {
       type: String,
     },
-    username: {
-      type: String,
-      unique: [true, "username already taken"],
-      sparse: true, // avoid errors if null
-    },
+    
     password: {
       type: String,
       // ⚠️ not required, because Google users won't have passwords
