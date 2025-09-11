@@ -1,9 +1,9 @@
 import express from "express"
-import connectDB from "./controllers/db.js"
 import passport from 'passport';
 import session from 'express-session';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import jwt from 'jsonwebtoken';
+import connectDB from "./config/db.js";
 import dotenv from "dotenv"
 dotenv.config()
 
@@ -16,8 +16,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 app.use(express.json())
 
 passport.use(new GoogleStrategy({
-    clientID: "YOUR_GOOGLE_CLIENT_ID",
-    clientSecret: "YOUR_GOOGLE_CLIENT_SECRET",
+    clientID: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
     callbackURL: "http://localhost:3000/api/auth/google/callback",
   },
   async (accessToken, refreshToken, profile, done) => {
@@ -27,6 +27,8 @@ passport.use(new GoogleStrategy({
       name: profile.displayName,
       email: profile.emails[0].value
     };
+    console.log(user);
+    
     done(null, user);
   }
 ));
