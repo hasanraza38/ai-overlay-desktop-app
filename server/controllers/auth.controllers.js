@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import User from "../models/User.js";
+import User from "../models/user.model.js";
 import { generateToken } from "../utils/jwt.js";
 
 const registerUser = async (req, res) => {
@@ -88,7 +88,7 @@ const login = async (req, res) => {
 };
 
 
-export const googleCallback = async (req, res) => {
+const googleCallback = async (req, res) => {
   try {
     const user = req.user;
 
