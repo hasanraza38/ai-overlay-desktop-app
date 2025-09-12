@@ -9,7 +9,6 @@ passport.use(new GoogleStrategy({
   clientSecret: process.env.CLIENT_SECRET,
   callbackURL: process.env.CALLBACK_URL
 }, async (accessToken, refreshToken, profile, done) => {
-  // Find or create user in DB
   let user = await User.findOne({ googleId: profile.id });
   if (!user) {
     user = await User.create({
