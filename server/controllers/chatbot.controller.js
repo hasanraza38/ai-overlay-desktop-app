@@ -13,7 +13,7 @@ export const getChatbotResponse = async (req, res) => {
     }
 
     const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile", // Groq model
+      model: "llama-3.3-70b-versatile", // Groq Model
       messages: [
         { role: "system", content: "You are a helpful AI chatbot." },
         { role: "user", content: userInput },
