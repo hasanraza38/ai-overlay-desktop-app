@@ -4,6 +4,7 @@ import session from 'express-session';
 import connectDB from "./config/db.js";
 import dotenv from "dotenv"
 import authRoutes from './routes/auth.routes.js';
+import chatbotRoutes from './routes/chatbot.route.js';
 import './config/passport.js'; 
 import './config/db.js';   
 import morgan from "morgan";
@@ -23,6 +24,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api/auth', authRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 
 
