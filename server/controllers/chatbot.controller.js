@@ -53,12 +53,6 @@ export const getChatbotResponse = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
 export const getChatsByUser = async (req, res) => {
   try {
     const { userId } = req.user;
@@ -92,7 +86,6 @@ export const getChatsByUser = async (req, res) => {
 
 
 
-// Get chats by conversation
 export const getChatsByConversation = async (req, res) => {
   try {
     const { conversationId } = req.params;

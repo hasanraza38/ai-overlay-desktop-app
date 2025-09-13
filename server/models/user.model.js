@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema(
     googleId: {
       type: String,
       unique: true,
-      sparse: true, // allows null for users without Google login
+      sparse: true, 
     },
     email: {
       type: String,
@@ -19,7 +19,6 @@ const userSchema = new mongoose.Schema(
     
     password: {
       type: String,
-      // ⚠️ not required, because Google users won't have passwords
     },
     avatar: {
       type: String,
@@ -41,7 +40,6 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Hash password only if it's set and modified (skip Google accounts)
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password") || !this.password) return next();
 
