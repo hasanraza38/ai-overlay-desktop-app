@@ -23,11 +23,13 @@ app.use(session({ secret: 'keyboard cat', resave: false, saveUninitialized: true
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/api/auth', authRoutes);
-app.use("/api/chatbot", chatbotRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use("/api/v1/chatbot", chatbotRoutes);
 
 
-
+app.get("/api/v1", (req, res) => {
+    res.send("API is running...")
+});
 
 
 

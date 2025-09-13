@@ -71,7 +71,7 @@ const login = async (req, res) => {
       }
   
 
-    const token = generateForeverToken(user);
+    const token = generateToken(user);
 
     return res.json({
       message: "User logged in",
@@ -97,7 +97,7 @@ const googleCallback = async (req, res) => {
       return res.status(401).json({ message: "Authentication failed" });
     }
 
-    const token = generateForeverToken(user);
+    const token = generateToken(user);
 
     return res.json({
       message: "Google login successful",
