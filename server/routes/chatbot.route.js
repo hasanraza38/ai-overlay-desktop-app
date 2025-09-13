@@ -1,9 +1,10 @@
 import express from "express";
-import { getChatbotResponse } from "../controllers/chatbot.controller.js";
+import { getChatbotResponse, getChatsByUser } from "../controllers/chatbot.controller.js";
+import { authenticate } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-// POST /api/chatbot
-router.post("/", getChatbotResponse);
+router.post("/", authenticate, getChatbotResponse);
+router.get("/", authenticate, getChatsByUser);
 
 export default router;
