@@ -14,7 +14,6 @@ import helmet from "helmet";
 dotenv.config()
 const app = express()
 const port = process.env.PORT || 4000
-const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(helmet());
 app.use(morgan("dev"));
@@ -36,7 +35,7 @@ app.get("/api/v1", (req, res) => {
 connectDB()
 .then(() => {
      app.listen(port, () => {
-        console.log(`⚙️  Server is running at port : ${port}`);
+    console.log(`Server is running at port : ${port}`);
 });
 })
 .catch((err) => {
