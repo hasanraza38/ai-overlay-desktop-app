@@ -1,14 +1,13 @@
 import Chat from "../models/chat.model.js";
 import { v4 as uuidv4 } from "uuid";
 
-// Save a new chat message
 export const saveChat = async (req, res) => {
   try {
     const { userId, conversationId, prompt, response } = req.body;
 
     let convId = conversationId;
     if (!convId) {
-      convId = uuidv4(); // create new conversation if not passed
+      convId = uuidv4();
     }
 
     const chat = await Chat.create({
