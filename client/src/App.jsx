@@ -1,11 +1,11 @@
 import React from 'react'
-import Wellcome from './pages/Wellcom'
+import Signup from './pages/Signup'
 
 export default function App() {
   return (
 
     <>
-      <Wellcome/>
+      <Signup/>
     </>
   )
 }

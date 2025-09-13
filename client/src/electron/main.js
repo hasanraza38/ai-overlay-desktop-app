@@ -30,7 +30,7 @@ function createWindow() {
     maximizable: false,
     fullscreenable: false,
     x: screenWidth - windowWidth - 10,
-    y: 10,
+    y: 12,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
