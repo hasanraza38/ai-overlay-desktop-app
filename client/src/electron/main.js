@@ -30,7 +30,7 @@ function createWindow() {
     maximizable: false,
     fullscreenable: false,
     x: screenWidth - windowWidth - 10,
-    y: 10,
+    y: 12,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -79,7 +79,7 @@ app.whenReady().then(() => {
   tray.setContextMenu(contextMenu);
   tray.setToolTip("AI Overlay");
 
-  globalShortcut.register("Alt+X", () => {
+  globalShortcut.register("Alt+J", () => {
     if (!mainWindow) return;
 
     if (mainWindow.isVisible()) {
