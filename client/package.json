@@ -13,9 +13,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.12.2",
     "@tailwindcss/vite": "^4.1.13",
+    "axios": "^1.12.2",
     "electron-is-dev": "^3.0.1",
-    "framer-motion": "^12.23.12",
+    "google-client-api": "^1.0.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.9.1",

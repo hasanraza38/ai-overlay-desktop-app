@@ -1,11 +1,57 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { api } from "../Instance/api";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
 export default function Signup() {
+
+    const [formData, setFormData] = useState({
+        email: "",
+        name: "",
+        password: "",
+    });
+
+
+
+    const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        });
+    }
+
+    const handleSignup = async (event) => {
+        event.preventDefault();
+        try {
+            const response = await api.post("auth/register", formData);
+            console.log("Registration Success:", response.data);
+
+            navigate("/signin");
+        } catch (error) {
+            console.error("Registration Error:", error.response?.data || error)
+        }
+    }
+
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        console.log("Google JWT Token:", credentialResponse.credential);
+
+        try {
+            const response = await api.get("auth/google", { token: credentialResponse.credential});
+
+            console.log("Google Auth Success:", response.data);
+        } catch (error) {
+
+            console.error(" Google Auth Error:", error);
+        }
+    };
+
     return (
         <div className=" bg-white">
             <div className="flex flex-col items-center justify-center w-full bg-white rounded-xl p-10 mt-3.5 ">
-               <h1 className="text-3xl font-bold text-purple-600">Ai Overlay</h1>
+                <h1 className="text-3xl font-bold text-purple-600">Ai Overlay</h1>
 
                 <div className="flex items-center justify-center">
                     <h1 className="text-2xl font-bold text-gray-700 mb-3">
@@ -20,16 +66,22 @@ export default function Signup() {
                     </label>
                     <input
                         type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
                         className="w-[300px] h-[40px] border border-gray-400 rounded-[8px] px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none text-[14px]"
                         placeholder="enter your email"
                     />
                 </div>
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-600 mb-1">
-                       Username
+                        Username
                     </label>
                     <input
                         type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
                         className="w-[300px] h-[40px] text-[14px] border border-gray-400 rounded-[8px] px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none"
                         placeholder="enter a username"
                     />
@@ -42,12 +94,15 @@ export default function Signup() {
                     </label>
                     <input
                         type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
                         className="w-[300px] h-[40px] text-[14px] border border-gray-400 rounded-[8px] px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none"
                         placeholder="enter your password"
                     />
                 </div>
                 {/* Create Account Button */}
-                <button className="w-[300px] text-[14px] mt-1 bg-purple-600 text-white font-medium py-2 rounded-[8px] hover:bg-purple-500 transition">
+                <button onClick={handleSignup} className="w-[300px] text-[14px] mt-1 bg-purple-600 text-white font-medium py-2 rounded-[8px] hover:bg-purple-500 transition">
                     Create Free Account
                 </button>
 
@@ -59,7 +114,7 @@ export default function Signup() {
                 </div>
 
                 {/* Continue with Google */}
-                <button className="w-[300px] border border-gray-300 flex items-center justify-center gap-2 py-2 rounded-[8px] hover:bg-gray-100 transition">
+                <button onClick={handleGoogleSuccess} className="w-[300px] border border-gray-300 flex items-center justify-center gap-2 py-2 rounded-[8px] hover:bg-gray-100 transition">
                     <img
                         src="https://www.svgrepo.com/show/475656/google-color.svg"
                         alt="Google"
@@ -89,6 +144,6 @@ export default function Signup() {
                     </Link>
                 </p>
             </div>
-         </div>
+        </div>
     );
 }
