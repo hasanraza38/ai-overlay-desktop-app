@@ -1,7 +1,37 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { api } from "../Instance/api";
+import { useState } from "react";
+
 
 export default function Signin() {
+
+    const [formData, setFormData] = useState({
+        email: "",
+        password: "",
+    });
+
+    const handleChange = (event) => {
+        setFormData((prev) => ({
+            ...prev,
+            [event.target.name]: event.target.value,
+        }));
+    };
+
+    const handleLogin = async (event) => {
+        event.preventDefault();
+
+        try {
+            const response = await api.post("auth/login", formData);
+             console.log("Login Success:", response.data);
+
+        } catch (error) {
+            console.error("Login Error:", error.response?.data || error);
+
+        }
+    }
+
+
     return (
         <div className=" bg-white">
             <div className="flex flex-col items-center justify-center w-full bg-white rounded-xl p-10 mt-7">
@@ -22,6 +52,9 @@ export default function Signin() {
                     </label>
                     <input
                         type="email"
+                        name="email"       
+                        value={formData.email}  
+                        onChange={handleChange}
                         className="w-[300px] h-[40px] text-[14px] border border-gray-400 rounded-[8px] px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none"
                         placeholder="Enter your email"
                     />
@@ -34,12 +67,15 @@ export default function Signin() {
                     </label>
                     <input
                         type="password"
+                        name="password"        
+                        value={formData.password}  
+                        onChange={handleChange}
                         className="w-[300px] text-[14px] border border-gray-400 rounded-[8px] px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none"
                         placeholder="Enter your password"
                     />
                 </div>
                 {/* Create Account Button */}
-                <button className="w-[300px] text-[14px] mt-4 bg-purple-600 text-white font-medium py-2 rounded-[8px] hover:bg-purple-500 transition">
+                <button onClick={handleLogin} className="w-[300px] text-[14px] mt-4 bg-purple-600 text-white font-medium py-2 rounded-[8px] hover:bg-purple-500 transition">
                     Sign in
                 </button>
 
