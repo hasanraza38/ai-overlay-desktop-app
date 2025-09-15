@@ -79,7 +79,7 @@ app.whenReady().then(() => {
   tray.setContextMenu(contextMenu);
   tray.setToolTip("AI Overlay");
 
-  globalShortcut.register("Alt+X", () => {
+  globalShortcut.register("Alt+J", () => {
     if (!mainWindow) return;
 
     if (mainWindow.isVisible()) {
