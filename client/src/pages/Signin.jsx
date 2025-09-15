@@ -1,11 +1,11 @@
 import React from "react";
 
-export default function Signup() {
+export default function Signin() {
     return (
         <div className="flex items-center justify-center bg-white">
             <div className="w-full bg-white shadow-lg rounded-xl p-10 ">
                 <h1 className="text-2xl font-bold text-center mb-8">
-                      Create AI Overlay Account
+                  Sign in to your Ai Overlay account
                 </h1>
 
                 {/* Work Email */}
@@ -20,18 +20,6 @@ export default function Signup() {
                     />
                 </div>
 
-                {/* Username */}
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-400 mb-1">
-                        Username
-                    </label>
-                    <input
-                        type="text"
-                        className="w-[300px] h-[40px] border border-gray-400 rounded-[5px] px-3 py-2 focus:ring-2 focus:ring-gray-300 outline-none"
-                        placeholder="Choose a username"
-                    />
-                </div>
-
                 {/* Password */}
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-400 mb-1">
@@ -39,13 +27,13 @@ export default function Signup() {
                     </label>
                     <input
                         type="password"
-                        className="w-[300px] h-[40px] border border-gray-400 rounded-[5px] px-3 py-2 focus:ring-2 focus:ring-gray-300 outline-none"
+                        className="w-[300px] border border-gray-400 rounded-[5px] px-3 py-2 focus:ring-2 focus:ring-gray-300 outline-none"
                         placeholder="Enter your password"
                     />
                 </div>
                 {/* Create Account Button */}
                 <button className="w-[300px] bg-purple-600 text-white font-medium py-2 rounded-[5px] hover:bg-purple-500 transition">
-                    Create Free Account
+                    Sign In
                 </button>
 
                 {/* OR Divider */}
@@ -62,7 +50,7 @@ export default function Signup() {
                         alt="Google"
                         className="w-5 h-5"
                     />
-                    <span className="text-gray-700 font-medium">Continue with Google</span>
+                    <span className="text-gray-700 font-medium">Sign In with Google</span>
                 </button>
 
                 {/* Footer */}
@@ -80,9 +68,9 @@ export default function Signup() {
 
                 {/* Already have an account */}
                 <p className="text-sm text-center mt-4">
-                    Already have an account?{" "}
-                    <a href="/sign" className="text-purple-500 font-medium hover:underline">
-                        Sign in
+                    Don't have an account?{" "}
+                    <a href="/Signup" className="text-purple-500 font-medium hover:underline">
+                        Sign up
                     </a>
                 </p>
             </div>
