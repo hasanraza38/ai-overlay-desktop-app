@@ -1,4 +1,8 @@
 import React from 'react'
+
+import Wellcome from './pages/Wellcom'
+import ChatSection from './pages/ChatSection'
+
 import Signup from './pages/Signup'
 import Signin from './pages/Signin'
 import Wellcome from './pages/Wellcome'
@@ -8,6 +12,8 @@ export default function App() {
   return (
 
     <>
+      {/* <Wellcome/> */}
+      <ChatSection/>
       {/* <Wellcome />
       <Signup />
       <Signin /> */}
