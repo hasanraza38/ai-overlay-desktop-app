@@ -1,202 +1,163 @@
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
+import {
+  FiSidebar,
+  FiMessageSquare,
+  FiMaximize2,
+  FiX,
+} from "react-icons/fi";
+import { BiConversation } from "react-icons/bi";
+import { Plus, Send } from "lucide-react";
 
-function ChatSection() {
-  const [clipboardText, setClipboardText] = useState("");
-  const [selectedText, setSelectedText] = useState("");
+async function streamGroqResponse(userMessage, onChunk) {
+  const response = await fetch("http://localhost:4000/api/chatbot", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userInput: userMessage,
+      context: "general", // agar context chahiye ho to pass karo
+    }),
+  });
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    const chunk = decoder.decode(value, { stream: true });
+    const lines = chunk.split("\n").filter((line) => line.trim());
+    for (const line of lines) {
+      if (line.startsWith("data: ")) {
+        const data = line.replace("data: ", "");
+        if (data === "[DONE]") return;
+        try {
+          const json = JSON.parse(data);
+          const token = json.token;
+          if (token) onChunk(token);
+        } catch {}
+      }
+    }
+  }
+}
+
+export default function Chatbot() {
   const [messages, setMessages] = useState([]);
-  const [userInput, setUserInput] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [input, setInput] = useState("");
+  const [showContext, setShowContext] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Scroll chat to bottom
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const handleSend = async () => {
+    if (!input.trim()) return;
 
-  useEffect(() => {
-    if (!window.electronAPI) {
-      console.error('electronAPI is not available');
-      setIsLoading(false);
-      return;
-    }
+    const userMessage = { role: "user", content: input };
+    setMessages((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
+    setInput("");
 
-    try {
-      const text = window.electronAPI.readClipboard();
-      setClipboardText(text || "");
-    } catch (err) {
-      console.error("Error reading initial clipboard:", err);
-    }
-
-    setIsLoading(false);
-
-    // Clipboard listener
-    const cleanup = window.electronAPI.onClipboardUpdate((newText) => {
-      setClipboardText(newText || "");
-      if (newText) {
-        addMessage("context", newText);
-      }
-    });
-
-    // Selection listener
-    const handleSelection = () => {
-      const selection = window.getSelection();
-      if (selection) {
-        const text = selection.toString();
-        setSelectedText(text);
-        if (text) addMessage("context", text);
-      }
+    const onChunk = (token) => {
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1].content += token;
+        return updated;
+      });
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
-    document.addEventListener("mouseup", handleSelection);
-    document.addEventListener("keyup", handleSelection);
-    document.addEventListener("selectionchange", handleSelection);
-
-    return () => {
-      if (typeof cleanup === "function") cleanup();
-      document.removeEventListener("mouseup", handleSelection);
-      document.removeEventListener("keyup", handleSelection);
-      document.removeEventListener("selectionchange", handleSelection);
-    };
-  }, []);
-
-  const addMessage = (type, content) => {
-    setMessages((prev) => [...prev, { type, content }]);
+    await streamGroqResponse(input, onChunk);
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const handleSend = () => {
-    if (!userInput.trim()) return;
-
-    addMessage("user", userInput);
-    setUserInput("");
-
-    // Mock AI response (replace with API call)
-    setTimeout(() => {
-      addMessage("bot", `I see you're asking about "${userInput}". Based on your ${selectedText ? "selected text" : "clipboard content"}, I can help with that!`);
-    }, 500);
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-blue-600 font-medium">Loading AI Overlay...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="flex flex-col h-screen bg-white">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 shadow-md">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="bg-white/20 p-2 rounded-lg">
-              <i className="fas fa-robot text-xl"></i>
-            </div>
-            <h1 className="text-xl font-bold">AI Overlay</h1>
-          </div>
-          <div className="flex items-center space-x-2 text-sm bg-white/20 px-3 py-1 rounded-full">
-            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-            <span>Connected</span>
-          </div>
+    <div className="h-screen flex flex-col bg-white text-gray-900">
+      {/* Top Bar */}
+      <div className="flex justify-between items-center p-3 bg-white border-b border-gray-200 shadow-sm">
+        <button
+          onClick={() => setShowContext(true)}
+          className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-md hover:bg-gray-200"
+        >
+          <BiConversation size={18} />
+          <span>Context</span>
+        </button>
+        <div className="flex gap-5 text-gray-500">
+          <button className="hover:text-black"><FiSidebar size={18} /></button>
+          <button className="hover:text-black"><FiMessageSquare size={18} /></button>
+          <button className="hover:text-black"><FiMaximize2 size={18} /></button>
         </div>
       </div>
 
-      {/* Context Bar - Fixed at the top above input */}
-      {(selectedText || clipboardText) && (
-        <div className="bg-amber-50 border-b border-amber-200 p-3">
-          <div className="max-w-4xl mx-auto flex items-start">
-            <div className="bg-amber-100 p-1 rounded mr-2 mt-0.5">
-              <i className="fas fa-clipboard text-amber-600 text-xs"></i>
-            </div>
-            <div className="flex-1">
-              <p className="text-xs font-medium text-amber-800 mb-1">Context from {selectedText ? "selection" : "clipboard"}:</p>
-              <p className="text-xs text-amber-700 truncate">
-                {selectedText || clipboardText}
-              </p>
-            </div>
-            <button 
-              onClick={() => {
-                setSelectedText("");
-                setClipboardText("");
-              }}
-              className="text-amber-500 hover:text-amber-700 text-xs"
+      {/* Chat Body */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            className={`p-3 rounded-lg max-w-2xl ${
+              msg.role === "user"
+                ? "bg-gray-200 text-gray-900 self-end ml-auto"
+                : "bg-white text-black border border-gray-200"
+            }`}
+          >
+            {msg.content}
+          </div>
+        ))}
+        <div ref={messagesEndRef}></div>
+      </div>
+
+      {/* Input Bar (ChatGPT Style) */}
+      <div className="p-4 border-t border-gray-200 bg-white">
+        <div className="relative flex items-end max-w-4xl mx-auto w-full">
+          {/* Plus Icon (Left) */}
+          <button
+            className="absolute left-3 bottom-2 text-gray-500 hover:text-black"
+            onClick={() => alert("Upload window khul jaeygi")}
+          >
+            <Plus size={20} />
+          </button>
+
+          {/* Textarea */}
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            rows="1"
+            placeholder="Message Chatbot..."
+            className="w-full border border-gray-300 rounded-lg pl-10 pr-10 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500"
+            style={{ minHeight: "40px", maxHeight: "200px" }}
+          />
+
+          {/* Send Button (Right) */}
+          <button
+            onClick={handleSend}
+            className="absolute right-3 bottom-2 text-blue-600 hover:text-blue-800"
+          >
+            <Send size={20} />
+          </button>
+        </div>
+      </div>
+
+      {/* Context Sidebar */}
+      {showContext && (
+        <div className="absolute top-0 left-0 w-72 h-full bg-white border-r border-gray-200 shadow-lg p-4 flex flex-col">
+          <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+            <h2 className="text-lg font-semibold">Context</h2>
+            <button
+              onClick={() => setShowContext(false)}
+              className="text-gray-500 hover:text-black"
             >
-              <i className="fas fa-times"></i>
+              <FiX size={20} />
             </button>
+          </div>
+          <div className="mt-3 text-sm text-gray-600">
+            Yahan aap ka context show hoga (history, info, etc).
           </div>
         </div>
       )}
-
-      {/* Chat Area */}
-      <div className="flex-1 overflow-hidden flex flex-col">
-        {/* Messages */}
-        <div className="flex-1 p-4 overflow-y-auto">
-          <div className="max-w-3xl mx-auto">
-            {/* Welcome message */}
-            <div className="max-w-[85%] md:max-w-[75%] bg-blue-100 text-gray-800 p-4 rounded-2xl rounded-bl-none mb-4">
-              <div>Hello! I'm your AI assistant. I can use text from your clipboard or selections as context for our conversation.</div>
-              <div className="text-xs text-gray-500 mt-2 text-right">Just now</div>
-            </div>
-
-            {/* Messages list */}
-            {messages.map((msg, idx) => (
-              <div 
-                key={idx} 
-                className={`max-w-[85%] md:max-w-[75%] mb-4 p-4 rounded-2xl ${
-                  msg.type === "user" 
-                    ? "bg-blue-600 text-white ml-auto rounded-br-none" 
-                    : msg.type === "context" 
-                    ? "bg-amber-100 text-amber-900 border border-amber-200 mx-auto text-sm" 
-                    : "bg-gray-100 text-gray-800 rounded-bl-none"
-                }`}
-              >
-                <div>{msg.content}</div>
-                <div className={`text-xs mt-2 text-right ${msg.type === "user" ? "text-blue-200" : "text-gray-500"}`}>
-                  {new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-        </div>
-
-        {/* Input Area */}
-        <div className="p-4 border-t border-gray-200 bg-white">
-          <div className="max-w-3xl mx-auto">
-            <div className="flex items-center space-x-3">
-              <input 
-                type="text" 
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Ask AI Overlay anything..." 
-                className="flex-1 py-3 px-4 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
-              />
-              <button 
-                onClick={handleSend}
-                disabled={!userInput.trim()}
-                className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full w-12 h-12 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-              >
-                <i className="fas fa-paper-plane"></i>
-              </button>
-            </div>
-            
-            {/* Help text */}
-            <p className="text-xs text-gray-500 mt-2 text-center">
-              Select text or copy to clipboard to provide context for AI responses
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
-
-export default ChatSection;
