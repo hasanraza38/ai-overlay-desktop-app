@@ -4,7 +4,7 @@ import { authenticate } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-router.post("/", authenticate, getChatbotResponse);
+router.post("/", getChatbotResponse);
 router.get("/", authenticate, getChatsByUser);
 
 export default router;
