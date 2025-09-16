@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { api } from "../Instance/api";
 import { useState } from "react";
+import Topbar from "../components/Topbar";
 
 
 export default function Signin() {
@@ -34,6 +35,7 @@ export default function Signin() {
 
     return (
         <div className=" bg-white">
+             <Topbar />
             <div className="flex flex-col items-center justify-center w-full bg-white rounded-xl p-10 mt-7">
                 {/* <h1 className="text-2xl font-bold text-center mb-8">
                   Sign in to your Ai Overlay account
@@ -56,7 +58,7 @@ export default function Signin() {
                         value={formData.email}  
                         onChange={handleChange}
                         className="w-[300px] h-[40px] text-[14px] border border-gray-400 rounded-[8px] px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none"
-                        placeholder="Enter your email"
+                        placeholder="enter your email"
                     />
                 </div>
 
@@ -71,11 +73,11 @@ export default function Signin() {
                         value={formData.password}  
                         onChange={handleChange}
                         className="w-[300px] text-[14px] border border-gray-400 rounded-[8px] px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none"
-                        placeholder="Enter your password"
+                        placeholder="enter your password"
                     />
                 </div>
                 {/* Create Account Button */}
-                <button onClick={handleLogin} className="w-[300px] text-[14px] mt-4 bg-purple-600 text-white font-medium py-2 rounded-[8px] hover:bg-purple-500 transition">
+                <button onClick={handleLogin} className="cursor-pointer w-[300px] text-[14px] mt-4 bg-purple-600 text-white font-medium py-2 rounded-[8px] hover:bg-purple-500 transition">
                     Sign in
                 </button>
 
@@ -87,7 +89,7 @@ export default function Signin() {
                 </div>
 
                 {/* Continue with Google */}
-                <button className="w-[300px] text-[14px] border border-gray-300 flex items-center justify-center gap-2 py-2 rounded-[8px] hover:bg-gray-100 transition">
+                <button className="cursor-pointer w-[300px] text-[14px] border border-gray-300 flex items-center justify-center gap-2 py-2 rounded-[8px] hover:bg-gray-100 transition">
                     <img
                         src="https://www.svgrepo.com/show/475656/google-color.svg"
                         alt="Google"
@@ -103,7 +105,7 @@ export default function Signin() {
                         terms
                     </a>{" "}
                     and{" "}
-                    <a href="#" className="text-[14px] text-purple-600 hover:underline">
+                    <a href="#" className="text-[14px] text-purple-500 hover:underline">
                         privacy policy
                     </a>
                     .
@@ -112,7 +114,7 @@ export default function Signin() {
                 {/* Already have an account */}
                 <p className="text-[13px] text-center mt-4">
                     Don't have an account?{" "}
-                    <Link to="/signup" className="text-purple-600 font-medium hover:underline text-[14px]" >
+                    <Link to="/signup" className="text-purple-500 font-medium hover:underline text-[14px]" >
                         Sign up
                     </Link>
                 </p>

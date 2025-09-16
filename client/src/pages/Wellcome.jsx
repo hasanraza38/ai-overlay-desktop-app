@@ -1,12 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
+import Topbar from "../components/Topbar";
+// from-purple-100 via-white to-purple-50
 export default function Wellcome() {
-    return (
-        // <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 via-white to-purple-50">
+    return (<>
+
+        <div className="min-h-screen bg-white opacity-100">
+            <Topbar />
             <div
-               
-                className="text-center p-10 bg-white rounded-2xl w-full mt-28"
+                className="flex flex-col items-center justify-center text-center p-10 bg-white rounded-2xl w-full mt-28 "
             >
                 {/* Heading */}
                 <h1 className="text-3xl font-bold text-gray-800 mb-3">
@@ -38,6 +40,8 @@ export default function Wellcome() {
                     Powered by <span className="font-medium text-purple-500">AI Overlay</span>
                 </p>
             </div>
-        // </div>
+        </div>
+
+    </>
     );
 }
