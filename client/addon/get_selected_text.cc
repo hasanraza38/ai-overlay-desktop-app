@@ -41,9 +41,9 @@ Napi::String GetSelectedText(const Napi::CallbackInfo& info) {
         return Napi::String::New(env, "");
     }
 
-    BSTR selectedText;
-    hr = pTextPattern->GetSelection(&selectedText);
-    if (FAILED(hr)) {
+    IUIAutomationTextRangeArray* pRangeArray = NULL;
+    hr = pTextPattern->GetSelection(&pRangeArray);
+    if (FAILED(hr) || pRangeArray == NULL) {
         pTextPattern->Release();
         pFocused->Release();
         pRoot->Release();
@@ -52,17 +52,38 @@ Napi::String GetSelectedText(const Napi::CallbackInfo& info) {
         return Napi::String::New(env, "");
     }
 
-    std::wstring ws(selectedText);
-    std::string result(ws.begin(), ws.end());
-    SysFreeString(selectedText);
+    int count = 0;  // Change LONG to int here to match the API signature
+    hr = pRangeArray->get_Length(&count);
+    if (SUCCEEDED(hr) && count > 0) {
+        IUIAutomationTextRange* pRange = NULL;
+        hr = pRangeArray->GetElement(0, &pRange); // First selected range
+        if (SUCCEEDED(hr) && pRange != NULL) {
+            BSTR selectedText = NULL;
+            hr = pRange->GetText(-1, &selectedText); // -1 for full text
+            if (SUCCEEDED(hr) && selectedText != NULL) {
+                std::wstring ws(selectedText);
+                std::string result(ws.begin(), ws.end());
+                SysFreeString(selectedText);
+                pRange->Release();
+                pRangeArray->Release();
+                pTextPattern->Release();
+                pFocused->Release();
+                pRoot->Release();
+                pAutomation->Release();
+                CoUninitialize();
+                return Napi::String::New(env, result.c_str());
+            }
+            pRange->Release();
+        }
+    }
 
+    pRangeArray->Release();
     pTextPattern->Release();
     pFocused->Release();
     pRoot->Release();
     pAutomation->Release();
     CoUninitialize();
-
-    return Napi::String::New(env, result.c_str());
+    return Napi::String::New(env, "");
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {

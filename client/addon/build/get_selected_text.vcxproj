@@ -48,7 +48,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\include\node;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\src;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\config;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\openssl\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\uv\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\zlib;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\v8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\include\node;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\src;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\config;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\openssl\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\uv\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\zlib;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\v8\include;E:\Bootcamp-2.0\ai-overlay\client\node_modules\node-addon-api;E:Bootcamp-2.0ai-overlayclientaddonnode_moduleselectrondistincludeelectron37.4.0node;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -std:c++20 /Zm2000 %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -60,7 +60,7 @@
       <OmitFramePointers>false</OmitFramePointers>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=get_selected_text;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;_GLIBCXX_USE_CXX11_ABI=1;_FILE_OFFSET_BITS=64;ELECTRON_ENSURE_CONFIG_GYPI;USING_ELECTRON_CONFIG_GYPI;V8_COMPRESS_POINTERS;V8_COMPRESS_POINTERS_IN_SHARED_CAGE;V8_31BIT_SMIS_ON_64BIT_ARCH;V8_ENABLE_SANDBOX;V8_EXTERNAL_CODE_SPACE;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;NOMINMAX;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;OPENSSL_NO_ASM;BUILDING_NODE_EXTENSION;HOST_BINARY=&quot;node.exe&quot;;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=get_selected_text;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;_GLIBCXX_USE_CXX11_ABI=1;_FILE_OFFSET_BITS=64;ELECTRON_ENSURE_CONFIG_GYPI;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;NOMINMAX;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;NAPI_DISABLE_CPP_EXCEPTIONS;BUILDING_NODE_EXTENSION;HOST_BINARY=&quot;node.exe&quot;;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StringPooling>true</StringPooling>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -84,13 +84,13 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\include\node;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\src;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\config;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\openssl\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\uv\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\zlib;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\v8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=get_selected_text;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;_GLIBCXX_USE_CXX11_ABI=1;_FILE_OFFSET_BITS=64;ELECTRON_ENSURE_CONFIG_GYPI;USING_ELECTRON_CONFIG_GYPI;V8_COMPRESS_POINTERS;V8_COMPRESS_POINTERS_IN_SHARED_CAGE;V8_31BIT_SMIS_ON_64BIT_ARCH;V8_ENABLE_SANDBOX;V8_EXTERNAL_CODE_SPACE;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;NOMINMAX;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;OPENSSL_NO_ASM;BUILDING_NODE_EXTENSION;HOST_BINARY=&quot;node.exe&quot;;DEBUG;_DEBUG;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\include\node;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\src;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\config;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\openssl\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\uv\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\zlib;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\v8\include;E:\Bootcamp-2.0\ai-overlay\client\node_modules\node-addon-api;E:Bootcamp-2.0ai-overlayclientaddonnode_moduleselectrondistincludeelectron37.4.0node;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=get_selected_text;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;_GLIBCXX_USE_CXX11_ABI=1;_FILE_OFFSET_BITS=64;ELECTRON_ENSURE_CONFIG_GYPI;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;NOMINMAX;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;NAPI_DISABLE_CPP_EXCEPTIONS;BUILDING_NODE_EXTENSION;HOST_BINARY=&quot;node.exe&quot;;DEBUG;_DEBUG;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\include\node;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\src;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\config;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\openssl\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\uv\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\zlib;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\v8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\include\node;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\src;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\config;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\openssl\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\uv\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\zlib;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\v8\include;E:\Bootcamp-2.0\ai-overlay\client\node_modules\node-addon-api;E:Bootcamp-2.0ai-overlayclientaddonnode_moduleselectrondistincludeelectron37.4.0node;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -std:c++20 /Zm2000 %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
@@ -104,7 +104,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <Optimization>Full</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=get_selected_text;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;_GLIBCXX_USE_CXX11_ABI=1;_FILE_OFFSET_BITS=64;ELECTRON_ENSURE_CONFIG_GYPI;USING_ELECTRON_CONFIG_GYPI;V8_COMPRESS_POINTERS;V8_COMPRESS_POINTERS_IN_SHARED_CAGE;V8_31BIT_SMIS_ON_64BIT_ARCH;V8_ENABLE_SANDBOX;V8_EXTERNAL_CODE_SPACE;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;NOMINMAX;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;OPENSSL_NO_ASM;BUILDING_NODE_EXTENSION;HOST_BINARY=&quot;node.exe&quot;;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=get_selected_text;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;_GLIBCXX_USE_CXX11_ABI=1;_FILE_OFFSET_BITS=64;ELECTRON_ENSURE_CONFIG_GYPI;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;NOMINMAX;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;NAPI_DISABLE_CPP_EXCEPTIONS;BUILDING_NODE_EXTENSION;HOST_BINARY=&quot;node.exe&quot;;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <StringPooling>true</StringPooling>
@@ -129,8 +129,8 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\include\node;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\src;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\config;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\openssl\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\uv\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\zlib;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\v8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=get_selected_text;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;_GLIBCXX_USE_CXX11_ABI=1;_FILE_OFFSET_BITS=64;ELECTRON_ENSURE_CONFIG_GYPI;USING_ELECTRON_CONFIG_GYPI;V8_COMPRESS_POINTERS;V8_COMPRESS_POINTERS_IN_SHARED_CAGE;V8_31BIT_SMIS_ON_64BIT_ARCH;V8_ENABLE_SANDBOX;V8_EXTERNAL_CODE_SPACE;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;NOMINMAX;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;OPENSSL_NO_ASM;BUILDING_NODE_EXTENSION;HOST_BINARY=&quot;node.exe&quot;;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\include\node;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\src;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\config;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\openssl\openssl\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\uv\include;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\zlib;C:\Users\Dell\AppData\Local\node-gyp\Cache\37.4.0\deps\v8\include;E:\Bootcamp-2.0\ai-overlay\client\node_modules\node-addon-api;E:Bootcamp-2.0ai-overlayclientaddonnode_moduleselectrondistincludeelectron37.4.0node;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=get_selected_text;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;_GLIBCXX_USE_CXX11_ABI=1;_FILE_OFFSET_BITS=64;ELECTRON_ENSURE_CONFIG_GYPI;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;NOMINMAX;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;NAPI_DISABLE_CPP_EXCEPTIONS;BUILDING_NODE_EXTENSION;HOST_BINARY=&quot;node.exe&quot;;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -141,6 +141,12 @@
       <ObjectFileName>$(IntDir)\get_selected_text.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="C:\Users\Dell\AppData\Roaming\npm\node_modules\node-gyp\src\win_delay_load_hook.cc"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\node_modules\node-addon-api\nothing.vcxproj">
+      <Project>{228E4C7E-A5BA-81D6-240D-47AB44851B89}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
   <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>
