@@ -6,6 +6,7 @@ import {
   Menu,
   clipboard,
 } from "electron";
+import { ipcMain } from "electron";
 import { screen } from "electron/main";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -24,6 +25,8 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: windowWidth,
     height: windowHeight,
+    frame: false, //  ye top bar (title bar + borders) hata dega
+    titleBarStyle: "hidden", // macOS ke liye (optional)
     alwaysOnTop: true,
     show: false,
     resizable: false,
@@ -37,6 +40,8 @@ function createWindow() {
       nodeIntegration: false,
     },
   });
+
+  mainWindow.setMenuBarVisibility(false);
 
   mainWindow.loadFile(path.join(__dirname, "../../dist-react/index.html"));
 
@@ -55,6 +60,10 @@ function createWindow() {
 
   mainWindow.webContents.once("did-finish-load", () => {
     console.log("Content loaded successfully");
+
+    mainWindow.webContents.setZoomFactor(1);
+    mainWindow.webContents.setVisualZoomLevelLimits(1, 1);
+
     const initialText = clipboard.readText();
     if (initialText) {
       mainWindow.webContents.send("clipboard-update", initialText);
@@ -65,6 +74,30 @@ function createWindow() {
 app.whenReady().then(() => {
   clipboard.clear();
   createWindow();
+
+  app.on("browser-window-created", (event, window) => {
+    window.webContents.on("before-input-event", (event, input) => {
+      const zoomCodes = [
+        "Equal",
+        "Minus",
+        "Digit0",
+        "NumpadAdd",
+        "NumpadSubtract",
+        "Numpad0",
+      ];
+      if ((input.control || input.meta) && zoomCodes.includes(input.code)) {
+        event.preventDefault();
+        console.log("Zoom shortcut blocked:", input.code);
+      }
+    });
+  });
+
+  ipcMain.on("window-close", () => mainWindow.close());
+  ipcMain.on("window-minimize", () => mainWindow.minimize());
+  ipcMain.on("window-maximize", () => {
+    if (mainWindow.isMaximized()) mainWindow.unmaximize();
+    else mainWindow.maximize();
+  });
 
   let tray;
   const iconPath = path.join(app.getAppPath(), "src", "assets", "icons.png");

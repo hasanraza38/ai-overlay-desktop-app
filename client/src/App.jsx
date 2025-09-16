@@ -9,11 +9,13 @@ export default function App() {
   return (
 
     <>
+
       {/* <Wellcome/> */}
       <ChatSection/>
       {/* <Wellcome />
       <Signup />
       <Signin /> */}
+
 
       {/* <Routes>
         <Route path="/" element={  <Wellcome />} />
@@ -21,5 +23,7 @@ export default function App() {
         <Route path="/signin" element={<Signin />} />
       </Routes> */}
     </>
+
+    // /api/v1/auth/login
   )
 }
