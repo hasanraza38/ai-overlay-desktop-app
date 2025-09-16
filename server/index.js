@@ -14,7 +14,6 @@ import helmet from "helmet";
 dotenv.config()
 const app = express()
 const port = process.env.PORT || 4000
-const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(helmet());
 app.use(morgan("dev"));
@@ -23,18 +22,20 @@ app.use(session({ secret: 'keyboard cat', resave: false, saveUninitialized: true
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/api/auth', authRoutes);
-app.use("/api/chatbot", chatbotRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use("/api/v1/chatbot", chatbotRoutes);
 
 
-
+app.get("/api/v1", (req, res) => {
+    res.send("API is running...")
+});
 
 
 
 connectDB()
 .then(() => {
      app.listen(port, () => {
-        console.log(`⚙️  Server is running at port : ${port}`);
+    console.log(`Server is running at port : ${port}`);
 });
 })
 .catch((err) => {
