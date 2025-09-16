@@ -97,7 +97,7 @@ app.whenReady().then(() => {
     if (!text || text.trim() === "" || text === lastText) return;
 
     lastText = text;
-    console.log("Copied text:", text);
+    // console.log("Copied text:", text);
 
     if (mainWindow && mainWindow.webContents) {
       mainWindow.webContents.send("clipboard-update", text);
