@@ -2,15 +2,16 @@ import React, { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { api } from "../Instance/api";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import Topbar from "../components/Topbar";
 
 export default function Signup() {
 
+    const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         email: "",
         name: "",
         password: "",
     });
-
 
 
     const navigate = useNavigate();
@@ -21,6 +22,8 @@ export default function Signup() {
             [e.target.name]: e.target.value,
         });
     }
+
+
 
     const handleSignup = async (event) => {
         event.preventDefault();
@@ -35,11 +38,12 @@ export default function Signup() {
     }
 
 
+
     const handleGoogleSuccess = async (credentialResponse) => {
         console.log("Google JWT Token:", credentialResponse.credential);
 
         try {
-            const response = await api.get("auth/google", { token: credentialResponse.credential});
+            const response = await api.get("auth/google", { token: credentialResponse.credential });
 
             console.log("Google Auth Success:", response.data);
         } catch (error) {
@@ -50,6 +54,7 @@ export default function Signup() {
 
     return (
         <div className=" bg-white">
+            <Topbar />
             <div className="flex flex-col items-center justify-center w-full bg-white rounded-xl p-10 mt-3.5 ">
                 <h1 className="text-3xl font-bold text-purple-600">Ai Overlay</h1>
 
@@ -93,16 +98,23 @@ export default function Signup() {
                         Password
                     </label>
                     <input
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
                         className="w-[300px] h-[40px] text-[14px] border border-gray-400 rounded-[8px] px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none"
                         placeholder="enter your password"
                     />
+                    <button
+                        type="button"
+                        className="absolute right-13 top-1/2 transform -translate-y-1/2 text-sm font-medium text-gray-600 hover:text-gray-700"
+                        onClick={() => setShowPassword(!showPassword)}
+                    >
+                        {showPassword ? "Hide" : "Show"}
+                    </button>
                 </div>
                 {/* Create Account Button */}
-                <button onClick={handleSignup} className="w-[300px] text-[14px] mt-1 bg-purple-600 text-white font-medium py-2 rounded-[8px] hover:bg-purple-500 transition">
+                <button onClick={handleSignup} className="cursor-pointer w-[300px] text-[14px] mt-1 bg-purple-600 text-white font-medium py-2 rounded-[8px] hover:bg-purple-500 transition">
                     Create Free Account
                 </button>
 
@@ -114,7 +126,8 @@ export default function Signup() {
                 </div>
 
                 {/* Continue with Google */}
-                <button onClick={handleGoogleSuccess} className="w-[300px] border border-gray-300 flex items-center justify-center gap-2 py-2 rounded-[8px] hover:bg-gray-100 transition">
+
+                <button onClick={handleGoogleSuccess} className="cursor-pointer w-[300px]  border border-gray-300 flex items-center justify-center gap-2 py-2 rounded-[8px] hover:bg-gray-100 transition">
                     <img
                         src="https://www.svgrepo.com/show/475656/google-color.svg"
                         alt="Google"
@@ -122,6 +135,7 @@ export default function Signup() {
                     />
                     <span className="text-gray-700 font-medium text-[14px] ">Continue With Google</span>
                 </button>
+
 
                 {/* Footer */}
                 <p className="text-[13px] text-gray-500 text-center mt-4">

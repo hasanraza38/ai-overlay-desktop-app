@@ -23,6 +23,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
     return () => {
       ipcRenderer.removeListener("clipboard-update", handleUpdate);
     };
-  }
+  },
+
+  closeApp: () => ipcRenderer.send("window-close"),
+  minimizeApp: () => ipcRenderer.send("window-minimize"),
+  maximizeApp: () => ipcRenderer.send("window-maximize"),
 });
 
