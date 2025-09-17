@@ -13,23 +13,50 @@ export const getChatbotResponse = async (req, res) => {
       return res.status(400).json({ error: "User input is required" });
     }
 
-    // Headers set for streaming
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
-    const combinedPrompt = context
-      ? `${context}\n\nUser: ${userInput}`
-      : userInput;
-      
-      
-    // console.log(combinedPrompt);
-      
+    const combinedPrompt = `
+You are an AI assistant integrated into a universal overlay desktop application.
+This overlay can be opened on any app (e.g., VSCode, Gmail, Docs, Browser).
+Your job is to always provide responses in a **well-structured, professional, and human-friendly format**.
+
+### Response Guidelines:
+1. **Adaptive Style**
+   - If the query is about **programming or technical tasks**:
+     - Explain step by step.
+     - Use clear section headings.
+     - Add properly formatted code snippets only where necessary.
+   - If the query is about **non-technical tasks** (emails, content writing, explanations, etc.):
+     - Do not show code unnecessarily.
+     - Present the answer in a neat format with headings, bullets, or numbered steps.
+
+2. **Formatting**
+   - Use clear headings (### or bold).
+   - Add line breaks between sections for readability.
+   - Keep tone professional but simple to understand.
+
+3. **Examples**
+   - For a coding query like: "How to create a React JS project"
+     → Show Introduction, Step-by-step guide, and Code blocks.
+   - For a writing query like: "Write an email to my manager"
+     → Show Subject line, Greeting, Body, and Closing in a professional email format (no code).
+
+4. **Important**
+   - Never mix code in non-coding tasks.
+   - Never leave a response in a single paragraph — always format with structure.
+   - Focus on user intent and adapt accordingly.
+   
+   User request:
+   ${context ? `${context}\n\n` : ""}${userInput}
+`;
+
 
     const stream = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [
-        { role: "system", content: "You are a helpful AI chatbot." },
+        { role: "system", content: "You are a helpful professional multi language AI assistant." },
         { role: "user", content: combinedPrompt },
       ],
       stream: true,
@@ -49,6 +76,7 @@ export const getChatbotResponse = async (req, res) => {
     res.status(500).json({ error: "Something went wrong" });
   }
 };
+
 
 
 export const getChatsByUser = async (req, res) => {
