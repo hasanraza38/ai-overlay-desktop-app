@@ -23,15 +23,17 @@ export default function Signup() {
         });
     }
 
-
-
     const handleSignup = async (event) => {
         event.preventDefault();
         try {
             const response = await api.post("auth/register", formData);
             console.log("Registration Success:", response.data);
+            let token = response.data.token
+            console.log(token)
 
-            navigate("/signin");
+            window.electronAPI.saveToken(token);
+
+            // navigate("/signin");
         } catch (error) {
             console.error("Registration Error:", error.response?.data || error)
         }
