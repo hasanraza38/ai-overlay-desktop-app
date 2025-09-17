@@ -33,7 +33,7 @@ export default function Signup() {
 
             window.electronAPI.saveToken(token);
 
-            // navigate("/signin");
+            navigate("/chatbot");
         } catch (error) {
             console.error("Registration Error:", error.response?.data || error)
         }

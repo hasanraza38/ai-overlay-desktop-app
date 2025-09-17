@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "../Instance/api";
 import { useState } from "react";
 import Topbar from "../components/Topbar";
@@ -7,10 +7,13 @@ import Topbar from "../components/Topbar";
 
 export default function Signin() {
 
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         email: "",
         password: "",
     });
+
 
     const handleChange = (event) => {
         setFormData((prev) => ({
@@ -24,8 +27,9 @@ export default function Signin() {
 
         try {
             const response = await api.post("auth/login", formData);
-             console.log("Login Success:", response.data);
-
+            console.log("Login Success:", response.data);
+            window.electronAPI.saveToken(token);
+            navigate("/chatbot");
         } catch (error) {
             console.error("Login Error:", error.response?.data || error);
 
@@ -35,7 +39,7 @@ export default function Signin() {
 
     return (
         <div className=" bg-white">
-             <Topbar />
+            <Topbar />
             <div className="flex flex-col items-center justify-center w-full bg-white rounded-xl p-10 mt-7">
                 {/* <h1 className="text-2xl font-bold text-center mb-8">
                   Sign in to your Ai Overlay account
@@ -54,8 +58,8 @@ export default function Signin() {
                     </label>
                     <input
                         type="email"
-                        name="email"       
-                        value={formData.email}  
+                        name="email"
+                        value={formData.email}
                         onChange={handleChange}
                         className="w-[300px] h-[40px] text-[14px] border border-gray-400 rounded-[8px] px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none"
                         placeholder="enter your email"
@@ -69,8 +73,8 @@ export default function Signin() {
                     </label>
                     <input
                         type="password"
-                        name="password"        
-                        value={formData.password}  
+                        name="password"
+                        value={formData.password}
                         onChange={handleChange}
                         className="w-[300px] text-[14px] border border-gray-400 rounded-[8px] px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none"
                         placeholder="enter your password"
