@@ -1,5 +1,10 @@
 const { contextBridge, ipcRenderer, clipboard } = require("electron");
 
+
+console.log(
+  'preload js file show'
+);
+
 contextBridge.exposeInMainWorld("electronAPI", {
   readClipboard: () => {
     try {
@@ -28,5 +33,26 @@ contextBridge.exposeInMainWorld("electronAPI", {
   closeApp: () => ipcRenderer.send("window-close"),
   minimizeApp: () => ipcRenderer.send("window-minimize"),
   maximizeApp: () => ipcRenderer.send("window-maximize"),
+
+  // functions for token handling
+  saveToken: (token) => {
+    try {
+      console.log('Sending token to main process:', token);
+      ipcRenderer.send("save-token", token);
+    } catch (error) {
+      console.error('Error sending token in preload:', error);
+    }
+  },
+  
+  getToken: async () => {
+    try {
+      const token = await ipcRenderer.invoke("get-token");
+      console.log('Token retrieved in preload:', token ? 'Available' : 'Not found');
+      return token;
+    } catch (error) {
+      console.error('Error retrieving token in preload:', error);
+      return null;
+    }
+  },
 });
 
