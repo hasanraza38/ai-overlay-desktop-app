@@ -2,11 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import {
   FiSidebar,
   FiMessageSquare,
-  FiMaximize2,
+  // FiMaximize2,
+  // FiPause,
   FiX,
+  FiPauseCircle,
 } from "react-icons/fi";
 import { BiConversation } from "react-icons/bi";
 import { Plus, Send } from "lucide-react";
+import Topbar from "../components/Topbar";
 
 // Streaming function
 async function streamGroqResponse(userMessage, onChunk, onDone) {
@@ -149,6 +152,7 @@ const handleSend = async () => {
 
   return (
     <div className="h-screen flex flex-col bg-white text-gray-900">
+      <Topbar/>
       {/* Top Bar */}
       <div className="flex justify-between items-center p-3 bg-white border-b border-gray-200 shadow-sm">
         <button
@@ -161,7 +165,7 @@ const handleSend = async () => {
         <div className="flex gap-5 text-gray-500">
           <button className="hover:text-black"><FiSidebar size={18} /></button>
           <button className="hover:text-black"><FiMessageSquare size={18} /></button>
-          <button className="hover:text-black"><FiMaximize2 size={18} /></button>
+          {/* <button className="hover:text-black"><FiMaximize2 size={18} /></button> */}
         </div>
       </div>
 
@@ -225,6 +229,8 @@ const handleSend = async () => {
   onKeyDown={handleKeyDown}
   rows="1"
   placeholder="Message Chatbot..."
+  autoComplete="off"
+  autoCorrect="off"
   className="w-full border border-gray-300 rounded-lg pl-10 pr-10 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500"
   style={{ minHeight: "40px", maxHeight: "200px" }}
   disabled={isStreaming}
@@ -238,9 +244,9 @@ const handleSend = async () => {
       tokenQueue.current = [];
       setIsStreaming(false);
     }}
-    className="absolute right-3 bottom-2 text-red-600 hover:text-red-800"
-  >
-    Stop
+    className="absolute right-4 bottom-2 hover:text-gray-900"
+    >
+    <FiPauseCircle size={20} />
   </button>
 ) : (
   <button
@@ -260,7 +266,7 @@ const handleSend = async () => {
     document.getElementById("alertmsg").innerText = ""; // clear msg if any
     handleSend();
   }}
-  className="absolute right-3 bottom-2 text-blue-600 hover:text-blue-800"
+  className="absolute right-4 bottom-2 text-blue-600 hover:text-blue-800"
 >
   <Send size={20} />
   </button>
@@ -272,7 +278,7 @@ const handleSend = async () => {
 
       {/* Context Sidebar */}
       {showContext && (
-        <div className="absolute top-0 left-0 w-72 h-full bg-white border-r border-gray-200 shadow-lg p-4 flex flex-col">
+        <div className="absolute top-11 left-0 w-72 h-[656px] bg-white border-r border-gray-200 shadow-lg p-4 flex flex-col">
           <div className="flex justify-between items-center border-b border-gray-200 pb-2">
             <h2 className="text-lg font-semibold">Chats History</h2>
             <button
