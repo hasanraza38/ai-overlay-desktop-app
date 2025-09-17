@@ -1,7 +1,5 @@
 import React from 'react'
-
 import ChatSection from './pages/ChatSection'
-
 import Signup from './pages/Signup'
 import Signin from './pages/Signin'
 import Wellcome from './pages/Wellcome'
@@ -15,11 +13,11 @@ export default function App() {
   
 
       <Routes>
-        <Topbar/>
+       
         <Route path="/" element={  <Wellcome />} />
         <Route path="/signup" element={ <Signup />} />
         <Route path="/signin" element={<Signin />} />
-      </Routes> */}
+      </Routes>
     </>
 
 
