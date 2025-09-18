@@ -180,3 +180,6 @@ app.on("will-quit", () => {
   clipboard.clear();
   globalShortcut.unregisterAll();
 });
+
+
+
