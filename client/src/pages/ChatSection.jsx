@@ -43,7 +43,7 @@ async function streamGroqResponse(userMessage, onChunk, onDone) {
           const json = JSON.parse(data);
           const token = json.token;
           if (token) onChunk(token);
-        } catch {}
+        } catch { }
       }
     }
   }
@@ -93,29 +93,42 @@ export default function Chatbot() {
   };
 
   const tokenQueue = useRef([]);
-const streamingInterval = useRef(null);
-// const [isStreaming, setIsStreaming] = useState(false);
+  const streamingInterval = useRef(null);
+  // const [isStreaming, setIsStreaming] = useState(false);
 
-const handleSend = async () => {
-  if (!input.trim() || isStreaming) return;
+  const handleSend = async () => {
+    if (!input.trim() || isStreaming) return;
 
-  const userMessage = { role: "user", content: input };
-  setMessages((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
-  setInput("");
-  setIsStreaming(true);
+    const userMessage = { role: "user", content: input };
+    setMessages((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
+    setInput("");
+    setIsStreaming(true);
 
-  const onChunk = (token) => {
-    tokenQueue.current.push(token);
-  };
+    const onChunk = (token) => {
+      tokenQueue.current.push(token);
+    };
 
-  const onDone = () => {
-    // flush remaining tokens
-    const flushInterval = setInterval(() => {
-      if (tokenQueue.current.length === 0) {
-        clearInterval(flushInterval);
-        clearInterval(streamingInterval.current);
-        setIsStreaming(false);
-      } else {
+    const onDone = () => {
+      // flush remaining tokens
+      const flushInterval = setInterval(() => {
+        if (tokenQueue.current.length === 0) {
+          clearInterval(flushInterval);
+          clearInterval(streamingInterval.current);
+          setIsStreaming(false);
+        } else {
+          const token = tokenQueue.current.shift();
+          setMessages((prev) => {
+            const updated = [...prev];
+            updated[updated.length - 1].content += token;
+            return updated;
+          });
+        }
+      }, 50);
+    };
+
+    // typing effect interval
+    streamingInterval.current = setInterval(() => {
+      if (tokenQueue.current.length > 0) {
         const token = tokenQueue.current.shift();
         setMessages((prev) => {
           const updated = [...prev];
@@ -123,23 +136,10 @@ const handleSend = async () => {
           return updated;
         });
       }
-    }, 50);
+    }, 40);
+
+    await streamGroqResponse(input, onChunk, onDone);
   };
-
-  // typing effect interval
-  streamingInterval.current = setInterval(() => {
-    if (tokenQueue.current.length > 0) {
-      const token = tokenQueue.current.shift();
-      setMessages((prev) => {
-        const updated = [...prev];
-        updated[updated.length - 1].content += token;
-        return updated;
-      });
-    }
-  }, 40);
-
-  await streamGroqResponse(input, onChunk, onDone);
-};
 
 
 
@@ -154,57 +154,45 @@ const handleSend = async () => {
     <div className="h-screen flex flex-col bg-white text-gray-900">
       <Topbar/>
       {/* Top Bar */}
-      <div className="flex justify-between items-center p-3 bg-white border-b border-gray-200 shadow-sm">
-        <button
-          onClick={() => setShowContext(true)}
-          className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-md hover:bg-gray-200"
-        >
-          <BiConversation size={18} />
-          <span>Chats</span>
-        </button>
-        <div className="flex gap-5 text-gray-500">
-          <button className="hover:text-black"><FiSidebar size={18} /></button>
-          <button className="hover:text-black"><FiMessageSquare size={18} /></button>
-          {/* <button className="hover:text-black"><FiMaximize2 size={18} /></button> */}
-        </div>
-      </div>
+
+      <Topbar />
+
 
       {/* Chat Body */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col">
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`p-3 rounded-lg max-w-[90%] break-words ${
-              msg.role === "user"
-                ? "bg-gray-200 text-gray-900 self-end"
-                : "bg-white text-black border border-gray-200 self-start"
-            }`}
+            className={`p-3 rounded-lg max-w-[90%] break-words ${msg.role === "user"
+              ? "bg-gray-200 text-gray-900 self-end"
+              : "bg-white text-black border border-gray-200 self-start"
+              }`}
           >
             {msg.role === "assistant"
               ? parseResponse(msg.content).map((block, idx) => {
-                  if (block.type === "heading") {
-                    return (
-                      <h2 key={idx} className="text-lg font-semibold mt-2 mb-1">
-                        {block.content}
-                      </h2>
-                    );
-                  }
-                  if (block.type === "code") {
-                    return (
-                      <pre
-                        key={idx}
-                        className="bg-gray-900 text-green-200 text-sm p-3 rounded-md overflow-x-auto my-2"
-                      >
-                        <code>{block.content.trim()}</code>
-                      </pre>
-                    );
-                  }
+                if (block.type === "heading") {
                   return (
-                    <p key={idx} className="text-sm leading-relaxed whitespace-pre-wrap">
-                      {block.content.trim()}
-                    </p>
+                    <h2 key={idx} className="text-lg font-semibold mt-2 mb-1">
+                      {block.content}
+                    </h2>
                   );
-                })
+                }
+                if (block.type === "code") {
+                  return (
+                    <pre
+                      key={idx}
+                      className="bg-gray-900 text-green-200 text-sm p-3 rounded-md overflow-x-auto my-2"
+                    >
+                      <code>{block.content.trim()}</code>
+                    </pre>
+                  );
+                }
+                return (
+                  <p key={idx} className="text-sm leading-relaxed whitespace-pre-wrap">
+                    {block.content.trim()}
+                  </p>
+                );
+              })
               : msg.content}
           </div>
         ))}
@@ -223,57 +211,59 @@ const handleSend = async () => {
           </button>
 
           {/* Textarea */}
-         <textarea
-  value={input}
-  onChange={(e) => setInput(e.target.value)}
-  onKeyDown={handleKeyDown}
-  rows="1"
-  placeholder="Message Chatbot..."
-  autoComplete="off"
-  autoCorrect="off"
-  className="w-full border border-gray-300 rounded-lg pl-10 pr-10 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500"
-  style={{ minHeight: "40px", maxHeight: "200px" }}
-  disabled={isStreaming}
-/>
 
-{/* Send / Stop Button */}
-{isStreaming ? (
-  <button
-   onClick={() => {
-      clearInterval(streamingInterval.current);
-      tokenQueue.current = [];
-      setIsStreaming(false);
-    }}
-    className="absolute right-4 bottom-2 hover:text-gray-900"
-    >
-    <FiPauseCircle size={20} />
-  </button>
-) : (
-  <button
-    onClick={() => {
-    if (!input.trim()) {
-      const msgDiv = document.getElementById("alertmsg");
-      msgDiv.innerText = "Please enter a message before sending.";
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            rows="1"
+            placeholder="Message Chatbot..."
+            className="w-full border border-gray-300 rounded-lg pl-10 pr-10 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500"
+            style={{ minHeight: "40px", maxHeight: "200px" }}
+            disabled={isStreaming}
+          />
 
-      // 3 seconds baad auto clear
-      setTimeout(() => {
-        msgDiv.innerText = "";
-      }, 3000);
+          {/* Send / Stop Button */}
+          {isStreaming ? (
+            <button
+              onClick={() => {
+                clearInterval(streamingInterval.current);
+                tokenQueue.current = [];
+                setIsStreaming(false);
+              }}
+              className="absolute right-3 bottom-2 text-red-600 hover:text-red-800"
+            >
+              Stop
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                if (!input.trim()) {
+                  const msgDiv = document.getElementById("alertmsg");
+                  msgDiv.innerText = "Please enter a message before sending.";
 
-      return;
-    }
 
-    document.getElementById("alertmsg").innerText = ""; // clear msg if any
-    handleSend();
-  }}
-  className="absolute right-4 bottom-2 text-blue-600 hover:text-blue-800"
->
-  <Send size={20} />
-  </button>
-)}
+                  // 3 seconds baad auto clear
+                  setTimeout(() => {
+                    msgDiv.innerText = "";
+                  }, 3000);
+
+                  return;
+                }
+
+
+                document.getElementById("alertmsg").innerText = ""; // clear msg if any
+                handleSend();
+              }}
+              className="absolute right-3 bottom-2 text-blue-600 hover:text-blue-800"
+            >
+              <Send size={20} />
+            </button>
+          )}
+
 
         </div>
-        <div id="alertmsg" class="text-red-500 text-sm mt-1"></div>
+        <div id="alertmsg" className="text-red-500 text-sm mt-1"></div>
       </div>
 
       {/* Context Sidebar */}
