@@ -152,11 +152,9 @@ export default function Chatbot() {
 
   return (
     <div className="h-screen flex flex-col bg-white text-gray-900">
-      <Topbar/>
+
       {/* Top Bar */}
-
       <Topbar />
-
 
       {/* Chat Body */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col">
@@ -286,3 +284,17 @@ export default function Chatbot() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

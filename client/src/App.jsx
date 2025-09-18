@@ -49,3 +49,9 @@ function App() {
 }
 
 export default App;
+
+
+// change topbar like cortex
+// dark mood add in app
+// app resiable after login signup
+// add copy icone in chat code code section
