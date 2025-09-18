@@ -6,9 +6,13 @@ import {
   // FiPause,
   FiX,
   FiPauseCircle,
+  FiCopy,
+  FiArrowUpCircle,
+  FiArrowUp,
+  FiStopCircle,
 } from "react-icons/fi";
 import { BiConversation } from "react-icons/bi";
-import { Plus, Send } from "lucide-react";
+import { ArrowBigUp, Plus, Send } from "lucide-react";
 import Topbar from "../components/Topbar";
 
 // Streaming function
@@ -54,6 +58,7 @@ export default function Chatbot() {
   const [input, setInput] = useState("");
   const [showContext, setShowContext] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [copied, setCopied] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Auto scroll
@@ -93,29 +98,46 @@ export default function Chatbot() {
   };
 
   const tokenQueue = useRef([]);
-const streamingInterval = useRef(null);
-// const [isStreaming, setIsStreaming] = useState(false);
+  const streamingInterval = useRef(null);
+  // const [isStreaming, setIsStreaming] = useState(false);
 
-const handleSend = async () => {
-  if (!input.trim() || isStreaming) return;
+  const handleSend = async () => {
+    if (!input.trim() || isStreaming) return;
 
-  const userMessage = { role: "user", content: input };
-  setMessages((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
-  setInput("");
-  setIsStreaming(true);
+    const userMessage = { role: "user", content: input };
+    setMessages((prev) => [
+      ...prev,
+      userMessage,
+      { role: "assistant", content: "" },
+    ]);
+    setInput("");
+    setIsStreaming(true);
 
-  const onChunk = (token) => {
-    tokenQueue.current.push(token);
-  };
+    const onChunk = (token) => {
+      tokenQueue.current.push(token);
+    };
 
-  const onDone = () => {
-    // flush remaining tokens
-    const flushInterval = setInterval(() => {
-      if (tokenQueue.current.length === 0) {
-        clearInterval(flushInterval);
-        clearInterval(streamingInterval.current);
-        setIsStreaming(false);
-      } else {
+    const onDone = () => {
+      // flush remaining tokens
+      const flushInterval = setInterval(() => {
+        if (tokenQueue.current.length === 0) {
+          clearInterval(flushInterval);
+          clearInterval(streamingInterval.current);
+          setIsStreaming(false);
+        } else {
+          const token = tokenQueue.current.shift();
+          setMessages((prev) => {
+            const updated = [...prev];
+            updated[updated.length - 1].content += token;
+            return updated;
+          });
+        }
+      }, 50);
+    };
+
+    // typing effect interval
+    streamingInterval.current = setInterval(() => {
+      if (tokenQueue.current.length > 0) {
         const token = tokenQueue.current.shift();
         setMessages((prev) => {
           const updated = [...prev];
@@ -123,25 +145,10 @@ const handleSend = async () => {
           return updated;
         });
       }
-    }, 50);
+    }, 40);
+
+    await streamGroqResponse(input, onChunk, onDone);
   };
-
-  // typing effect interval
-  streamingInterval.current = setInterval(() => {
-    if (tokenQueue.current.length > 0) {
-      const token = tokenQueue.current.shift();
-      setMessages((prev) => {
-        const updated = [...prev];
-        updated[updated.length - 1].content += token;
-        return updated;
-      });
-    }
-  }, 40);
-
-  await streamGroqResponse(input, onChunk, onDone);
-};
-
-
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -152,7 +159,7 @@ const handleSend = async () => {
 
   return (
     <div className="h-screen flex flex-col bg-white text-gray-900">
-      <Topbar/>
+      <Topbar />
       {/* Top Bar */}
       <div className="flex justify-between items-center p-3 bg-white border-b border-gray-200 shadow-sm">
         <button
@@ -163,8 +170,12 @@ const handleSend = async () => {
           <span>Chats</span>
         </button>
         <div className="flex gap-5 text-gray-500">
-          <button className="hover:text-black"><FiSidebar size={18} /></button>
-          <button className="hover:text-black"><FiMessageSquare size={18} /></button>
+          <button className="hover:text-black">
+            <FiSidebar size={18} />
+          </button>
+          <button className="hover:text-black">
+            <FiMessageSquare size={18} />
+          </button>
           {/* <button className="hover:text-black"><FiMaximize2 size={18} /></button> */}
         </div>
       </div>
@@ -191,16 +202,31 @@ const handleSend = async () => {
                   }
                   if (block.type === "code") {
                     return (
-                      <pre
-                        key={idx}
-                        className="bg-gray-900 text-green-200 text-sm p-3 rounded-md overflow-x-auto my-2"
-                      >
-                        <code>{block.content.trim()}</code>
-                      </pre>
+                      <div key={idx} className="relative my-2">
+                        <pre className="bg-gray-900 text-green-200 text-sm p-3 rounded-md overflow-x-auto">
+                          <code>{block.content.trim()}</code>
+                        </pre>
+                        {/* Copy Button (Code Copy) */}
+                        <button
+  onClick={() => {
+    navigator.clipboard.writeText(block.content.trim());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }}
+  className="absolute top-1 right-1 text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600"
+>
+  {copied ? "Copied!" : <FiCopy />}
+</button>
+
+                      </div>
                     );
                   }
+
                   return (
-                    <p key={idx} className="text-sm leading-relaxed whitespace-pre-wrap">
+                    <p
+                      key={idx}
+                      className="text-sm leading-relaxed whitespace-pre-wrap"
+                    >
                       {block.content.trim()}
                     </p>
                   );
@@ -211,69 +237,68 @@ const handleSend = async () => {
         <div ref={messagesEndRef}></div>
       </div>
 
-      {/* Input Bar */}
+            {/* Input Bar */}
       <div className="p-4 border-t border-gray-200 bg-white">
-        <div className="relative flex items-end max-w-4xl mx-auto w-full">
+        <div className="relative flex items-end max-w-4xl mx-auto w-full bg-[#f9f9f9] rounded-2xl border border-gray-300 p-2">
           {/* Plus Icon (Left) */}
           <button
-            className="absolute left-3 bottom-2 text-gray-500 hover:text-black"
+            className="p-2 text-gray-500 hover:text-black"
             onClick={() => alert("Upload window khul jaeygi")}
           >
-            <Plus size={20} />
+            <Plus size={24} />
           </button>
 
           {/* Textarea */}
-         <textarea
-  value={input}
-  onChange={(e) => setInput(e.target.value)}
-  onKeyDown={handleKeyDown}
-  rows="1"
-  placeholder="Message Chatbot..."
-  autoComplete="off"
-  autoCorrect="off"
-  className="w-full border border-gray-300 rounded-lg pl-10 pr-10 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500"
-  style={{ minHeight: "40px", maxHeight: "200px" }}
-  disabled={isStreaming}
-/>
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            rows="1"
+            placeholder="Ask anything...."
+            autoComplete="off"
+            autoCorrect="off"
+            className="flex-1 bg-transparent text-gray-900 placeholder-gray-500 resize-none focus:outline-none px-2 py-2"
+            style={{ minHeight: "40px", maxHeight: "200px" }}
+            disabled={isStreaming}
+          />
 
-{/* Send / Stop Button */}
-{isStreaming ? (
-  <button
-   onClick={() => {
-      clearInterval(streamingInterval.current);
-      tokenQueue.current = [];
-      setIsStreaming(false);
-    }}
-    className="absolute right-4 bottom-2 hover:text-gray-900"
-    >
-    <FiPauseCircle size={20} />
-  </button>
-) : (
-  <button
-    onClick={() => {
-    if (!input.trim()) {
-      const msgDiv = document.getElementById("alertmsg");
-      msgDiv.innerText = "Please enter a message before sending.";
+          {/* Send / Stop Button */}
+          {isStreaming ? (
+            <button
+              onClick={() => {
+                clearInterval(streamingInterval.current);
+                tokenQueue.current = [];
+                setIsStreaming(false);
+              }}
+              className="p-2 text-gray-700 hover:text-black" title="stop"
+            >
+              <FiStopCircle size={26} />
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                if (!input.trim()) {
+                  const msgDiv = document.getElementById("alertmsg");
+                  msgDiv.innerText = "Please enter a message before sending.";
 
-      // 3 seconds baad auto clear
-      setTimeout(() => {
-        msgDiv.innerText = "";
-      }, 3000);
+                  // 3 seconds baad auto clear
+                  setTimeout(() => {
+                    msgDiv.innerText = "";
+                  }, 3000);
 
-      return;
-    }
+                  return;
+                }
 
-    document.getElementById("alertmsg").innerText = ""; // clear msg if any
-    handleSend();
-  }}
-  className="absolute right-4 bottom-2 text-blue-600 hover:text-blue-800"
->
-  <Send size={20} />
-  </button>
-)}
-
+                document.getElementById("alertmsg").innerText = ""; // clear msg if any
+                handleSend();
+              }}
+              className="p-2 bg-white rounded-full shadow-2xl text-gray-500 hover:text-black" title="send"
+            >
+              <FiArrowUpCircle size={26}/>
+            </button>
+          )}
         </div>
-        <div id="alertmsg" class="text-red-500 text-sm mt-1"></div>
+        <div id="alertmsg" className="text-red-500 text-sm mt-1"></div>
       </div>
 
       {/* Context Sidebar */}
