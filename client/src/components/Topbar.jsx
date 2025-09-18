@@ -1,36 +1,4 @@
 
-// import { Brain, Minimize2 } from "lucide-react";
-// import { RiCloseFill } from "react-icons/ri";
-// import React from "react";
-
-// export default function Topbar() {
-//   return (
-//     <div
-//       className="w-full h-11 bg-[#292828] border border-b-gray-700 flex items-center  px-3 shadow-sm "
-//       style={{ WebkitAppRegion: "drag" }}
-//     >
-//       {/* Mac-style buttons */}
-//       {/* <div className="flex space-x-2  order border-white"> */}
-
-//         {/* Close */}
-//         <div
-//           className="w-4 h-4 cursor-pointer text-white"
-//           style={{ WebkitAppRegion: "no-drag" }}
-//           // onClick={() => window.electronAPI.closeApp()}
-//         ><Brain /></div>
-      
-//         <div
-//           className="w-4 h-4 text-white cursor-pointer"
-//           style={{ WebkitAppRegion: "no-drag" }}
-//           onClick={() => window.electronAPI.closeApp()}
-//         ><RiCloseFill /></div>
-//       {/* </div> */}
-
-//     </div>
-//   );
-// }
-
-
 import { Brain } from "lucide-react";
 import { RiCloseFill } from "react-icons/ri";
 import { VscChromeMinimize } from "react-icons/vsc";

@@ -1,4 +1,3 @@
-
 const {
   app,
   BrowserWindow,
@@ -29,13 +28,14 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: windowWidth,
     height: windowHeight,
+    transparent: true,
     frame: false,
     titleBarStyle: "hidden",
     alwaysOnTop: true,
     show: false,
-    resizable: false,
-    maximizable: false,
     fullscreenable: false,
+    resizable: true,
+    maximizable: true,
     x: screenWidth - windowWidth - 10,
     y: 12,
     webPreferences: {
@@ -137,6 +137,13 @@ app.whenReady().then(() => {
     else mainWindow.maximize();
   });
 
+  ipcMain.on("resize-window", (event, { width, height }) => {
+  if (mainWindow) {
+    mainWindow.setSize(width, height);
+  }
+});
+
+
   let tray;
   const iconPath = path.join(app.getAppPath(), "src", "assets", "icons.png");
 
@@ -180,6 +187,3 @@ app.on("will-quit", () => {
   clipboard.clear();
   globalShortcut.unregisterAll();
 });
-
-
-
