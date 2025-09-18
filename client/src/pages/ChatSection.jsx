@@ -254,7 +254,7 @@ export default function Chatbot() {
           )}
 
         </div>
-        <div id="alertmsg" class="text-red-500 text-sm mt-1"></div>
+        <div id="alertmsg" className="text-red-500 text-sm mt-1"></div>
       </div>
 
       {/* Context Sidebar */}

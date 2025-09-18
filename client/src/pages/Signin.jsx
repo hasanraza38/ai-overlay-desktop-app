@@ -28,22 +28,25 @@ export default function Signin() {
         try {
             const response = await api.post("auth/login", formData);
             console.log("Login Success:", response.data);
-            window.electronAPI.saveToken(token);
-            navigate("/chatbot");
+
+            const token = response.data.token;  
+            if (token) {
+                await window.electronAPI.saveToken(token);  
+                console.log("Token saved to keytar:", token);
+                navigate("/chatbot");
+            } else {
+                console.error("Login Error: Token not found in response");
+            }
+
         } catch (error) {
             console.error("Login Error:", error.response?.data || error);
-
         }
     }
-
 
     return (
         <div className=" bg-white">
             <Topbar />
             <div className="flex flex-col items-center justify-center w-full bg-white rounded-xl p-10 mt-7">
-                {/* <h1 className="text-2xl font-bold text-center mb-8">
-                  Sign in to your Ai Overlay account
-                </h1> */}
 
                 <h1 className="text-purple-600 text-3xl font-bold justify-items-start">Ai Overlay</h1>
 
@@ -51,7 +54,6 @@ export default function Signin() {
                     Sign in to your account
                 </h1>
 
-                {/* Work Email */}
                 <div className="mb-4 mt-4">
                     <label className="block text-sm font-medium text-gray-600 mb-1">
                         Email
@@ -66,7 +68,6 @@ export default function Signin() {
                     />
                 </div>
 
-                {/* Password */}
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-600 mb-1">
                         Password
@@ -80,19 +81,17 @@ export default function Signin() {
                         placeholder="enter your password"
                     />
                 </div>
-                {/* Create Account Button */}
+            
                 <button onClick={handleLogin} className="cursor-pointer w-[300px] text-[14px] mt-4 bg-purple-600 text-white font-medium py-2 rounded-[8px] hover:bg-purple-500 transition">
                     Sign in
                 </button>
 
-                {/* OR Divider */}
                 <div className="flex items-center my-4">
                     <div className="flex-grow border-t border-gray-300"></div>
                     <span className="px-2 text-sm text-gray-400">OR</span>
                     <div className="flex-grow border-t border-gray-300"></div>
                 </div>
 
-                {/* Continue with Google */}
                 <button className="cursor-pointer w-[300px] text-[14px] border border-gray-300 flex items-center justify-center gap-2 py-2 rounded-[8px] hover:bg-gray-100 transition">
                     <img
                         src="https://www.svgrepo.com/show/475656/google-color.svg"
@@ -102,7 +101,6 @@ export default function Signin() {
                     <span className="text-gray-700 font-medium text-[14px]">Continue With Google</span>
                 </button>
 
-                {/* Footer */}
                 <p className="text-[13px] text-gray-500 text-center mt-4">
                     By creating an account, you agree to our{" "}
                     <a href="#" className="text-[14px] text-purple-600 hover:underline">
@@ -115,7 +113,6 @@ export default function Signin() {
                     .
                 </p>
 
-                {/* Already have an account */}
                 <p className="text-[13px] text-center mt-4">
                     Don't have an account?{" "}
                     <Link to="/signup" className="text-purple-500 font-medium hover:underline text-[14px]" >
