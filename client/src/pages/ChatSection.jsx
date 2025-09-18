@@ -2,8 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import {
   FiSidebar,
   FiMessageSquare,
-  FiMaximize2,
+  // FiMaximize2,
+  // FiPause,
   FiX,
+  FiPauseCircle,
 } from "react-icons/fi";
 import { BiConversation } from "react-icons/bi";
 import { Plus, Send } from "lucide-react";
@@ -150,8 +152,11 @@ export default function Chatbot() {
 
   return (
     <div className="h-screen flex flex-col bg-white text-gray-900">
+      <Topbar/>
       {/* Top Bar */}
+
       <Topbar />
+
 
       {/* Chat Body */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col">
@@ -206,6 +211,7 @@ export default function Chatbot() {
           </button>
 
           {/* Textarea */}
+
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -236,6 +242,7 @@ export default function Chatbot() {
                   const msgDiv = document.getElementById("alertmsg");
                   msgDiv.innerText = "Please enter a message before sending.";
 
+
                   // 3 seconds baad auto clear
                   setTimeout(() => {
                     msgDiv.innerText = "";
@@ -243,6 +250,7 @@ export default function Chatbot() {
 
                   return;
                 }
+
 
                 document.getElementById("alertmsg").innerText = ""; // clear msg if any
                 handleSend();
@@ -253,13 +261,14 @@ export default function Chatbot() {
             </button>
           )}
 
+
         </div>
         <div id="alertmsg" className="text-red-500 text-sm mt-1"></div>
       </div>
 
       {/* Context Sidebar */}
       {showContext && (
-        <div className="absolute top-0 left-0 w-72 h-full bg-white border-r border-gray-200 shadow-lg p-4 flex flex-col">
+        <div className="absolute top-11 left-0 w-72 h-[656px] bg-white border-r border-gray-200 shadow-lg p-4 flex flex-col">
           <div className="flex justify-between items-center border-b border-gray-200 pb-2">
             <h2 className="text-lg font-semibold">Chats History</h2>
             <button
