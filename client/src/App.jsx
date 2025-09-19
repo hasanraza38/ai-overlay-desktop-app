@@ -11,9 +11,16 @@ function App() {
 
   useEffect(() => {
     const checkToken = async () => {
-      const token = await window.electronAPI.getToken();
-      setIsAuthenticated(!!token);
-      setAuthChecked(true);
+      let token = await window.electronAPI.getToken();
+      // token = null
+
+       if (token) {
+          setIsAuthenticated(true);   // Token exists → authenticated
+          setAuthChecked(true);
+        } else {
+          setIsAuthenticated(false);  // Token not exists → not authenticated
+          setAuthChecked(true);
+        }
     };
     checkToken();
   }, []);
@@ -23,26 +30,10 @@ function App() {
   return (
    
       <Routes>
-        <Route
-          path="/chatbot"
-          element={
-            <ProtectedRoute>
-              <ChatSection />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/signin"
-          element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signin />}
-        />
-        <Route
-          path="/signup"
-          element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signup />}
-        />
-        <Route
-          path="/"
-          element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signin" />}
-        />
+        <Route path="/chatbot" element={<ProtectedRoute> <ChatSection /></ProtectedRoute> }/>
+        <Route path="/signin" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signin />}/>
+        <Route path="/signup" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signup setIsAuthenticated={setIsAuthenticated} />}/>
+        <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signin" />}/>
       </Routes>
     
   );
@@ -51,7 +42,10 @@ function App() {
 export default App;
 
 
+
+
 // change topbar like cortex
 // dark mood add in app
 // app resiable after login signup
 // add copy icone in chat code code section
+
