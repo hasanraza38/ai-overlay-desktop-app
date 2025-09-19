@@ -22,6 +22,7 @@
     "google-client-api": "^1.0.4",
     "keytar": "^7.9.0",
     "lucide-react": "^0.544.0",
+    "node-fetch": "^3.3.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.5.0",

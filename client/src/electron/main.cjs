@@ -113,6 +113,42 @@ app.whenReady().then(() => {
     }
   });
 
+
+  // IPC handler for Google Login
+  ipcMain.handle("google-login", async () => {
+    return new Promise((resolve, reject) => {
+      const loginWindow = new BrowserWindow({
+        width: 500,
+        height: 600,
+        webPreferences: {
+          nodeIntegration: false,
+        },
+      });
+
+      //  Apne backend ka google login route
+      loginWindow.loadURL("http://localhost:4000/api/v1/auth/google");
+
+      // Jab redirect callback pe aaye
+      loginWindow.webContents.on("will-redirect", async (event, url) => {
+        if (url.startsWith("http://localhost:4000/api/v1/auth/google/callback")) {
+          try {
+            const fetch = (await import("node-fetch")).default;
+            const response = await fetch(url, { credentials: "include" });
+            const data = await response.json();
+
+            resolve(data); // frontend ko bhej do
+            loginWindow.close();
+          } catch (err) {
+            reject(err);
+            loginWindow.close();
+          }
+        }
+      });
+    });
+  });
+
+
+
   app.on("browser-window-created", (event, window) => {
     window.webContents.on("before-input-event", (event, input) => {
       const zoomCodes = [

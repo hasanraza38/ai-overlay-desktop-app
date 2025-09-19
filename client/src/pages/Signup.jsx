@@ -70,8 +70,8 @@ export default function Signup({ setIsAuthenticated }) {
 
             if (token) {
                 console.log("Token:", token);
-                
-                window.electronAPI.saveToken(token); 
+
+                window.electronAPI.saveToken(token);
 
                 if (window.electronAPI && window.electronAPI.resizeWindow) {
                     window.electronAPI.resizeWindow(900, 700);
@@ -89,16 +89,55 @@ export default function Signup({ setIsAuthenticated }) {
         }
     };
 
-    // const handleGoogleSuccess = async (credentialResponse) => {
-    //     console.log("Google JWT Token:", credentialResponse?.credential);
+    const handleGoogleLogin = async () => {
+        try {
+            const token = await window.electronAPI.googleLogin();
+            console.log("Google token received:", token);
+
+            if (token) {
+
+                const response = await api.get("auth/google",  {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                console.log("Google auth success:", response.data);
+
+                window.electronAPI.saveToken(response.data.token);
+                setIsAuthenticated(true);
+
+                navigate("/chatbot");
+            }
+        } catch (error) {
+            console.error("Google login failed:", error);
+        }
+    };
+
+
+    // const handleGoogleLogin = async () => {
     //     try {
-    //         const response = await api.post("auth/google", { token: credentialResponse.credential });
-    //         console.log("Google Auth Success:", response.data);
-    //         navigate("/chatbot");
+            
+    //         const result = await window.electronAPI.googleLogin();
+    //         console.log("Google login received:", result);
+
+    //         if (result && result.token) {
+    //             const tokenString = result.token; 
+
+    //             const response = await api.get("auth/google", {
+    //                 headers: { Authorization: `Bearer ${tokenString}` },
+    //             });
+    //             console.log("Google auth success:", response.data);
+
+    //             window.electronAPI.saveToken(response.data.token || tokenString);
+
+    //             setIsAuthenticated(true);
+    //             navigate("/chatbot");
+    //         } else {
+    //             console.error("Google login did not return a token");
+    //         }
     //     } catch (error) {
-    //         console.error("Google Auth Error:", error);
+    //         console.error("Google login failed:", error);
     //     }
     // };
+
 
     return (
         <div className="bg-[#191919] text-white font-sans h-full">
@@ -183,7 +222,9 @@ export default function Signup({ setIsAuthenticated }) {
                 </div>
 
                 {/* Google Login */}
-                <button className="w- flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
+                <button
+                    onClick={handleGoogleLogin}
+                    className="w- flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
                     <img
                         src="https://www.svgrepo.com/show/475656/google-color.svg"
                         alt="Google"

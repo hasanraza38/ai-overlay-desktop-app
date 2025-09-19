@@ -55,5 +55,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
       return null;
     }
   },
+
+   googleLogin: () => ipcRenderer.invoke("google-login"),
 });
 
