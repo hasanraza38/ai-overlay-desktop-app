@@ -276,10 +276,10 @@ export default function Chatbot() {
                   const msgDiv = document.getElementById("alertmsg");
                   msgDiv.innerText = "Please enter a message before sending.";
 
-                    // 3 seconds baad auto clear
-                    setTimeout(() => {
-                      msgDiv.innerText = "";
-                    }, 3000);
+                  // 3 seconds baad auto clear
+                  setTimeout(() => {
+                    msgDiv.innerText = "";
+                  }, 3000);
 
                   return;
                 }
