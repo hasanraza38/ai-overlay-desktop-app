@@ -37,6 +37,8 @@ export default function Signin() {
             if (token) {
                 console.log("Token received:", token);
 
+                window.electronAPI.saveToken(token);
+
                 if (window.electronAPI && window.electronAPI.resizeWindow) {
                     window.electronAPI.resizeWindow(900, 700);
                 }
@@ -53,9 +55,9 @@ export default function Signin() {
             <Topbar />
             <div className="flex flex-col items-center justify-center w-full h-full  bg-[#191919] border rounded-2xl p-8 ">
                 <h1 className="text-3xl font-bold text-center text-purple-500 mb-2 mt-7">AI Overlay</h1>
-                <h2 className="text-2xl font-semibold text-center text-white mb-8">Sign in to your account</h2>
+                <h2 className="text-2xl font-semibold text-center text-white mb-[33px]">Sign in to your account</h2>
 
-                <form onSubmit={handleLogin} className="space-y-6">
+                <form onSubmit={handleLogin} className="space-y-6 mt-6">
                     {/* Email */}
                     <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
@@ -88,19 +90,19 @@ export default function Signin() {
 
                     <button
                         type="submit"
-                        className="w-[300px] text-[14px] h-[40px] text-base font-semibold text-white rounded-lg bg-purple-600 hover:bg-purple-700 mt-3"
+                        className="w-[300px] text-[14px] h-[40px] cursor-pointer text-base font-semibold text-white rounded-lg bg-purple-600 hover:bg-purple-700 mt-3"
                     >
                         Sign In
                     </button>
                 </form>
 
-                <div className="flex items-center my-6">
+                <div className="flex items-center my-8">
                     <div className="flex-grow border-t border-gray-700" />
                     <span className="px-4 text-sm text-gray-400">OR</span>
                     <div className="flex-grow border-t border-gray-700" />
                 </div>
 
-                <button onClick={handleGoogleSuccess} className="w- flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
+                <button className="w- flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
                     <img
                         src="https://www.svgrepo.com/show/475656/google-color.svg"
                         alt="Google"
@@ -109,7 +111,7 @@ export default function Signin() {
                     <span className="text-white font-medium text-[14px] ">Continue With Google</span>
                 </button>
 
-                <p className="text-sm text-gray-300 text-center mt-8">
+                <p className="text-sm text-gray-300 text-center mt-13">
                     Don't have an account?{" "}
                     <Link to="/signup" className="text-purple-400 font-medium hover:underline">
                         Sign up

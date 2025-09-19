@@ -44,7 +44,7 @@ const EyeOffIcon = ({ className }) => (
     </svg>
 );
 
-export default function Signup() {
+export default function Signup({ setIsAuthenticated }) {
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         email: "",
@@ -70,31 +70,35 @@ export default function Signup() {
 
             if (token) {
                 console.log("Token:", token);
-                // window.electronAPI.saveToken(token); // Uncomment if using Electron
+                
+                window.electronAPI.saveToken(token); 
 
                 if (window.electronAPI && window.electronAPI.resizeWindow) {
                     window.electronAPI.resizeWindow(900, 700);
                 }
 
+                setIsAuthenticated(true);
+
                 navigate("/chatbot");
             } else {
                 console.error("Token not found in response");
             }
+
         } catch (error) {
             console.error("Registration Error:", error.response?.data || error);
         }
     };
 
-    const handleGoogleSuccess = async (credentialResponse) => {
-        console.log("Google JWT Token:", credentialResponse?.credential);
-        try {
-            const response = await api.post("auth/google", { token: credentialResponse.credential });
-            console.log("Google Auth Success:", response.data);
-            navigate("/chatbot");
-        } catch (error) {
-            console.error("Google Auth Error:", error);
-        }
-    };
+    // const handleGoogleSuccess = async (credentialResponse) => {
+    //     console.log("Google JWT Token:", credentialResponse?.credential);
+    //     try {
+    //         const response = await api.post("auth/google", { token: credentialResponse.credential });
+    //         console.log("Google Auth Success:", response.data);
+    //         navigate("/chatbot");
+    //     } catch (error) {
+    //         console.error("Google Auth Error:", error);
+    //     }
+    // };
 
     return (
         <div className="bg-[#191919] text-white font-sans h-full">
@@ -179,7 +183,7 @@ export default function Signup() {
                 </div>
 
                 {/* Google Login */}
-                <button onClick={handleGoogleSuccess} className="w- flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
+                <button className="w- flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
                     <img
                         src="https://www.svgrepo.com/show/475656/google-color.svg"
                         alt="Google"

@@ -10,7 +10,7 @@ const {
   screen,
 } = require("electron");
 const path = require("path");
-const keytar = require("keytar"); // Keytar top pe require
+const keytar = require("keytar"); 
 
 let mainWindow;
 let lastText = "";
@@ -28,7 +28,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: windowWidth,
     height: windowHeight,
-    transparent: true,
+    transparent: false,
     frame: false,
     titleBarStyle: "hidden",
     alwaysOnTop: true,
