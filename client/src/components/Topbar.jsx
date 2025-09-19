@@ -15,11 +15,10 @@ export default function Topbar() {
         className="flex items-center gap-2 text-purple-400 font-semibold select-none"
         style={{ WebkitAppRegion: "no-drag" }}
       >
-        <Brain className="w-5 h-5" />
+        <Brain className="w-6 h-6" />
         {/* <span className="text-sm">AI Overlay</span> */}
       </div>
 
-      {/* Right Window Controls */}
       <div
         className="flex items-center gap-2"
         style={{ WebkitAppRegion: "no-drag" }}

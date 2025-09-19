@@ -276,10 +276,10 @@ export default function Chatbot() {
                   const msgDiv = document.getElementById("alertmsg");
                   msgDiv.innerText = "Please enter a message before sending.";
 
-                  // 3 seconds baad auto clear
-                  setTimeout(() => {
-                    msgDiv.innerText = "";
-                  }, 3000);
+                    // 3 seconds baad auto clear
+                    setTimeout(() => {
+                      msgDiv.innerText = "";
+                    }, 3000);
 
                   return;
                 }
@@ -296,23 +296,24 @@ export default function Chatbot() {
         <div id="alertmsg" className="text-red-500 text-sm mt-1"></div>
       </div>
 
-      {/* Context Sidebar */}
-      {showContext && (
-        <div className="absolute top-11 left-0 w-72 h-[656px] bg-white border-r border-gray-200 shadow-lg p-4 flex flex-col">
-          <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-            <h2 className="text-lg font-semibold">Chats History</h2>
-            <button
-              onClick={() => setShowContext(false)}
-              className="text-gray-500 hover:text-black"
-            >
-              <FiX size={20} />
-            </button>
+        {/* Context Sidebar */}
+        {showContext && (
+          <div className="absolute top-11 left-0 w-72 h-[656px] bg-white border-r border-gray-200 shadow-lg p-4 flex flex-col">
+            <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+              <h2 className="text-lg font-semibold">Chats History</h2>
+              <button
+                onClick={() => setShowContext(false)}
+                className="text-gray-500 hover:text-black"
+              >
+                <FiX size={20} />
+              </button>
+            </div>
+            <div className="mt-3 text-sm text-gray-600">
+              Yahan aap ki recent chats show hongi (history, info, etc).
+            </div>
           </div>
-          <div className="mt-3 text-sm text-gray-600">
-            Yahan aap ki recent chats show hongi (history, info, etc).
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
