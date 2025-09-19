@@ -47,7 +47,7 @@ async function streamGroqResponse(userMessage, onChunk, onDone) {
           const json = JSON.parse(data);
           const token = json.token;
           if (token) onChunk(token);
-        } catch {}
+        } catch { }
       }
     }
   }
@@ -105,11 +105,7 @@ export default function Chatbot() {
     if (!input.trim() || isStreaming) return;
 
     const userMessage = { role: "user", content: input };
-    setMessages((prev) => [
-      ...prev,
-      userMessage,
-      { role: "assistant", content: "" },
-    ]);
+    setMessages((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
     setInput("");
     setIsStreaming(true);
 
@@ -185,11 +181,10 @@ export default function Chatbot() {
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`p-3 rounded-lg max-w-[90%] break-words ${
-              msg.role === "user"
-                ? "bg-gray-200 text-gray-900 self-end"
-                : "bg-white text-black border border-gray-200 self-start"
-            }`}
+            className={`p-3 rounded-lg max-w-[90%] break-words ${msg.role === "user"
+              ? "bg-gray-200 text-gray-900 self-end"
+              : "bg-white text-black border border-gray-200 self-start"
+              }`}
           >
             {msg.role === "assistant"
               ? parseResponse(msg.content).map((block, idx) => {
@@ -229,8 +224,8 @@ export default function Chatbot() {
                     >
                       {block.content.trim()}
                     </p>
-                  );
-                })
+                );
+              })
               : msg.content}
           </div>
         ))}
@@ -321,3 +316,17 @@ export default function Chatbot() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

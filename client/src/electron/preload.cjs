@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     }
   },
   
+  
   onClipboardUpdate: (callback) => {
     const handleUpdate = (event, text) => {
       console.log('Clipboard update received in preload:', text);
