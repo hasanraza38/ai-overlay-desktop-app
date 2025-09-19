@@ -52,10 +52,22 @@ async function streamGroqResponse(userMessage, onChunk, onDone) {
 export default function Chatbot() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [copiedText, setCopiedText] = useState("");
   const [showContext, setShowContext] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [copied, setCopied] = useState(false);
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+  if (window.electronAPI?.onClipboardUpdate) {
+    const unsubscribe = window.electronAPI.onClipboardUpdate((text) => {
+      if (text && text.trim() !== "") {
+        setCopiedText(text);
+      }
+    });
+    return unsubscribe;
+  }
+}, []);
 
   // Auto scroll
   useEffect(() => {
@@ -95,36 +107,26 @@ export default function Chatbot() {
   const streamingInterval = useRef(null);
 
   const handleSend = async () => {
-    if (!input.trim() || isStreaming) return;
+  if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
 
-    const userMessage = { role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
-    setInput("");
-    setIsStreaming(true);
+  // User ka actual input aur copied text combine
+  const combinedMessage = `${copiedText ? "Copied Text:\n" + copiedText + "\n\n" : ""}User Input:\n${input}`;
 
-    const onChunk = (token) => {
-      tokenQueue.current.push(token);
-    };
+  const userMessage = { role: "user", content: combinedMessage };
+  setMessages((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
+  setInput("");
+  setCopiedText(""); // ek bar send hone ke baad clear
+  setIsStreaming(true);
 
-    const onDone = () => {
-      const flushInterval = setInterval(() => {
-        if (tokenQueue.current.length === 0) {
-          clearInterval(flushInterval);
-          clearInterval(streamingInterval.current);
-          setIsStreaming(false);
-        } else {
-          const token = tokenQueue.current.shift();
-          setMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1].content += token;
-            return updated;
-          });
-        }
-      }, 50);
-    };
+  const onChunk = (token) => tokenQueue.current.push(token);
 
-    streamingInterval.current = setInterval(() => {
-      if (tokenQueue.current.length > 0) {
+  const onDone = () => {
+    const flushInterval = setInterval(() => {
+      if (tokenQueue.current.length === 0) {
+        clearInterval(flushInterval);
+        clearInterval(streamingInterval.current);
+        setIsStreaming(false);
+      } else {
         const token = tokenQueue.current.shift();
         setMessages((prev) => {
           const updated = [...prev];
@@ -132,10 +134,24 @@ export default function Chatbot() {
           return updated;
         });
       }
-    }, 40);
-
-    await streamGroqResponse(input, onChunk, onDone);
+    }, 50);
   };
+
+  streamingInterval.current = setInterval(() => {
+    if (tokenQueue.current.length > 0) {
+      const token = tokenQueue.current.shift();
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1].content += token;
+        return updated;
+      });
+    }
+  }, 40);
+
+  // Send to Groq API
+  await streamGroqResponse(combinedMessage, onChunk, onDone);
+};
+
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -229,6 +245,15 @@ export default function Chatbot() {
         <div ref={messagesEndRef}></div>
       </div>
 
+      {/* Copied Text Box */}
+{copiedText && (
+  <div className="mx-auto max-w-4xl w-full mb-2 
+                  p-3 rounded-xl border border-white/20 
+                  bg-white/10 backdrop-blur-md text-sm text-white/80">
+    <span className="font-semibold text-gray-300">Copied:</span> {copiedText}
+  </div>
+)}
+
       {/* Input Bar */}
       <div className="p-2 border-t border-white/20 bg-white/5 backdrop-blur-md">
         <div className="relative flex items-end max-w-4xl mx-auto w-full 
@@ -298,7 +323,7 @@ export default function Chatbot() {
   <div className="fixed inset-0 z-40 flex">
     {/* Overlay */}
     <div 
-      className="absolute inset-0 bg-white/1 backdrop-blur-sm" 
+      className="absolute inset-0 bg-white/ backdrop-blur-sm" 
       onClick={() => setShowContext(false)} 
     />
 
