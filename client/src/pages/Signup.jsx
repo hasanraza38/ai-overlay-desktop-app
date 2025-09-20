@@ -5,7 +5,6 @@ import { api } from "../Instance/api"; // Your configured API instance
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import Topbar from "../components/Topbar";
 
-// --- SVG ICONS ---
 const EyeIcon = ({ className }) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -61,6 +60,7 @@ export default function Signup({ setIsAuthenticated }) {
         });
     };
 
+
     const handleSignup = async (event) => {
         event.preventDefault();
         try {
@@ -74,7 +74,7 @@ export default function Signup({ setIsAuthenticated }) {
                 window.electronAPI.saveToken(token);
 
                 if (window.electronAPI && window.electronAPI.resizeWindow) {
-                    window.electronAPI.resizeWindow(900, 700);
+                    window.electronAPI.resizeWindow(500, 700, true);
                 }
 
                 setIsAuthenticated(true);
@@ -89,30 +89,7 @@ export default function Signup({ setIsAuthenticated }) {
         }
     };
 
-    // const handleGoogleLogin = async () => {
-    //     try {
-
-    //          const response = await api.get("auth/google", );
-    //             console.log("Google auth success:", response.data);
-
-    //             // window.electronAPI.saveToken(response.data.token);
-    //             // setIsAuthenticated(true);
-
-    //             navigate("/chatbot");
-    //         // const token = await window.electronAPI.googleLogin();
-    //         // console.log("Google token received:", token);
-
-    //         // if (token) {
-
-
-    //         // }
-    //     } catch (error) {
-    //         console.error("Google login failed:", error);
-    //     }
-    // };
-
-
-
+    // Continue with google
     const handleGoogleSignup = async () => {
         try {
             const result = await window.electronAPI.googleLogin();
@@ -120,6 +97,11 @@ export default function Signup({ setIsAuthenticated }) {
 
             if (result && result.token) {
                 await window.electronAPI.saveToken(result.token);
+
+                if (window.electronAPI && window.electronAPI.resizeWindow) {
+                    window.electronAPI.resizeWindow(500, 700, true);
+                }
+
                 setIsAuthenticated(true);
                 navigate("/chatbot");
             } else {
@@ -131,37 +113,10 @@ export default function Signup({ setIsAuthenticated }) {
     };
 
 
-    // const handleGoogleLogin = async () => {
-    //     try {
-
-    //         const result = await window.electronAPI.googleLogin();
-    //         console.log("Google login received:", result);
-
-    //         if (result && result.token) {
-    //             const tokenString = result.token; 
-
-    //             const response = await api.get("auth/google", {
-    //                 headers: { Authorization: `Bearer ${tokenString}` },
-    //             });
-    //             console.log("Google auth success:", response.data);
-
-    //             window.electronAPI.saveToken(response.data.token || tokenString);
-
-    //             setIsAuthenticated(true);
-    //             navigate("/chatbot");
-    //         } else {
-    //             console.error("Google login did not return a token");
-    //         }
-    //     } catch (error) {
-    //         console.error("Google login failed:", error);
-    //     }
-    // };
-
-
     return (
         <div className="bg-[#191919] text-white font-sans h-full">
             <Topbar />
-            {/* <div className="flex items-center justify-center w-full min-h-[calc(100vh-64px)] p-4"> */}
+
             <div className="w-full h-full flex flex-col items-center justify-center  min-h-[calc(100vh-64px)] max-w-md bg-[#191919] rounded-2xl p-8 shadow-2xl">
                 {/* <Topbar /> */}
                 <h1 className="text-3xl font-bold text-purple-600">AI Overlay</h1>
@@ -239,7 +194,6 @@ export default function Signup({ setIsAuthenticated }) {
                     <div className="flex-grow border-t border-gray-600"></div>
                 </div>
 
-                {/* Google Login */}
                 <button
                     onClick={handleGoogleSignup}
                     className="w- flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
@@ -251,7 +205,7 @@ export default function Signup({ setIsAuthenticated }) {
                     <span className="text-white font-medium text-[14px] ">Continue With Google</span>
                 </button>
 
-                {/* Footer Links */}
+
                 <p className="text-xs text-gray-500 text-center mt-8">
                     By creating an account, you agree to our{" "}
                     <Link to="#" className="text-purple-400 hover:underline">terms</Link> and{" "}
@@ -263,7 +217,6 @@ export default function Signup({ setIsAuthenticated }) {
                     <Link to="/signin" className="text-purple-400 font-medium hover:underline">Sign in</Link>
                 </p>
             </div>
-            {/* </div> */}
         </div>
     );
 }

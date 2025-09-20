@@ -40,7 +40,7 @@ export default function Signin() {
                 window.electronAPI.saveToken(token);
 
                 if (window.electronAPI && window.electronAPI.resizeWindow) {
-                    window.electronAPI.resizeWindow(900, 700);
+                    window.electronAPI.resizeWindow(500, 700, true);
                 }
 
                 navigate("/chatbot");
@@ -58,6 +58,11 @@ export default function Signin() {
 
             if (result && result.token) {
                 await window.electronAPI.saveToken(result.token);
+
+                if (window.electronAPI && window.electronAPI.resizeWindow) {
+                    window.electronAPI.resizeWindow(500, 700, true);
+                }
+
                 navigate("/chatbot");
             } else {
                 console.error("No token returned from Google login");
@@ -119,9 +124,9 @@ export default function Signin() {
                     <div className="flex-grow border-t border-gray-700" />
                 </div>
 
-                <button 
-                onClick={handleGoogleLogin}
-                className="w- flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
+                <button
+                    onClick={handleGoogleLogin}
+                    className="w- flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
                     <img
                         src="https://www.svgrepo.com/show/475656/google-color.svg"
                         alt="Google"

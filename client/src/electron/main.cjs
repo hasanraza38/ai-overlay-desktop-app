@@ -34,7 +34,7 @@ function createWindow() {
     alwaysOnTop: true,
     show: false,
     fullscreenable: false,
-    resizable: true,
+    resizable: false,
     maximizable: true,
     x: screenWidth - windowWidth - 10,
     y: 12,
@@ -166,10 +166,16 @@ app.whenReady().then(() => {
 
   ipcMain.on("window-close", () => mainWindow.close());
   ipcMain.on("window-minimize", () => mainWindow.minimize());
-  ipcMain.on("window-maximize", () => {
-    if (mainWindow.isMaximized()) mainWindow.unmaximize();
-    else mainWindow.maximize();
-  });
+  
+  ipcMain.on("resize-window", (event, { width, height, resizable }) => {
+  if (mainWindow) {
+    mainWindow.setSize(width, height);
+    mainWindow.setResizable(resizable); // allow/deny resizing
+    if (resizable) {
+      mainWindow.center(); // optional: center the window when enabling resize
+    }
+  }
+});
 
   ipcMain.on("resize-window", (event, { width, height }) => {
   if (mainWindow) {
