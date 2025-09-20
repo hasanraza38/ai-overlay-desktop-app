@@ -89,22 +89,41 @@ export default function Signup({ setIsAuthenticated }) {
         }
     };
 
-    const handleGoogleLogin = async () => {
+    // const handleGoogleLogin = async () => {
+    //     try {
+
+    //          const response = await api.get("auth/google", );
+    //             console.log("Google auth success:", response.data);
+
+    //             // window.electronAPI.saveToken(response.data.token);
+    //             // setIsAuthenticated(true);
+
+    //             navigate("/chatbot");
+    //         // const token = await window.electronAPI.googleLogin();
+    //         // console.log("Google token received:", token);
+
+    //         // if (token) {
+
+
+    //         // }
+    //     } catch (error) {
+    //         console.error("Google login failed:", error);
+    //     }
+    // };
+
+
+
+    const handleGoogleSignup = async () => {
         try {
-            const token = await window.electronAPI.googleLogin();
-            console.log("Google token received:", token);
+            const result = await window.electronAPI.googleLogin();
+            console.log("Google login result:", result);
 
-            if (token) {
-
-                const response = await api.get("auth/google",  {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                console.log("Google auth success:", response.data);
-
-                window.electronAPI.saveToken(response.data.token);
+            if (result && result.token) {
+                await window.electronAPI.saveToken(result.token);
                 setIsAuthenticated(true);
-
                 navigate("/chatbot");
+            } else {
+                console.error("No token returned from Google login");
             }
         } catch (error) {
             console.error("Google login failed:", error);
@@ -114,7 +133,7 @@ export default function Signup({ setIsAuthenticated }) {
 
     // const handleGoogleLogin = async () => {
     //     try {
-            
+
     //         const result = await window.electronAPI.googleLogin();
     //         console.log("Google login received:", result);
 
@@ -152,7 +171,6 @@ export default function Signup({ setIsAuthenticated }) {
                         Create an account
                     </h1>
                 </div>
-
 
 
                 <form onSubmit={handleSignup} className="space-y-6 mt-1">
@@ -208,7 +226,7 @@ export default function Signup({ setIsAuthenticated }) {
                     {/* Create Account */}
                     <button
                         type="submit"
-                        className="w-full h-[40px] text-base font-semibold bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors focus:ring-opacity-50 cursor-pointer"
+                        className="text-[14px] w-full h-[40px] text-base font-semibold bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors focus:ring-opacity-50 cursor-pointer"
                     >
                         Create Free Account
                     </button>
@@ -223,7 +241,7 @@ export default function Signup({ setIsAuthenticated }) {
 
                 {/* Google Login */}
                 <button
-                    onClick={handleGoogleLogin}
+                    onClick={handleGoogleSignup}
                     className="w- flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
                     <img
                         src="https://www.svgrepo.com/show/475656/google-color.svg"

@@ -50,6 +50,23 @@ export default function Signin() {
         }
     };
 
+
+    const handleGoogleLogin = async () => {
+        try {
+            const result = await window.electronAPI.googleLogin();
+            console.log("Google login result:", result);
+
+            if (result && result.token) {
+                await window.electronAPI.saveToken(result.token);
+                navigate("/chatbot");
+            } else {
+                console.error("No token returned from Google login");
+            }
+        } catch (error) {
+            console.error("Google login failed:", error);
+        }
+    };
+
     return (
         <div className="bg-[#191919] flec flex-col items-center justify-center w-full h-full">
             <Topbar />
@@ -102,7 +119,9 @@ export default function Signin() {
                     <div className="flex-grow border-t border-gray-700" />
                 </div>
 
-                <button className="w- flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
+                <button 
+                onClick={handleGoogleLogin}
+                className="w- flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
                     <img
                         src="https://www.svgrepo.com/show/475656/google-color.svg"
                         alt="Google"

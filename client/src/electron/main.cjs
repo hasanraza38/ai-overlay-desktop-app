@@ -113,7 +113,6 @@ app.whenReady().then(() => {
     }
   });
 
-
   // IPC handler for Google Login
   ipcMain.handle("google-login", async () => {
     return new Promise((resolve, reject) => {
@@ -146,7 +145,6 @@ app.whenReady().then(() => {
       });
     });
   });
-
 
 
   app.on("browser-window-created", (event, window) => {
