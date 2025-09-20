@@ -94,8 +94,9 @@ export const getChatbotResponse = async (req, res) => {
     const { userId } = req.user;
 
     if (!userInput) {
-      return res.status(400).json({ error: "User input is required" });
-    }
+  return res.status(400).json({ error: "Combined message is required" });
+}
+
 
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
@@ -193,12 +194,13 @@ ${context ? `${context}\n\n` : ""}${userInput}
     }
 
     await Chat.create({
-      userId,
-      conversationId: conversation._id,
-      prompt: userInput,
-      response: fullResponse,
-      context: context || "",
-    });
+  userId,
+  conversationId: conversation._id,
+  prompt: userInput,
+  response: fullResponse,
+  context: context || "",
+});
+
 
     res.write("data: [DONE]\n\n");
     res.end();

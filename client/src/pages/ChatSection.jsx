@@ -13,10 +13,14 @@ import Topbar from "../components/Topbar";
 
 // Streaming function
 async function streamGroqResponse(userMessage, onChunk, onDone) {
+  // 🔹 Token fetch
+  const token = await window.electronAPI.getToken();
+
   const response = await fetch("http://localhost:4000/api/v1/chatbot", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}), // 🔹 Token add if available
     },
     body: JSON.stringify({
       userInput: userMessage,
@@ -52,10 +56,23 @@ async function streamGroqResponse(userMessage, onChunk, onDone) {
 export default function Chatbot() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [copiedText, setCopiedText] = useState("");
   const [showContext, setShowContext] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [copied, setCopied] = useState(false);
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+  if (window.electronAPI?.onClipboardUpdate) {
+    const unsubscribe = window.electronAPI.onClipboardUpdate((text) => {
+      if (text && text.trim() !== "") {
+        setCopiedText(text);
+      }
+    });
+    return unsubscribe;
+  }
+}, []);
 
   // Auto scroll
   useEffect(() => {
@@ -95,36 +112,29 @@ export default function Chatbot() {
   const streamingInterval = useRef(null);
 
   const handleSend = async () => {
-    if (!input.trim() || isStreaming) return;
+  if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
 
-    const userMessage = { role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
-    setInput("");
-    setIsStreaming(true);
+  // User ka actual input aur copied text combine
+  const combinedMessage = `${copiedText 
+  ? copiedText + "\n\n" + input 
+  : input}`;
 
-    const onChunk = (token) => {
-      tokenQueue.current.push(token);
-    };
 
-    const onDone = () => {
-      const flushInterval = setInterval(() => {
-        if (tokenQueue.current.length === 0) {
-          clearInterval(flushInterval);
-          clearInterval(streamingInterval.current);
-          setIsStreaming(false);
-        } else {
-          const token = tokenQueue.current.shift();
-          setMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1].content += token;
-            return updated;
-          });
-        }
-      }, 50);
-    };
+  const userMessage = { role: "user", content: combinedMessage };
+  setMessages((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
+  setInput("");
+  setCopiedText(""); // ek bar send hone ke baad clear
+  setIsStreaming(true);
 
-    streamingInterval.current = setInterval(() => {
-      if (tokenQueue.current.length > 0) {
+  const onChunk = (token) => tokenQueue.current.push(token);
+
+  const onDone = () => {
+    const flushInterval = setInterval(() => {
+      if (tokenQueue.current.length === 0) {
+        clearInterval(flushInterval);
+        clearInterval(streamingInterval.current);
+        setIsStreaming(false);
+      } else {
         const token = tokenQueue.current.shift();
         setMessages((prev) => {
           const updated = [...prev];
@@ -132,10 +142,24 @@ export default function Chatbot() {
           return updated;
         });
       }
-    }, 40);
-
-    await streamGroqResponse(input, onChunk, onDone);
+    }, 50);
   };
+
+  streamingInterval.current = setInterval(() => {
+    if (tokenQueue.current.length > 0) {
+      const token = tokenQueue.current.shift();
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1].content += token;
+        return updated;
+      });
+    }
+  }, 40);
+
+  // Send to Groq API
+  await streamGroqResponse(combinedMessage, onChunk, onDone);
+};
+
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -145,8 +169,7 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="h-screen flex flex-col text-white 
-                    bg-transparent backdrop-blur-xl 
+    <div className="h-screen flex flex-col text-white backdrop-blur-xl 
                     bg-white/10 shadow-2xl border border-white/20">
 
       {/* Topbar */}
@@ -179,7 +202,7 @@ export default function Chatbot() {
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`p-3 rounded-xl max-w-[85%] backdrop-blur-sm
+            className={`whitespace-pre-line p-3 rounded-xl max-w-[85%] backdrop-blur-sm
                         ${msg.role === "user"
               ? "self-end bg-blue-500/20 border border-blue-400/30"
               : "self-start bg-white/10 border border-white/20"
@@ -229,8 +252,49 @@ export default function Chatbot() {
         <div ref={messagesEndRef}></div>
       </div>
 
+      {/* Copied Text Box
+{copiedText && (
+  <div
+    onClick={() => alert(copiedText)}
+    className="mx-auto max-w-4xl w-full mb-2 
+               p-3 rounded-xl border border-white/20 
+               bg-white/10 backdrop-blur-md text-sm text-white/80 
+               cursor-pointer hover:bg-white/20 transition"
+  >
+    <span className="font-semibold text-gray-300">Copied Text</span>
+    <span className="hidden">{copiedText}</span>
+  </div>
+)} */}
+
+
       {/* Input Bar */}
       <div className="p-2 border-t border-white/20 bg-white/5 backdrop-blur-md">
+
+{/* Copied Text Box (Input ke upar dikhne wala) */}
+{copiedText && (
+  <div
+    className="mx-auto max-w-4xl w-full mb-2 px-3 py-1.5 
+               rounded-lg border border-white/20 bg-white/10 
+               backdrop-blur-md text-xs text-white/70 
+               flex items-center justify-between cursor-pointer"
+    onClick={() => setShowPopup(true)}
+  >
+    <span className="font-medium text-gray-300">Copied Text</span>
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        setCopiedText("");
+      }}
+      className="text-gray-400 hover:text-red-400 flex items-center"
+    >
+      <FiX size={14} />
+    </button>
+  </div>
+)}
+
+
+
+
         <div className="relative flex items-end max-w-4xl mx-auto w-full 
                         rounded-2xl border border-white/20 
                         bg-white/10 backdrop-blur-md p-2">
@@ -298,7 +362,7 @@ export default function Chatbot() {
   <div className="fixed inset-0 z-40 flex">
     {/* Overlay */}
     <div 
-      className="absolute inset-0 bg-white/1 backdrop-blur-sm" 
+      className="absolute inset-0 bg-white/ backdrop-blur-sm" 
       onClick={() => setShowContext(false)} 
     />
 
@@ -319,6 +383,35 @@ export default function Chatbot() {
     </div>
   </div>
 )}
+
+{/* Themed Popup (file ke end me) */}
+{showPopup && (
+  <div className="fixed inset-0 flex items-center justify-center z-50">
+    {/* Overlay */}
+    <div
+      className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+      onClick={() => setShowPopup(false)}
+    />
+    {/* Popup Box */}
+    <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 
+                    rounded-xl shadow-lg p-4 max-w-sm w-full text-center">
+      <h3 className="text-sm font-semibold text-gray-200 mb-2">
+        Copied Text
+      </h3>
+      <p className="text-xs text-gray-300 whitespace-pre-line">
+        {copiedText}
+      </p>
+      <button
+        onClick={() => setShowPopup(false)}
+        className="mt-3 px-3 py-1 text-xs rounded-lg bg-white/20 
+                   hover:bg-white/30 text-gray-200 transition"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
 
     </div>
   );
