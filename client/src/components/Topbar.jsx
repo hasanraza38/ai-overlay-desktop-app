@@ -5,8 +5,8 @@ import React from "react";
 
 export default function Topbar() {
   return (
-    <div
-      className="w-full h-10 bg-white/10 backdrop-blur-md border-b border-white/20 flex items-center justify-between px-4 shadow-lg"
+    <div 
+      className="w-full h-10 bg-white/10 backdrop-blur-md  shadow-b shadow-2xl flex items-center justify-between px-4 "
       style={{ WebkitAppRegion: "drag" }}
     >
       {/* Left Branding */}
