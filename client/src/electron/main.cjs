@@ -34,7 +34,7 @@ function createWindow() {
     alwaysOnTop: true,
     show: false,
     fullscreenable: false,
-    resizable: true,
+    resizable: false,
     maximizable: true,
     x: screenWidth - windowWidth - 10,
     y: 12,
@@ -113,6 +113,40 @@ app.whenReady().then(() => {
     }
   });
 
+  // IPC handler for Google Login
+  ipcMain.handle("google-login", async () => {
+    return new Promise((resolve, reject) => {
+      const loginWindow = new BrowserWindow({
+        width: 500,
+        height: 600,
+        webPreferences: {
+          nodeIntegration: false,
+        },
+      });
+
+      //  Apne backend ka google login route
+      loginWindow.loadURL("http://localhost:4000/api/v1/auth/google");
+
+      // Jab redirect callback pe aaye
+      loginWindow.webContents.on("will-redirect", async (event, url) => {
+        if (url.startsWith("http://localhost:4000/api/v1/auth/google/callback")) {
+          try {
+            const fetch = (await import("node-fetch")).default;
+            const response = await fetch(url, { credentials: "include" });
+            const data = await response.json();
+
+            resolve(data); // frontend ko bhej do
+            loginWindow.close();
+          } catch (err) {
+            reject(err);
+            loginWindow.close();
+          }
+        }
+      });
+    });
+  });
+
+
   app.on("browser-window-created", (event, window) => {
     window.webContents.on("before-input-event", (event, input) => {
       const zoomCodes = [
@@ -132,10 +166,16 @@ app.whenReady().then(() => {
 
   ipcMain.on("window-close", () => mainWindow.close());
   ipcMain.on("window-minimize", () => mainWindow.minimize());
-  ipcMain.on("window-maximize", () => {
-    if (mainWindow.isMaximized()) mainWindow.unmaximize();
-    else mainWindow.maximize();
-  });
+  
+  ipcMain.on("resize-window", (event, { width, height, resizable }) => {
+  if (mainWindow) {
+    mainWindow.setSize(width, height);
+    mainWindow.setResizable(resizable); // allow/deny resizing
+    if (resizable) {
+      mainWindow.center(); // optional: center the window when enabling resize
+    }
+  }
+});
 
   ipcMain.on("resize-window", (event, { width, height }) => {
   if (mainWindow) {

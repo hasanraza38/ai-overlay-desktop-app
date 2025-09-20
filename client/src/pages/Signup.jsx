@@ -5,7 +5,6 @@ import { api } from "../Instance/api"; // Your configured API instance
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import Topbar from "../components/Topbar";
 
-// --- SVG ICONS ---
 const EyeIcon = ({ className }) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -61,6 +60,7 @@ export default function Signup({ setIsAuthenticated }) {
         });
     };
 
+
     const handleSignup = async (event) => {
         event.preventDefault();
         try {
@@ -70,11 +70,11 @@ export default function Signup({ setIsAuthenticated }) {
 
             if (token) {
                 console.log("Token:", token);
-                
-                window.electronAPI.saveToken(token); 
+
+                window.electronAPI.saveToken(token);
 
                 if (window.electronAPI && window.electronAPI.resizeWindow) {
-                    window.electronAPI.resizeWindow(900, 700);
+                    window.electronAPI.resizeWindow(500, 700, true);
                 }
 
                 setIsAuthenticated(true);
@@ -89,21 +89,34 @@ export default function Signup({ setIsAuthenticated }) {
         }
     };
 
-    // const handleGoogleSuccess = async (credentialResponse) => {
-    //     console.log("Google JWT Token:", credentialResponse?.credential);
-    //     try {
-    //         const response = await api.post("auth/google", { token: credentialResponse.credential });
-    //         console.log("Google Auth Success:", response.data);
-    //         navigate("/chatbot");
-    //     } catch (error) {
-    //         console.error("Google Auth Error:", error);
-    //     }
-    // };
+    // Continue with google
+    const handleGoogleSignup = async () => {
+        try {
+            const result = await window.electronAPI.googleLogin();
+            console.log("Google login result:", result);
+
+            if (result && result.token) {
+                await window.electronAPI.saveToken(result.token);
+
+                if (window.electronAPI && window.electronAPI.resizeWindow) {
+                    window.electronAPI.resizeWindow(500, 700, true);
+                }
+
+                setIsAuthenticated(true);
+                navigate("/chatbot");
+            } else {
+                console.error("No token returned from Google login");
+            }
+        } catch (error) {
+            console.error("Google login failed:", error);
+        }
+    };
+
 
     return (
         <div className="bg-[#191919] text-white font-sans h-full">
             <Topbar />
-            {/* <div className="flex items-center justify-center w-full min-h-[calc(100vh-64px)] p-4"> */}
+
             <div className="w-full h-full flex flex-col items-center justify-center  min-h-[calc(100vh-64px)] max-w-md bg-[#191919] rounded-2xl p-8 shadow-2xl">
                 {/* <Topbar /> */}
                 <h1 className="text-3xl font-bold text-purple-600">AI Overlay</h1>
@@ -113,7 +126,6 @@ export default function Signup({ setIsAuthenticated }) {
                         Create an account
                     </h1>
                 </div>
-
 
 
                 <form onSubmit={handleSignup} className="space-y-6 mt-1">
@@ -169,7 +181,7 @@ export default function Signup({ setIsAuthenticated }) {
                     {/* Create Account */}
                     <button
                         type="submit"
-                        className="w-full h-[40px] text-base font-semibold bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors focus:ring-opacity-50 cursor-pointer"
+                        className="text-[14px] w-full h-[40px] text-base font-semibold bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors focus:ring-opacity-50 cursor-pointer"
                     >
                         Create Free Account
                     </button>
@@ -182,8 +194,9 @@ export default function Signup({ setIsAuthenticated }) {
                     <div className="flex-grow border-t border-gray-600"></div>
                 </div>
 
-                {/* Google Login */}
-                <button className="w- flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
+                <button
+                    onClick={handleGoogleSignup}
+                    className="w- flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
                     <img
                         src="https://www.svgrepo.com/show/475656/google-color.svg"
                         alt="Google"
@@ -192,7 +205,7 @@ export default function Signup({ setIsAuthenticated }) {
                     <span className="text-white font-medium text-[14px] ">Continue With Google</span>
                 </button>
 
-                {/* Footer Links */}
+
                 <p className="text-xs text-gray-500 text-center mt-8">
                     By creating an account, you agree to our{" "}
                     <Link to="#" className="text-purple-400 hover:underline">terms</Link> and{" "}
@@ -204,7 +217,6 @@ export default function Signup({ setIsAuthenticated }) {
                     <Link to="/signin" className="text-purple-400 font-medium hover:underline">Sign in</Link>
                 </p>
             </div>
-            {/* </div> */}
         </div>
     );
 }
