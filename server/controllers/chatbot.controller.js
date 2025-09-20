@@ -90,10 +90,10 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export const getChatbotResponse = async (req, res) => {
   try {
-    const { combinedMessage, context, conversationId } = req.body;
+    const { userInput, context, conversationId } = req.body;
     const { userId } = req.user;
 
-    if (!combinedMessage) {
+    if (!userInput) {
   return res.status(400).json({ error: "Combined message is required" });
 }
 
@@ -107,7 +107,7 @@ export const getChatbotResponse = async (req, res) => {
     if (!conversationId) {
       conversation = await Conversation.create({
         userId,
-        title: combinedMessage.slice(0, 40),
+        title: userInput.slice(0, 40),
       });
     } else {
       conversation = await Conversation.findById(conversationId);
@@ -167,7 +167,7 @@ If the user's input is a short casual greeting or question (<= 3 words, e.g. "hi
 12. Storytelling Style
 
 User request:
-${context ? `${context}\n\n` : ""}${combinedMessage}
+${context ? `${context}\n\n` : ""}${userInput}
 `;
 
 
@@ -196,7 +196,7 @@ ${context ? `${context}\n\n` : ""}${combinedMessage}
     await Chat.create({
   userId,
   conversationId: conversation._id,
-  prompt: combinedMessage,
+  prompt: userInput,
   response: fullResponse,
   context: context || "",
 });
