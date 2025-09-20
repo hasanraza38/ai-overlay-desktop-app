@@ -2,13 +2,13 @@ import { useState, useRef, useEffect } from "react";
 import {
   FiSidebar,
   FiMessageSquare,
-  // FiMaximize2,
-  // FiPause,
   FiX,
-  FiPauseCircle,
+  FiCopy,
+  FiArrowUpCircle,
+  FiStopCircle,
 } from "react-icons/fi";
 import { BiConversation } from "react-icons/bi";
-import { Plus, Send } from "lucide-react";
+import { Plus } from "lucide-react";
 import Topbar from "../components/Topbar";
 
 // Streaming function
@@ -43,7 +43,7 @@ async function streamGroqResponse(userMessage, onChunk, onDone) {
           const json = JSON.parse(data);
           const token = json.token;
           if (token) onChunk(token);
-        } catch { }
+        } catch {}
       }
     }
   }
@@ -54,6 +54,7 @@ export default function Chatbot() {
   const [input, setInput] = useState("");
   const [showContext, setShowContext] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [copied, setCopied] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Auto scroll
@@ -61,7 +62,7 @@ export default function Chatbot() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Utility: Parse response into structured blocks
+  // Parse response blocks
   const parseResponse = (content) => {
     const blocks = [];
     const lines = content.split("\n");
@@ -70,7 +71,6 @@ export default function Chatbot() {
 
     lines.forEach((line) => {
       if (line.startsWith("```")) {
-        // Switch between code and text
         if (currentBlock.type === "code") {
           blocks.push(currentBlock);
           currentBlock = { type: "text", content: "" };
@@ -79,7 +79,6 @@ export default function Chatbot() {
           currentBlock = { type: "code", content: "" };
         }
       } else if (/^#+\s/.test(line)) {
-        // Heading
         if (currentBlock.content.trim()) blocks.push(currentBlock);
         blocks.push({ type: "heading", content: line.replace(/^#+\s/, "") });
         currentBlock = { type: "text", content: "" };
@@ -94,7 +93,6 @@ export default function Chatbot() {
 
   const tokenQueue = useRef([]);
   const streamingInterval = useRef(null);
-  // const [isStreaming, setIsStreaming] = useState(false);
 
   const handleSend = async () => {
     if (!input.trim() || isStreaming) return;
@@ -109,7 +107,6 @@ export default function Chatbot() {
     };
 
     const onDone = () => {
-      // flush remaining tokens
       const flushInterval = setInterval(() => {
         if (tokenQueue.current.length === 0) {
           clearInterval(flushInterval);
@@ -126,7 +123,6 @@ export default function Chatbot() {
       }, 50);
     };
 
-    // typing effect interval
     streamingInterval.current = setInterval(() => {
       if (tokenQueue.current.length > 0) {
         const token = tokenQueue.current.shift();
@@ -141,8 +137,6 @@ export default function Chatbot() {
     await streamGroqResponse(input, onChunk, onDone);
   };
 
-
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -151,20 +145,45 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-white text-gray-900">
+    <div className="h-screen flex flex-col text-white 
+                    bg-transparent backdrop-blur-xl 
+                    bg-white/10 shadow-2xl border border-white/20">
 
-      {/* Top Bar */}
+      {/* Topbar */}
       <Topbar />
+
+      {/* Top Controls */}
+      <div className="flex justify-between items-center p-3 
+                      bg-white/10 backdrop-blur-md 
+                      border-b border-white/20">
+        <button
+          onClick={() => setShowContext(true)}
+          className="flex items-center gap-2 px-3 py-1 
+                     rounded-md bg-white/10 hover:bg-white/30 transition"
+        >
+          <BiConversation size={18} />
+          <span>Chats</span>
+        </button>
+        <div className="flex gap-5 text-white/70">
+          <button className="hover:text-white">
+            <FiSidebar size={18} />
+          </button>
+          <button className="hover:text-white">
+            <FiMessageSquare size={18} />
+          </button>
+        </div>
+      </div>
 
       {/* Chat Body */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col">
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`p-3 rounded-lg max-w-[90%] break-words ${msg.role === "user"
-              ? "bg-gray-200 text-gray-900 self-end"
-              : "bg-white text-black border border-gray-200 self-start"
-              }`}
+            className={`p-3 rounded-xl max-w-[85%] backdrop-blur-sm
+                        ${msg.role === "user"
+              ? "self-end bg-blue-500/20 border border-blue-400/30"
+              : "self-start bg-white/10 border border-white/20"
+            }`}
           >
             {msg.role === "assistant"
               ? parseResponse(msg.content).map((block, idx) => {
@@ -177,16 +196,29 @@ export default function Chatbot() {
                 }
                 if (block.type === "code") {
                   return (
-                    <pre
-                      key={idx}
-                      className="bg-gray-900 text-green-200 text-sm p-3 rounded-md overflow-x-auto my-2"
-                    >
-                      <code>{block.content.trim()}</code>
-                    </pre>
+                    <div key={idx} className="relative my-2">
+                      <pre className="bg-black/60 text-green-300 text-sm p-3 rounded-lg overflow-x-auto">
+                        <code>{block.content.trim()}</code>
+                      </pre>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(block.content.trim());
+                          setCopied(true);
+                          setTimeout(() => setCopied(false), 2000);
+                        }}
+                        className="absolute top-1 right-1 text-xs 
+                                   bg-white/1 px-2 py-1 rounded hover:bg-white/30"
+                      >
+                        {copied ? "Copied!" : <FiCopy />}
+                      </button>
+                    </div>
                   );
                 }
                 return (
-                  <p key={idx} className="text-sm leading-relaxed whitespace-pre-wrap">
+                  <p
+                    key={idx}
+                    className="text-sm leading-relaxed whitespace-pre-wrap"
+                  >
                     {block.content.trim()}
                   </p>
                 );
@@ -198,30 +230,32 @@ export default function Chatbot() {
       </div>
 
       {/* Input Bar */}
-      <div className="p-4 border-t border-gray-200 bg-white">
-        <div className="relative flex items-end max-w-4xl mx-auto w-full">
-          {/* Plus Icon (Left) */}
+      <div className="p-2 border-t border-white/20 bg-white/5 backdrop-blur-md">
+        <div className="relative flex items-end max-w-4xl mx-auto w-full 
+                        rounded-2xl border border-white/20 
+                        bg-white/10 backdrop-blur-md p-2">
+          {/* Plus Icon */}
           <button
-            className="absolute left-3 bottom-2 text-gray-500 hover:text-black"
+            className="p-2 text-white/70 hover:text-white"
             onClick={() => alert("Upload window khul jaeygi")}
           >
-            <Plus size={20} />
+            <Plus size={24} />
           </button>
 
           {/* Textarea */}
-
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             rows="1"
-            placeholder="Message Chatbot..."
-            className="w-full border border-gray-300 rounded-lg pl-10 pr-10 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500"
-            style={{ minHeight: "40px", maxHeight: "200px" }}
+            placeholder="Ask anything...."
+            className="flex-1 bg-transparent text-white placeholder-white/50 
+                       resize-none focus:outline-none px-2 py-2"
+            style={{ minHeight: "30px", maxHeight: "200px" }}
             disabled={isStreaming}
           />
 
-          {/* Send / Stop Button */}
+          {/* Send / Stop */}
           {isStreaming ? (
             <button
               onClick={() => {
@@ -229,9 +263,10 @@ export default function Chatbot() {
                 tokenQueue.current = [];
                 setIsStreaming(false);
               }}
-              className="absolute right-3 bottom-2 text-red-600 hover:text-red-800"
+              className="p-2 text-red-400 hover:text-red-500"
+              title="Stop"
             >
-              Stop
+              <FiStopCircle size={26} />
             </button>
           ) : (
             <button
@@ -239,62 +274,52 @@ export default function Chatbot() {
                 if (!input.trim()) {
                   const msgDiv = document.getElementById("alertmsg");
                   msgDiv.innerText = "Please enter a message before sending.";
-
-
-                  // 3 seconds baad auto clear
                   setTimeout(() => {
                     msgDiv.innerText = "";
                   }, 3000);
-
                   return;
                 }
-
-
-                document.getElementById("alertmsg").innerText = ""; // clear msg if any
+                document.getElementById("alertmsg").innerText = "";
                 handleSend();
               }}
-              className="absolute right-3 bottom-2 text-blue-600 hover:text-blue-800"
+              className="p-2 text-white/70 hover:text-white rounded-full shadow-md 
+                         transition"
+              title="Send"
             >
-              <Send size={20} />
+              <FiArrowUpCircle size={26} />
             </button>
           )}
-
-
         </div>
-        <div id="alertmsg" className="text-red-500 text-sm mt-1"></div>
+        <div id="alertmsg" className="text-red-400 text-sm mt-1"></div>
       </div>
 
-      {/* Context Sidebar */}
+      {/* Sidebar Context */}
       {showContext && (
-        <div className="absolute top-11 left-0 w-72 h-[656px] bg-white border-r border-gray-200 shadow-lg p-4 flex flex-col">
-          <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-            <h2 className="text-lg font-semibold">Chats History</h2>
-            <button
-              onClick={() => setShowContext(false)}
-              className="text-gray-500 hover:text-black"
-            >
-              <FiX size={20} />
-            </button>
-          </div>
-          <div className="mt-3 text-sm text-gray-600">
-            Yahan aap ki recent chats show hongi (history, info, etc).
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 z-40 flex">
+    {/* Overlay */}
+    <div 
+      className="absolute inset-0 bg-white/1 backdrop-blur-sm" 
+      onClick={() => setShowContext(false)} 
+    />
+
+    {/* Sidebar */}
+    <div className="relative top-11 w-72 h-[656px] bg-gray-900/50 backdrop-blur-xl border-r border-white/20 p-4 flex flex-col z-50">
+      <div className="flex justify-between items-center border-b border-white/20 pb-2">
+        <h2 className="text-lg font-semibold text-gray-200">Chats History</h2>
+        <button
+          onClick={() => setShowContext(false)}
+          className="text-gray-400 hover:text-gray-200 transition"
+        >
+          <FiX size={20} />
+        </button>
+      </div>
+      <div className="mt-3 text-sm text-gray-300">
+        Yahan aap ki recent chats show hongi (history, info, etc).
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

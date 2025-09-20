@@ -78,6 +78,7 @@ function App() {
 
   return (
 
+
     <Routes>
 
       <Route path="/chatbot" element={<ProtectedRoute> <ChatSection /></ProtectedRoute>} />
@@ -87,6 +88,7 @@ function App() {
       {/* Default route */}
       <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} />
     </Routes>
+
 
 
   );
