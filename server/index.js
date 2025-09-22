@@ -24,12 +24,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-app.use('/api/v1/auth', authRoutes);
-app.use("/api/v1/chatbot", chatbotRoutes);
-app.use("/api/v1/payment", paymentRoutes);
+app.use('/auth', authRoutes);
+app.use("/chatbot", chatbotRoutes);
+app.use("/payment", paymentRoutes);
 
 
-app.get("/api/v1", (req, res) => {
+app.get("/", (req, res) => {
   res.send("API is running...")
 });
 
