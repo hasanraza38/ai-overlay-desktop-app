@@ -9,6 +9,8 @@ import safepay from "../config/safepay.js";
       currency: "PKR",
     });
 
+    
+
     console.log("Token:", token);
 
     const url = safepay.checkout.create({
