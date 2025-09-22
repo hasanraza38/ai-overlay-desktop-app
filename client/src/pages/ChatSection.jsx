@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import {
-  FiSidebar,
-  FiMessageSquare,
   FiX,
   FiCopy,
   FiArrowUpCircle,
@@ -209,7 +207,7 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="h-screen flex flex-col text-white backdrop-blur-xl bg-black/80 shadow-2xl border border-white/20">
+    <div className="h-screen flex flex-col text-zinc-300 backdrop-blur-xl bg-black/40 shadow-2xl border border-white/20">
       <Topbar />
 
       {/* Controls */}
@@ -224,45 +222,75 @@ export default function Chatbot() {
       </div>
 
       {/* Chat Body */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/20">
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`whitespace-pre-line p-3 rounded-xl max-w-[85%] backdrop-blur-sm
-              ${msg.role === "user"
-                ? "self-end bg-blue-500/20 border border-blue-400/30"
-                : "self-start bg-white/10 border border-white/20"
-              }`}
-          >
-            {msg.content}
-          </div>
-        ))}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/20 scrollbar-thin">
+        {messages.map((msg, i) => {
+          const parts = msg.content.split(/```/g);
+          return (
+            <div
+              key={i}
+              className={`whitespace-pre-wrap break-words p-3 rounded-xl max-w-[85%] backdrop-blur-sm
+                ${msg.role === "user"
+                  ? "self-end bg-blue-500/20 border border-blue-400/30"
+                  : "self-start bg-white/10 border border-white/20"
+                }`}
+            >
+              {parts.map((part, idx) => {
+                if (idx % 2 === 1) {
+                  const code = part.replace(/^[a-z]+\n/, "");
+                  return (
+                    <div key={idx} className="relative group my-2">
+                      <pre className="overflow-x-auto text-sm p-2 rounded-lg bg-black/40 border border-white/20 scrollbar-thin">
+                        <code>{code}</code>
+                      </pre>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(code);
+                          setCopied(true);
+                          setTimeout(() => setCopied(false), 2000);
+                        }}
+                        className="absolute top-1 right-1 p-1 rounded bg-white/10 hover:bg-white/20 transition"
+                      >
+                        {copied ? (
+                          <span className="text-xs text-gray-300">Copied</span>
+                        ) : (
+                          <FiCopy size={14} className="text-gray-300" />
+                        )}
+                      </button>
+                    </div>
+                  );
+                } else {
+                  return <p key={idx}>{part}</p>;
+                }
+              })}
+            </div>
+          );
+        })}
         <div ref={messagesEndRef}></div>
       </div>
 
       {/* Input */}
       <div className="p-1 border-t border-white/20 bg-white/5 backdrop-blur-md">
-      {/* Copied Text Box (Input ke upar dikhne wala) */}
-{copiedText && (
-  <div
-    className="mx-auto max-w-4xl w-full mb-2 px-3 py-1.5 
+        {/* Copied Text Box */}
+        {copiedText && (
+          <div
+            className="mx-auto max-w-4xl w-full mb-2 px-3 py-1.5 
                rounded-lg border border-white/20 bg-white/10 
                backdrop-blur-md text-xs text-white/70 
                flex items-center justify-between cursor-pointer"
-    onClick={() => setShowPopup(true)}
-  >
-    <span className="font-medium text-gray-300">Copied Text</span>
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        setCopiedText("");
-      }}
-      className="text-gray-400 hover:text-red-400 flex items-center"
-    >
-      <FiX size={14} />
-    </button>
-  </div>
-)}
+            onClick={() => setShowPopup(true)}
+          >
+            <span className="font-medium text-gray-300">Copied Text</span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCopiedText("");
+              }}
+              className="text-gray-400 hover:text-red-400 flex items-center"
+            >
+              <FiX size={14} />
+            </button>
+          </div>
+        )}
 
         <div className="relative flex items-end max-w-4xl mx-auto w-full rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-1">
           <textarea
@@ -271,12 +299,25 @@ export default function Chatbot() {
             onKeyDown={handleKeyDown}
             rows="1"
             placeholder="Ask anything...."
-            className="flex-1 bg-transparent text-white placeholder-white/50 resize-none focus:outline-none px-2 py-2"
+            className="flex-1 bg-transparent text-white placeholder-white/50 resize-none focus:outline-none px-2 py-2 break-words"
             disabled={isStreaming}
           />
-          <button onClick={handleSend} disabled={isStreaming} className="p-2 text-white/70 hover:text-white">
-            <FiArrowUpCircle size={26} />
-          </button>
+          {isStreaming ? (
+            <button
+              onClick={() => {
+                clearInterval(streamingInterval.current);
+                tokenQueue.current = [];
+                setIsStreaming(false);
+              }}
+              className="p-2 text-red-400 hover:text-red-500"
+            >
+              <FiStopCircle size={26} />
+            </button>
+          ) : (
+            <button onClick={handleSend} disabled={isStreaming} className="p-2 text-white/70 hover:text-white">
+              <FiArrowUpCircle size={26} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -293,7 +334,7 @@ export default function Chatbot() {
               onClick={() => setShowContext(false)}
             />
             <motion.div
-              className="relative top-10 w-72 h-[calc(100vh-2.75rem)] bg-gray-500/10 backdrop-blur-md border-r border-white/20 p-4 flex flex-col z-50 shadow-lg"
+              className="relative top-10 w-72 h-[calc(100vh-2.75rem)] bg-gray-500/10 backdrop-blur-md border-r border-white/20 p-4 flex flex-col z-50 shadow-lg scrollbar-thin"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
@@ -309,13 +350,13 @@ export default function Chatbot() {
               {/* New Chat Btn */}
               <button
                 onClick={startNewConversation}
-                className="flex items-center gap-2 mt-3 mb-4 px-3 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                className="flex items-center gap-2 mt-3 mb-4 px-3 py-2 rounded hover:bg-white/20 text-white text-sm"
               >
                 <Plus size={16} /> New Chat
               </button>
 
               <h3 className="text-xs uppercase text-gray-400 mb-2">Recent Chats</h3>
-              <div className="space-y-2 text-sm text-gray-100 overflow-y-auto">
+              <div className="space-y-2 text-sm text-gray-100 overflow-y-auto scrollbar-thin">
                 {conversations.length > 0 ? (
                   conversations.map((conv) => (
                     <button
@@ -337,33 +378,28 @@ export default function Chatbot() {
         )}
       </AnimatePresence>
 
-      {/* Themed Popup (file ke end me) */}
-{showPopup && (
-  <div className="fixed inset-0 flex items-center justify-center z-50">
-    {/* Overlay */}
-    <div
-      className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-      onClick={() => setShowPopup(false)}
-    />
-    {/* Popup Box */}
-    <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 
-                    rounded-xl shadow-lg p-4 max-w-sm w-full text-center">
-      <h3 className="text-sm font-semibold text-gray-200 mb-2">
-        Copied Text
-      </h3>
-      <p className="text-xs text-gray-300 whitespace-pre-line">
-        {copiedText}
-      </p>
-      <button
-        onClick={() => setShowPopup(false)}
-        className="mt-3 px-3 py-1 text-xs rounded-lg bg-white/20 
-                   hover:bg-white/30 text-gray-200 transition"
-      >
-        Close
-      </button>
-    </div>
-  </div>
-)}
+      {/* Themed Popup */}
+      {showPopup && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowPopup(false)} />
+          <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 
+                          rounded-xl shadow-lg p-4 max-w-sm w-full text-center">
+            <h3 className="text-sm font-semibold text-gray-200 mb-2">
+              Copied Text
+            </h3>
+            <p className="text-xs text-gray-300 whitespace-pre-line">
+              {copiedText}
+            </p>
+            <button
+              onClick={() => setShowPopup(false)}
+              className="mt-3 px-3 py-1 text-xs rounded-lg bg-white/20 
+                       hover:bg-white/30 text-gray-200 transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
