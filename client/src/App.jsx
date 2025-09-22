@@ -83,14 +83,14 @@ function App() {
 
     <Routes>
 
-      {/* <Route path="/chatbot" element={<ProtectedRoute> <ChatSection /></ProtectedRoute>} />
+      <Route path="/chatbot" element={<ProtectedRoute> <ChatSection /></ProtectedRoute>} />
       <Route path="/signin" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signin />} />
-      <Route path="/signup" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signup setIsAuthenticated={setIsAuthenticated} />} /> */}
+      <Route path="/signup" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signup setIsAuthenticated={setIsAuthenticated} />} />
 
       {/* Default route */}
-      {/* <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} />  */}
+      <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} /> 
 
-     <Route path="/" element={<PricingPage />}/> 
+     {/* <Route path="/" element={<PricingPage />}/>  */}
     </Routes>
 
  
