@@ -1,4 +1,4 @@
-import { safepay } from "../config/safepay.js";
+import safepay from "../config/safepayconfig.js";
 
  const pay = async (req, res) => {
   try {
@@ -8,6 +8,8 @@ import { safepay } from "../config/safepay.js";
       amount: amount || 1000, 
       currency: "PKR",
     });
+
+
 
     console.log("Token:", token);
 
