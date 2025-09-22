@@ -126,11 +126,11 @@ app.whenReady().then(() => {
       });
 
       //  Apne backend ka google login route
-      loginWindow.loadURL("http://localhost:4000/api/v1/auth/google");
+      loginWindow.loadURL("https://ai-overlay.vercel.app/api/v1/auth/google");
 
       // Jab redirect callback pe aaye
       loginWindow.webContents.on("will-redirect", async (event, url) => {
-        if (url.startsWith("http://localhost:4000/api/v1/auth/google/callback")) {
+        if (url.startsWith("https://ai-overlay.vercel.app/api/v1/auth/google/callback")) {
           try {
             const fetch = (await import("node-fetch")).default;
             const response = await fetch(url, { credentials: "include" });
