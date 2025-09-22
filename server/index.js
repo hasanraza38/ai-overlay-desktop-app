@@ -24,9 +24,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-app.use('/auth', authRoutes);
-app.use("/chatbot", chatbotRoutes);
-app.use("/payment", paymentRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use("/api/v1/chatbot", chatbotRoutes);
+app.use("/api/v1/payment", paymentRoutes);
 
 
 app.get("/", (req, res) => {
