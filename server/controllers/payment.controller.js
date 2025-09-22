@@ -1,4 +1,4 @@
-import { safepay } from "../config/safepay.js";
+import safepay from "../config/safepay.js";
 
  const pay = async (req, res) => {
   try {
