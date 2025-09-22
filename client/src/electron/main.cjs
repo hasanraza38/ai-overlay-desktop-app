@@ -35,7 +35,7 @@ function createWindow() {
     alwaysOnTop: true,
     show: false,
     fullscreenable: false,
-    resizable: false,
+    resizable: true,
     maximizable: true,
     x: screenWidth - windowWidth - 10,
     y: 12,
