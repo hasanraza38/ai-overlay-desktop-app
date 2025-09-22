@@ -74,7 +74,7 @@ export default function Signup({ setIsAuthenticated }) {
                 window.electronAPI.saveToken(token);
 
                 if (window.electronAPI && window.electronAPI.resizeWindow) {
-                    window.electronAPI.resizeWindow(500, 700, true);
+                    window.electronAPI.resizeWindow(400, 300, true);
                 }
 
                 setIsAuthenticated(true);
@@ -99,7 +99,7 @@ export default function Signup({ setIsAuthenticated }) {
                 await window.electronAPI.saveToken(result.token);
 
                 if (window.electronAPI && window.electronAPI.resizeWindow) {
-                    window.electronAPI.resizeWindow(500, 700, true);
+                    window.electronAPI.resizeWindow(400, 300, true);
                 }
 
                 setIsAuthenticated(true);

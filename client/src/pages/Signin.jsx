@@ -40,7 +40,7 @@ export default function Signin() {
                 window.electronAPI.saveToken(token);
 
                 if (window.electronAPI && window.electronAPI.resizeWindow) {
-                    window.electronAPI.resizeWindow(500, 700, true);
+                    window.electronAPI.resizeWindow(400, 300, true);
                 }
 
                 navigate("/chatbot");
@@ -60,7 +60,7 @@ export default function Signin() {
                 await window.electronAPI.saveToken(result.token);
 
                 if (window.electronAPI && window.electronAPI.resizeWindow) {
-                    window.electronAPI.resizeWindow(500, 700, true);
+                    window.electronAPI.resizeWindow(400, 300, true);
                 }
 
                 navigate("/chatbot");
@@ -73,9 +73,9 @@ export default function Signin() {
     };
 
     return (
-        <div className="bg-[#191919] flec flex-col items-center justify-center w-full h-full">
+        <div className="bg-[#191919] flex-col items-center justify-center w-full h-full">
             <Topbar />
-            <div className="flex flex-col items-center justify-center w-full h-full  bg-[#191919] border rounded-2xl p-8 ">
+            <div className="flex flex-col items-center justify-center w-full h-full  bg-[#191919] p-8 ">
                 <h1 className="text-3xl font-bold text-center text-purple-500 mb-2 mt-7">AI Overlay</h1>
                 <h2 className="text-2xl font-semibold text-center text-white mb-[33px]">Sign in to your account</h2>
 
