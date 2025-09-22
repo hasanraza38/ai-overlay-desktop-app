@@ -2,22 +2,30 @@ import { useState, useRef, useEffect } from "react";
 import {
   FiSidebar,
   FiMessageSquare,
-  FiMaximize2,
   FiX,
+  FiCopy,
+  FiArrowUpCircle,
+  FiStopCircle,
 } from "react-icons/fi";
 import { BiConversation } from "react-icons/bi";
-import { Plus, Send } from "lucide-react";
+import { Plus } from "lucide-react";
+import Topbar from "../components/Topbar";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Streaming function
-async function streamGroqResponse(userMessage, onChunk, onDone) {
+async function streamGroqResponse(userMessage, onChunk, onDone, conversationId) {
+  const token = await window.electronAPI.getToken();
+
   const response = await fetch("http://localhost:4000/api/v1/chatbot", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify({
       userInput: userMessage,
       context: "general",
+      conversationId, // send active conversation id
     }),
   });
 
@@ -49,70 +57,138 @@ async function streamGroqResponse(userMessage, onChunk, onDone) {
 export default function Chatbot() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [copiedText, setCopiedText] = useState("");
   const [showContext, setShowContext] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
-  const messagesEndRef = useRef(null);
+  const [copied, setCopied] = useState(false);
 
-  // Auto scroll
+  const [conversations, setConversations] = useState([]); // all convos
+  const [activeConversation, setActiveConversation] = useState(null); // current convo
+
+  const messagesEndRef = useRef(null);
+  const tokenQueue = useRef([]);
+  const streamingInterval = useRef(null);
+
+  // Clipboard listen
+  useEffect(() => {
+    if (window.electronAPI?.onClipboardUpdate) {
+      const unsubscribe = window.electronAPI.onClipboardUpdate((text) => {
+        if (text && text.trim() !== "") {
+          setCopiedText(text);
+        }
+      });
+      return unsubscribe;
+    }
+  }, []);
+
+  // Scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Utility: Parse response into structured blocks
-  const parseResponse = (content) => {
-    const blocks = [];
-    const lines = content.split("\n");
+  // Fetch conversations on sidebar open
+  useEffect(() => {
+    if (showContext) {
+      fetchConversations();
+    }
+  }, [showContext]);
 
-    let currentBlock = { type: "text", content: "" };
+  const fetchConversations = async () => {
+    try {
+      const token = await window.electronAPI.getToken();
+      const res = await fetch("http://localhost:4000/api/v1/chatbot/conversations", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setConversations(data);
+    } catch (err) {
+      console.error("Error fetching conversations:", err);
+    }
+  };
 
-    lines.forEach((line) => {
-      if (line.startsWith("```")) {
-        // Switch between code and text
-        if (currentBlock.type === "code") {
-          blocks.push(currentBlock);
-          currentBlock = { type: "text", content: "" };
+  // Load single conversation
+  const loadConversation = async (id) => {
+    try {
+      const token = await window.electronAPI.getToken();
+      const res = await fetch(`http://localhost:4000/api/v1/chatbot/conversations/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+
+      const formatted = [];
+      data.forEach((chat) => {
+        formatted.push({ role: "user", content: chat.prompt });
+        formatted.push({ role: "assistant", content: chat.response });
+      });
+
+      setMessages(formatted);
+      setActiveConversation(id);
+      setShowContext(false);
+    } catch (err) {
+      console.error("Error loading conversation:", err);
+    }
+  };
+
+  // Start new conversation
+  const startNewConversation = async () => {
+    setShowContext(false);
+    setMessages([]);
+    setActiveConversation(null);
+
+    try {
+      const token = await window.electronAPI.getToken();
+      const res = await fetch("http://localhost:4000/api/v1/chatbot/conversations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ title: "New Chat" }),
+      });
+      const newConv = await res.json();
+
+      setConversations((prev) => [newConv, ...prev]); // top pe add
+      setActiveConversation(newConv._id);
+      setShowContext(false);
+    } catch (err) {
+      console.error("Error creating new conversation:", err);
+    }
+  };
+
+  // Handle send
+  const handleSend = async () => {
+    if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
+
+    const combinedMessage = copiedText ? copiedText + "\n\n" + input : input;
+    const userMessage = { role: "user", content: combinedMessage };
+
+    setMessages((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
+    setInput("");
+    setCopiedText("");
+    setIsStreaming(true);
+
+    const onChunk = (token) => tokenQueue.current.push(token);
+
+    const onDone = () => {
+      const flushInterval = setInterval(() => {
+        if (tokenQueue.current.length === 0) {
+          clearInterval(flushInterval);
+          clearInterval(streamingInterval.current);
+          setIsStreaming(false);
         } else {
-          if (currentBlock.content.trim()) blocks.push(currentBlock);
-          currentBlock = { type: "code", content: "" };
+          const token = tokenQueue.current.shift();
+          setMessages((prev) => {
+            const updated = [...prev];
+            updated[updated.length - 1].content += token;
+            return updated;
+          });
         }
-      } else if (/^#+\s/.test(line)) {
-        // Heading
-        if (currentBlock.content.trim()) blocks.push(currentBlock);
-        blocks.push({ type: "heading", content: line.replace(/^#+\s/, "") });
-        currentBlock = { type: "text", content: "" };
-      } else {
-        currentBlock.content += line + "\n";
-      }
-    });
+      }, 50);
+    };
 
-    if (currentBlock.content.trim()) blocks.push(currentBlock);
-    return blocks;
-  };
-
-  const tokenQueue = useRef([]);
-const streamingInterval = useRef(null);
-// const [isStreaming, setIsStreaming] = useState(false);
-
-const handleSend = async () => {
-  if (!input.trim() || isStreaming) return;
-
-  const userMessage = { role: "user", content: input };
-  setMessages((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
-  setInput("");
-  setIsStreaming(true);
-
-  const onChunk = (token) => {
-    tokenQueue.current.push(token);
-  };
-
-  const onDone = () => {
-    // flush remaining tokens
-    const flushInterval = setInterval(() => {
-      if (tokenQueue.current.length === 0) {
-        clearInterval(flushInterval);
-        clearInterval(streamingInterval.current);
-        setIsStreaming(false);
-      } else {
+    streamingInterval.current = setInterval(() => {
+      if (tokenQueue.current.length > 0) {
         const token = tokenQueue.current.shift();
         setMessages((prev) => {
           const updated = [...prev];
@@ -120,25 +196,10 @@ const handleSend = async () => {
           return updated;
         });
       }
-    }, 50);
+    }, 40);
+
+    await streamGroqResponse(combinedMessage, onChunk, onDone, activeConversation);
   };
-
-  // typing effect interval
-  streamingInterval.current = setInterval(() => {
-    if (tokenQueue.current.length > 0) {
-      const token = tokenQueue.current.shift();
-      setMessages((prev) => {
-        const updated = [...prev];
-        updated[updated.length - 1].content += token;
-        return updated;
-      });
-    }
-  }, 40);
-
-  await streamGroqResponse(input, onChunk, onDone);
-};
-
-
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -148,145 +209,162 @@ const handleSend = async () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-white text-gray-900">
-      {/* Top Bar */}
-      <div className="flex justify-between items-center p-3 bg-white border-b border-gray-200 shadow-sm">
+    <div className="h-screen flex flex-col text-white backdrop-blur-xl bg-black/80 shadow-2xl border border-white/20">
+      <Topbar />
+
+      {/* Controls */}
+      <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">
         <button
           onClick={() => setShowContext(true)}
-          className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-md hover:bg-gray-200"
+          className="flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
         >
           <BiConversation size={18} />
           <span>Chats</span>
         </button>
-        <div className="flex gap-5 text-gray-500">
-          <button className="hover:text-black"><FiSidebar size={18} /></button>
-          <button className="hover:text-black"><FiMessageSquare size={18} /></button>
-          <button className="hover:text-black"><FiMaximize2 size={18} /></button>
-        </div>
       </div>
 
       {/* Chat Body */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col">
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/20">
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`p-3 rounded-lg max-w-[90%] break-words ${
-              msg.role === "user"
-                ? "bg-gray-200 text-gray-900 self-end"
-                : "bg-white text-black border border-gray-200 self-start"
-            }`}
+            className={`whitespace-pre-line p-3 rounded-xl max-w-[85%] backdrop-blur-sm
+              ${msg.role === "user"
+                ? "self-end bg-blue-500/20 border border-blue-400/30"
+                : "self-start bg-white/10 border border-white/20"
+              }`}
           >
-            {msg.role === "assistant"
-              ? parseResponse(msg.content).map((block, idx) => {
-                  if (block.type === "heading") {
-                    return (
-                      <h2 key={idx} className="text-lg font-semibold mt-2 mb-1">
-                        {block.content}
-                      </h2>
-                    );
-                  }
-                  if (block.type === "code") {
-                    return (
-                      <pre
-                        key={idx}
-                        className="bg-gray-900 text-green-200 text-sm p-3 rounded-md overflow-x-auto my-2"
-                      >
-                        <code>{block.content.trim()}</code>
-                      </pre>
-                    );
-                  }
-                  return (
-                    <p key={idx} className="text-sm leading-relaxed whitespace-pre-wrap">
-                      {block.content.trim()}
-                    </p>
-                  );
-                })
-              : msg.content}
+            {msg.content}
           </div>
         ))}
         <div ref={messagesEndRef}></div>
       </div>
 
-      {/* Input Bar */}
-      <div className="p-4 border-t border-gray-200 bg-white">
-        <div className="relative flex items-end max-w-4xl mx-auto w-full">
-          {/* Plus Icon (Left) */}
-          <button
-            className="absolute left-3 bottom-2 text-gray-500 hover:text-black"
-            onClick={() => alert("Upload window khul jaeygi")}
-          >
-            <Plus size={20} />
-          </button>
-
-          {/* Textarea */}
-         <textarea
-  value={input}
-  onChange={(e) => setInput(e.target.value)}
-  onKeyDown={handleKeyDown}
-  rows="1"
-  placeholder="Message Chatbot..."
-  className="w-full border border-gray-300 rounded-lg pl-10 pr-10 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500"
-  style={{ minHeight: "40px", maxHeight: "200px" }}
-  disabled={isStreaming}
-/>
-
-{/* Send / Stop Button */}
-{isStreaming ? (
-  <button
-   onClick={() => {
-      clearInterval(streamingInterval.current);
-      tokenQueue.current = [];
-      setIsStreaming(false);
-    }}
-    className="absolute right-3 bottom-2 text-red-600 hover:text-red-800"
+      {/* Input */}
+      <div className="p-1 border-t border-white/20 bg-white/5 backdrop-blur-md">
+      {/* Copied Text Box (Input ke upar dikhne wala) */}
+{copiedText && (
+  <div
+    className="mx-auto max-w-4xl w-full mb-2 px-3 py-1.5 
+               rounded-lg border border-white/20 bg-white/10 
+               backdrop-blur-md text-xs text-white/70 
+               flex items-center justify-between cursor-pointer"
+    onClick={() => setShowPopup(true)}
   >
-    Stop
-  </button>
-) : (
-  <button
-    onClick={() => {
-    if (!input.trim()) {
-      const msgDiv = document.getElementById("alertmsg");
-      msgDiv.innerText = "Please enter a message before sending.";
-
-      // 3 seconds baad auto clear
-      setTimeout(() => {
-        msgDiv.innerText = "";
-      }, 3000);
-
-      return;
-    }
-
-    document.getElementById("alertmsg").innerText = ""; // clear msg if any
-    handleSend();
-  }}
-  className="absolute right-3 bottom-2 text-blue-600 hover:text-blue-800"
->
-  <Send size={20} />
-  </button>
+    <span className="font-medium text-gray-300">Copied Text</span>
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        setCopiedText("");
+      }}
+      className="text-gray-400 hover:text-red-400 flex items-center"
+    >
+      <FiX size={14} />
+    </button>
+  </div>
 )}
 
+        <div className="relative flex items-end max-w-4xl mx-auto w-full rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-1">
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            rows="1"
+            placeholder="Ask anything...."
+            className="flex-1 bg-transparent text-white placeholder-white/50 resize-none focus:outline-none px-2 py-2"
+            disabled={isStreaming}
+          />
+          <button onClick={handleSend} disabled={isStreaming} className="p-2 text-white/70 hover:text-white">
+            <FiArrowUpCircle size={26} />
+          </button>
         </div>
-        <div id="alertmsg" class="text-red-500 text-sm mt-1"></div>
       </div>
 
-      {/* Context Sidebar */}
-      {showContext && (
-        <div className="absolute top-0 left-0 w-72 h-full bg-white border-r border-gray-200 shadow-lg p-4 flex flex-col">
-          <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-            <h2 className="text-lg font-semibold">Chats History</h2>
-            <button
+      {/* Sidebar */}
+      <AnimatePresence>
+        {showContext && (
+          <div className="fixed inset-0 z-40 flex">
+            <motion.div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
               onClick={() => setShowContext(false)}
-              className="text-gray-500 hover:text-black"
+            />
+            <motion.div
+              className="relative top-10 w-72 h-[calc(100vh-2.75rem)] bg-gray-500/10 backdrop-blur-md border-r border-white/20 p-4 flex flex-col z-50 shadow-lg"
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
             >
-              <FiX size={20} />
-            </button>
+              <div className="flex justify-between items-center border-b border-white/20 pb-2">
+                <h2 className="text-lg font-semibold text-gray-200">Chats</h2>
+                <button onClick={() => setShowContext(false)} className="text-gray-400 hover:text-gray-200 transition">
+                  <FiX size={20} />
+                </button>
+              </div>
+
+              {/* New Chat Btn */}
+              <button
+                onClick={startNewConversation}
+                className="flex items-center gap-2 mt-3 mb-4 px-3 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm"
+              >
+                <Plus size={16} /> New Chat
+              </button>
+
+              <h3 className="text-xs uppercase text-gray-400 mb-2">Recent Chats</h3>
+              <div className="space-y-2 text-sm text-gray-100 overflow-y-auto">
+                {conversations.length > 0 ? (
+                  conversations.map((conv) => (
+                    <button
+                      key={conv._id}
+                      onClick={() => loadConversation(conv._id)}
+                      className={`block w-full text-left px-2 py-1 rounded hover:bg-white/20 ${
+                        activeConversation === conv._id ? "bg-white/10" : ""
+                      }`}
+                    >
+                      {conv.title || "Untitled Chat"}
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-gray-400">No chats yet</p>
+                )}
+              </div>
+            </motion.div>
           </div>
-          <div className="mt-3 text-sm text-gray-600">
-            Yahan aap ki recent chats show hongi (history, info, etc).
-          </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
+
+      {/* Themed Popup (file ke end me) */}
+{showPopup && (
+  <div className="fixed inset-0 flex items-center justify-center z-50">
+    {/* Overlay */}
+    <div
+      className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+      onClick={() => setShowPopup(false)}
+    />
+    {/* Popup Box */}
+    <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 
+                    rounded-xl shadow-lg p-4 max-w-sm w-full text-center">
+      <h3 className="text-sm font-semibold text-gray-200 mb-2">
+        Copied Text
+      </h3>
+      <p className="text-xs text-gray-300 whitespace-pre-line">
+        {copiedText}
+      </p>
+      <button
+        onClick={() => setShowPopup(false)}
+        className="mt-3 px-3 py-1 text-xs rounded-lg bg-white/20 
+                   hover:bg-white/30 text-gray-200 transition"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

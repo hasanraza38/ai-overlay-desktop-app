@@ -1,36 +1,43 @@
-
+import { Brain } from "lucide-react";
+import { RiCloseFill } from "react-icons/ri";
+import { VscChromeMinimize } from "react-icons/vsc";
 import React from "react";
 
 export default function Topbar() {
   return (
     <div
-      className="w-full h-11 bg-gray-100 flex items-center px-3 shadow-sm"
+      className="w-full h-10 bg-white/10 backdrop-blur-md border-b border-white/20 flex items-center justify-between px-4 shadow-lg"
       style={{ WebkitAppRegion: "drag" }}
     >
-      {/* Mac-style buttons */}
-      <div className="flex space-x-2">
-        {/* Close */}
-        <div
-          className="w-4 h-4 rounded-full bg-red-500 hover:bg-red-600 cursor-pointer"
-          style={{ WebkitAppRegion: "no-drag" }}
-          onClick={() => window.electronAPI.closeApp()}
-        ></div>
-        {/* Minimize */}
-        <div
-          className="w-4 h-4 rounded-full bg-yellow-400 hover:bg-yellow-500 cursor-pointer"
-          style={{ WebkitAppRegion: "no-drag" }}
+      {/* Left Branding */}
+      <div
+        className="flex items-center gap-2 text-purple-400 font-semibold select-none"
+        style={{ WebkitAppRegion: "no-drag" }}
+      >
+        <Brain className="w-6 h-6 drop-shadow-md" />
+        {/* <span className="text-sm">AI Overlay</span> */}
+      </div>
+
+      <div
+        className="flex items-center gap-2"
+        style={{ WebkitAppRegion: "no-drag" }}
+      >
+        {/* Minimize Button */}
+        <button
           onClick={() => window.electronAPI.minimizeApp()}
-        ></div>
-        {/* Maximize */}
-        <div
-          className="w-4 h-4 rounded-full bg-green-500 hover:bg-green-600 cursor-pointer"
-          style={{ WebkitAppRegion: "no-drag" }}
-          onClick={() => window.electronAPI.maximizeApp()}
-        ></div>
+          className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors"
+        >
+          <VscChromeMinimize className="w-4 h-4 text-gray-200" />
+        </button>
+
+        {/* Close Button */}
+        <button
+          onClick={() => window.electronAPI.closeApp()}
+          className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-red-500/80 transition-colors"
+        >
+          <RiCloseFill className="w-5 h-5 text-gray-200" />
+        </button>
       </div>
     </div>
   );
 }
-
-
-

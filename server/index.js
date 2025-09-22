@@ -5,8 +5,9 @@ import connectDB from "./config/db.js";
 import dotenv from "dotenv"
 import authRoutes from './routes/auth.routes.js';
 import chatbotRoutes from './routes/chatbot.route.js';
-import './config/passport.js'; 
-import './config/db.js';   
+import paymentRoutes from './routes/payment.routes.js';
+import './config/passport.js';
+import './config/db.js';
 import morgan from "morgan";
 import helmet from "helmet";
 
@@ -22,30 +23,27 @@ app.use(session({ secret: 'keyboard cat', resave: false, saveUninitialized: true
 app.use(passport.initialize());
 app.use(passport.session());
 
+
 app.use('/api/v1/auth', authRoutes);
 app.use("/api/v1/chatbot", chatbotRoutes);
+app.use("/api/v1/payment", paymentRoutes);
 
 
 app.get("/api/v1", (req, res) => {
-    res.send("API is running...")
+  res.send("API is running...")
 });
 
 
 
 connectDB()
-.then(() => {
-     app.listen(port, () => {
-    console.log(`Server is running at port : ${port}`);
-});
-})
-.catch((err) => {
-        console.log("MONGO DB connection failed !!! ", err);
-});
-
-
-
-
-
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server is running at port : ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.log("MONGO DB connection failed !!! ", err);
+  });
 
 
 
