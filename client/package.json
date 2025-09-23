@@ -1,5 +1,5 @@
 {
-  "name": "new_project",
+  "name": "ai-overlay",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,7 +10,9 @@
     "build": "vite build",
     "start": "npm run build && npm run electron",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "package-win": "electron-packager . ai-overlay --overwrite --asar --platform=win32 --arch=x64 --icon=src/assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=ai-overlay"
+
   },
   "dependencies": {
     "@react-oauth/google": "^0.12.2",
@@ -34,7 +36,8 @@
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.2",
-    "electron": "^37.4.0",
+    "electron": "^37.5.1",
+    "electron-packager": "^17.1.2",
     "electronmon": "^2.0.3",
     "eslint": "^9.11.1",
     "eslint-plugin-react": "^7.37.0",

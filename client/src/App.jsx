@@ -84,7 +84,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import ChatSection from "./pages/ChatSection";
-import PricingPage from "./pages/Plane";
 import Wellcome from "./pages/Wellcome";
 
 function App() {
