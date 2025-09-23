@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 async function streamGroqResponse(userMessage, onChunk, onDone, conversationId) {
   const token = await window.electronAPI.getToken();
 
-  const response = await fetch("http://localhost:4000/api/v1/chatbot", {
+  const response = await fetch("https://ai-overlay.vercel.app/api/v1/chatbot", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
