@@ -95,7 +95,7 @@ export default function Chatbot() {
   const fetchConversations = async () => {
     try {
       const token = await window.electronAPI.getToken();
-      const res = await fetch("http://localhost:4000/api/v1/chatbot/conversations", {
+      const res = await fetch("https://ai-overlay.vercel.app/api/v1/chatbot/conversations", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -109,7 +109,7 @@ export default function Chatbot() {
   const loadConversation = async (id) => {
     try {
       const token = await window.electronAPI.getToken();
-      const res = await fetch(`http://localhost:4000/api/v1/chatbot/conversations/${id}`, {
+      const res = await fetch(`https://ai-overlay.vercel.app/api/v1/chatbot/conversations/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -136,7 +136,7 @@ export default function Chatbot() {
 
     try {
       const token = await window.electronAPI.getToken();
-      const res = await fetch("http://localhost:4000/api/v1/chatbot/conversations", {
+      const res = await fetch("https://ai-overlay.vercel.app/api/v1/chatbot/conversations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
