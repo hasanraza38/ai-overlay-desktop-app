@@ -48,7 +48,9 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false);
 
   if (app.isPackaged) {
-    const indexPath = path.join(app.getAppPath(), "dist-react", "index.html");
+    // const indexPath = path.join(app.getAppPath(), "dist-react", "index.html");
+
+    const indexPath = path.join(process.resourcesPath, "dist-react", "index.html");
     console.log("Loading production file:", indexPath);
     mainWindow
       .loadFile(indexPath)
@@ -62,8 +64,11 @@ function createWindow() {
     });
   }
 
+
+ 
+
   mainWindow.once("ready-to-show", () => {
-    console.log("Window is ready to show ✅");
+    console.log("Window is ready to show");
     mainWindow.show();
   });
 
@@ -85,13 +90,25 @@ function createWindow() {
 
 app.whenReady().then(() => {
   clipboard.clear();
+
+
+
+  ipcMain.handle("get-token", async () => {
+    try {
+      return (await keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)) || null;
+    } catch (error) {
+      console.error("Error retrieving token:", error);
+      return null;
+    }
+  });
   createWindow();
 
+  
   // ✅ Tray icon path
   const iconPath = app.isPackaged
-    ? path.join(process.resourcesPath, "icon.ico")
-    : path.join(__dirname, "../../build/icon.ico");
-
+  ? path.join(process.resourcesPath, "icon.ico")
+  : path.join(__dirname, "../../build/icon.ico");
+  
   tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([
     { label: "Show App", click: () => mainWindow?.show() },
@@ -100,6 +117,10 @@ app.whenReady().then(() => {
   tray.setContextMenu(contextMenu);
   tray.setToolTip("AI Overlay");
 
+
+
+
+  
   // ✅ Global shortcut
   const { globalShortcut } = require("electron");
 
@@ -108,11 +129,11 @@ app.whenReady().then(() => {
 
     if (mainWindow.isVisible()) {
       if (mainWindow.isMinimized()) {
-        mainWindow.restore(); // agar already minimized hai to restore karo
+        mainWindow.restore(); 
         mainWindow.focus();
         mainWindow.setAlwaysOnTop(true);
       } else {
-        mainWindow.minimize(); // visible hai to minimize kar do
+        mainWindow.minimize(); 
       }
     } else {
       mainWindow.show();
@@ -140,14 +161,7 @@ app.whenReady().then(() => {
     }
   });
 
-  ipcMain.handle("get-token", async () => {
-    try {
-      return (await keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)) || null;
-    } catch (error) {
-      console.error("Error retrieving token:", error);
-      return null;
-    }
-  });
+  
 
   ipcMain.handle("google-login", async () => {
     return new Promise((resolve, reject) => {
@@ -223,3 +237,5 @@ app.on("activate", () => {
     mainWindow?.show();
   }
 });
+
+
