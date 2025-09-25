@@ -7,8 +7,7 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        let token = await window.electronAPI.getToken();
-        //  token = null
+        const token = await window.electronAPI.getToken();
 
         console.log("ProtectedRoute: Token check:", token ? "Found" : "Not found" );
          if (token) {

@@ -6,14 +6,17 @@
   "main": "src/electron/main.cjs",
   "scripts": {
     "dev": "vite",
-    "electron": "electron .",
+    "dev:electron": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
     "build": "vite build",
-    "build:electron": "electron-builder",
-    "start": "npm run build && npm run electron",
+    "build:electron": "npm run build && electron-builder",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "package-win": "electron-packager . ai-overlay --overwrite --asar --platform=win32 --arch=x64 --icon=src/assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=ai-overlay"
-
+    "dist": "electron-builder",
+    "preview": "npm run build && vite preview",
+    "start": "electron .",
+    "package:win": "npm run build && electron-builder --win",
+    "package:mac": "npm run build && electron-builder --mac",
+    "package:linux": "npm run build && electron-builder --linux",
+    "package:all": "npm run build && electron-builder -wml"
   },
   "dependencies": {
     "@react-oauth/google": "^0.12.2",
@@ -37,7 +40,9 @@
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.2",
+    "concurrently": "^9.2.0",
     "electron": "^37.5.1",
+    "electron-builder": "^26.0.12",
     "electron-packager": "^17.1.2",
     "electronmon": "^2.0.3",
     "eslint": "^9.11.1",
@@ -46,19 +51,39 @@
     "eslint-plugin-react-refresh": "^0.4.12",
     "globals": "^15.9.0",
     "node-addon-api": "^8.5.0",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "wait-on": "^8.0.4"
   },
   "build": {
     "appId": "com.myapp.desktop",
-    "files": [
-      "dist/**/*",
-      "src/electron/**/*"
-    ],
+    "productName": "AI Overlay",
     "directories": {
-      "buildResources": "assets"
+      "output": "release-builds",
+      "buildResources": "build"
     },
+    "files": [
+      "dist-react/**/*",
+      "src/electron/**/*",
+      "package.json",
+      "build/**/*"
+    ],
     "win": {
-      "target": "nsis"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "build/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   }
 }
