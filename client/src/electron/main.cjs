@@ -48,24 +48,13 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false);
 
   if (app.isPackaged) {
-    const indexPath = path.join(
-      process.resourcesPath,
-      "dist-react",
-      "index.html"
-    );
-    console.log(
-      "Attempting to load:",
-      indexPath,
-      "Exists:",
-      require("fs").existsSync(indexPath)
-    );
+    const indexPath = path.join(process.resourcesPath, "dist-react", "index.html");
+    console.log("Attempting to load:", indexPath, "Exists:", require('fs').existsSync(indexPath));
     mainWindow
       .loadFile(indexPath)
       .catch((err) => console.error("Load error:", err));
-    mainWindow.webContents.openDevTools();
   } else {
     const indexPath = path.join(__dirname, "../../dist-react/index.html");
-    // console.log("Loading dev build:", indexPath);
     mainWindow.loadFile(indexPath).catch((err) => {
       console.error("Error loading dev build:", err);
     });
@@ -76,6 +65,8 @@ function createWindow() {
       require("fs").existsSync(indexPath)
     );
   }
+
+
 
   mainWindow.once("ready-to-show", () => {
     console.log("Window is ready to show");
@@ -101,6 +92,7 @@ function createWindow() {
 app.whenReady().then(() => {
   clipboard.clear();
 
+
   ipcMain.handle("get-token", async () => {
     try {
       return (await keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)) || null;
@@ -110,13 +102,11 @@ app.whenReady().then(() => {
     }
   });
 
-  const success = globalShortcut.register("Control+Shift+L", () => {
-    console.log("Hotkey pressed");
 
-    if (!mainWindow) {
-      createWindow();
-      return;
-    }
+  globalShortcut.register("Control+Shift+L", () => {
+    console.log("hotkey");
+
+    if (!mainWindow) return;
 
     if (mainWindow.isVisible()) {
       if (mainWindow.isMinimized()) {
@@ -190,19 +180,7 @@ app.whenReady().then(() => {
       if (resizable) mainWindow.center();
     }
   });
-  createWindow();
 
-  const iconPath = app.isPackaged
-    ? path.join(process.resourcesPath, "icon.ico")
-    : path.join(__dirname, "../../build/icon.ico");
-
-  tray = new Tray(iconPath);
-  const contextMenu = Menu.buildFromTemplate([
-    { label: "Show App", click: () => mainWindow?.show() },
-    { label: "Quit", click: () => app.quit() },
-  ]);
-  tray.setContextMenu(contextMenu);
-  tray.setToolTip("AI Overlay");
 
   ipcMain.on("save-token", async (event, token) => {
     try {
@@ -222,6 +200,8 @@ app.whenReady().then(() => {
     }
   });
 
+
+
   setInterval(() => {
     const text = clipboard.readText();
     if (!text || text.trim() === "" || text === lastText) return;
@@ -230,6 +210,21 @@ app.whenReady().then(() => {
       mainWindow.webContents.send("clipboard-update", text);
     }
   }, 1000);
+
+  createWindow();
+
+  const iconPath = app.isPackaged
+    ? path.join(process.resourcesPath, "icon.ico")
+    : path.join(__dirname, "../../build/icon.ico");
+
+  tray = new Tray(iconPath);
+  const contextMenu = Menu.buildFromTemplate([
+    { label: "Show App", click: () => mainWindow?.show() },
+    { label: "Quit", click: () => app.quit() },
+  ]);
+  tray.setContextMenu(contextMenu);
+  tray.setToolTip("AI Overlay");
+
 });
 
 app.on("will-quit", () => {

@@ -10,7 +10,6 @@ import { Plus } from "lucide-react";
 import Topbar from "../components/Topbar";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Streaming function
 async function streamGroqResponse(userMessage, onChunk, onDone, conversationId) {
   const token = await window.electronAPI.getToken();
 
@@ -23,7 +22,7 @@ async function streamGroqResponse(userMessage, onChunk, onDone, conversationId) 
     body: JSON.stringify({
       userInput: userMessage,
       context: "general",
-      conversationId, // send active conversation id
+      conversationId,
     }),
   });
 
@@ -61,8 +60,8 @@ export default function Chatbot() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const [conversations, setConversations] = useState([]); // all convos
-  const [activeConversation, setActiveConversation] = useState(null); // current convo
+  const [conversations, setConversations] = useState([]);
+  const [activeConversation, setActiveConversation] = useState(null);
 
   const messagesEndRef = useRef(null);
   const tokenQueue = useRef([]);
@@ -80,12 +79,10 @@ export default function Chatbot() {
     }
   }, []);
 
-  // Scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Fetch conversations on sidebar open
   useEffect(() => {
     if (showContext) {
       fetchConversations();
@@ -105,7 +102,6 @@ export default function Chatbot() {
     }
   };
 
-  // Load single conversation
   const loadConversation = async (id) => {
     try {
       const token = await window.electronAPI.getToken();
@@ -128,7 +124,6 @@ export default function Chatbot() {
     }
   };
 
-  // Start new conversation
   const startNewConversation = async () => {
     setShowContext(false);
     setMessages([]);
@@ -154,7 +149,6 @@ export default function Chatbot() {
     }
   };
 
-  // Handle send
   const handleSend = async () => {
     if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
 
@@ -210,7 +204,6 @@ export default function Chatbot() {
     <div className="h-screen flex flex-col text-zinc-300 backdrop-blur-xl bg-black/40 shadow-2xl border border-white/20">
       <Topbar />
 
-      {/* Controls */}
       <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">
         <button
           onClick={() => setShowContext(true)}
@@ -221,7 +214,6 @@ export default function Chatbot() {
         </button>
       </div>
 
-      {/* Chat Body */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/20 scrollbar-thin">
         {messages.map((msg, i) => {
           const parts = msg.content.split(/```/g);
