@@ -58,7 +58,12 @@ function createWindow() {
     mainWindow.loadFile(indexPath).catch((err) => {
       console.error("Error loading dev build:", err);
     });
-    console.log("Attempting to load:", indexPath, "Exists:", require('fs').existsSync(indexPath));
+    console.log(
+      "Attempting to load:",
+      indexPath,
+      "Exists:",
+      require("fs").existsSync(indexPath)
+    );
   }
 
 
@@ -162,7 +167,7 @@ app.whenReady().then(() => {
   ipcMain.on("window-minimize", () => {
     console.log("minimize ");
 
-    mainWindow?.minimize()
+    mainWindow?.minimize();
   });
   ipcMain.on("resize-window", (event, { width, height, resizable }) => {
     console.log("resize");
@@ -236,4 +241,3 @@ app.on("activate", () => {
     mainWindow?.show();
   }
 });
-

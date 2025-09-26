@@ -201,7 +201,7 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="h-screen flex flex-col text-zinc-300 backdrop-blur-xl bg-black/40 shadow-2xl border border-white/20">
+   <div className="h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
       <Topbar />
 
       <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">

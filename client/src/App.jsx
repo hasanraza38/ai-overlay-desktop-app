@@ -5,6 +5,7 @@ import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import ChatSection from "./pages/ChatSection";
 import Wellcome from "./pages/Wellcome";
+import CheckoutPage from "./pages/Pricingplane";
 
 function App() {
   const [authChecked, setAuthChecked] = useState(false);
@@ -13,7 +14,7 @@ function App() {
   useEffect(() => {
     const initializeApp = async () => {
       const token = await window.electronAPI.getToken();
-       console.log("Token from preload:", token);
+      console.log("Token from preload:", token);
       if (token) {
         setIsAuthenticated(true);
       } else {
@@ -40,6 +41,8 @@ function App() {
       <Route path="/signin" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signin />} />
       <Route path="/signup" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signup setIsAuthenticated={setIsAuthenticated} />} />
       <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} />
+      
+      {/* <Route path="/" element={<CheckoutPage />} /> */}
     </Routes>
   );
 }
