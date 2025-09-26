@@ -21,7 +21,7 @@ export default function AIDownloadPage() {
 
           {/* anchor with download attribute */}
           <a
-            href="/downloads/AIOverlayProSetup.exe"
+            href="https://github.com/hasanraza38/release/releases/download/v1.0.0/AI.Overlay.Setup.0.0.0.exe"
             download="AIOverlayProSetup.exe"
             className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-2 rounded-full font-medium hover:from-purple-600 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl"
           >
@@ -38,7 +38,7 @@ export default function AIDownloadPage() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
           {/* same download anchor for hero button */}
           <a
-            href="/downloads/AIOverlayProSetup.exe"
+            href="https://github.com/hasanraza38/release/releases/download/v1.0.0/AI.Overlay.Setup.0.0.0.exe"
             download="AIOverlayProSetup.exe"
             className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-green-600 hover:to-teal-600 transition-all duration-300 transform hover:scale-105 shadow-xl"
           >
@@ -60,7 +60,7 @@ export default function AIDownloadPage() {
 
         <div className="flex flex-wrap justify-center gap-4 mb-8">
           <a
-            href="/downloads/AIOverlayProSetup.exe"
+            href="https://github.com/hasanraza38/release/releases/download/v1.0.0/AI.Overlay.Setup.0.0.0.exe"
             download="AIOverlayProSetup.exe"
             className="flex items-center justify-center space-x-2 bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-900 transition duration-300"
           >
@@ -69,7 +69,7 @@ export default function AIDownloadPage() {
           </a>
 
           <a
-            href="/downloads/AIOverlayProSetup.dmg"
+            href="https://github.com/hasanraza38/release/releases/download/v1.0.0/AI.Overlay.Setup.0.0.0.exe"
             download="AIOverlayProSetup.dmg"
             className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-200 transition duration-300"
           >
@@ -78,7 +78,7 @@ export default function AIDownloadPage() {
           </a>
 
           <a
-            href="/downloads/AIOverlayProSetup.AppImage"
+            href="https://github.com/hasanraza38/release/releases/download/v1.0.0/AI.Overlay.Setup.0.0.0.exe"
             download="AIOverlayProSetup.AppImage"
             className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-200 transition duration-300"
           >
