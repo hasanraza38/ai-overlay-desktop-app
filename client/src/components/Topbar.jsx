@@ -9,20 +9,17 @@ export default function Topbar() {
       className="w-full h-10 bg-white/10 backdrop-blur-md  shadow-b shadow-2xl flex items-center justify-between px-4 "
       style={{ WebkitAppRegion: "drag" }}
     >
-      {/* Left Branding */}
       <div
         className="flex items-center gap-2 text-purple-400 font-semibold select-none"
         style={{ WebkitAppRegion: "no-drag" }}
       >
         <Brain className="w-6 h-6 drop-shadow-md" />
-        {/* <span className="text-sm">AI Overlay</span> */}
       </div>
 
       <div
         className="flex items-center gap-2"
         style={{ WebkitAppRegion: "no-drag" }}
       >
-        {/* Minimize Button */}
         <button
           onClick={() => window.electronAPI.minimizeApp()}
           className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors"
@@ -30,7 +27,6 @@ export default function Topbar() {
           <VscChromeMinimize className="w-4 h-4 text-gray-200" />
         </button>
 
-        {/* Close Button */}
         <button
           onClick={() => window.electronAPI.closeApp()}
           className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-red-500/80 transition-colors"

@@ -27,7 +27,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: windowWidth,
     height: windowHeight,
-    transparent: false,
+    transparent: true,
     roundedCorners: true,
     frame: false,
     titleBarStyle: "hidden",
@@ -48,22 +48,28 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false);
 
   if (app.isPackaged) {
-    const indexPath = path.join(app.getAppPath(), "dist-react", "index.html");
-    console.log("Loading production file:", indexPath);
+    const indexPath = path.join(process.resourcesPath, "dist-react", "index.html");
+    console.log("Attempting to load:", indexPath, "Exists:", require('fs').existsSync(indexPath));
     mainWindow
       .loadFile(indexPath)
       .catch((err) => console.error("Load error:", err));
-    mainWindow.webContents.openDevTools();
   } else {
     const indexPath = path.join(__dirname, "../../dist-react/index.html");
-    console.log("Loading dev build:", indexPath);
     mainWindow.loadFile(indexPath).catch((err) => {
       console.error("Error loading dev build:", err);
     });
+    console.log(
+      "Attempting to load:",
+      indexPath,
+      "Exists:",
+      require("fs").existsSync(indexPath)
+    );
   }
 
+
+
   mainWindow.once("ready-to-show", () => {
-    console.log("Window is ready to show ✅");
+    console.log("Window is ready to show");
     mainWindow.show();
   });
 
@@ -85,60 +91,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
   clipboard.clear();
-  createWindow();
 
-  // ✅ Tray icon path
-  const iconPath = app.isPackaged
-    ? path.join(process.resourcesPath, "icon.ico")
-    : path.join(__dirname, "../../build/icon.ico");
-
-  tray = new Tray(iconPath);
-  const contextMenu = Menu.buildFromTemplate([
-    { label: "Show App", click: () => mainWindow?.show() },
-    { label: "Quit", click: () => app.quit() },
-  ]);
-  tray.setContextMenu(contextMenu);
-  tray.setToolTip("AI Overlay");
-
-  // ✅ Global shortcut
-  const { globalShortcut } = require("electron");
-
-  globalShortcut.register("Alt+J", () => {
-    if (!mainWindow) return;
-
-    if (mainWindow.isVisible()) {
-      if (mainWindow.isMinimized()) {
-        mainWindow.restore(); // agar already minimized hai to restore karo
-        mainWindow.focus();
-        mainWindow.setAlwaysOnTop(true);
-      } else {
-        mainWindow.minimize(); // visible hai to minimize kar do
-      }
-    } else {
-      mainWindow.show();
-      mainWindow.focus();
-      mainWindow.setAlwaysOnTop(true);
-    }
-  });
-
-  // ✅ IPC handlers
-  ipcMain.on("save-token", async (event, token) => {
-    try {
-      await keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, token);
-      const cookie = {
-        url: "http://localhost:3000",
-        name: "auth_token",
-        value: token,
-        httpOnly: true,
-        secure: app.isPackaged,
-        sameSite: "strict",
-        expirationDate: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7,
-      };
-      await session.defaultSession.cookies.set(cookie);
-    } catch (error) {
-      console.error("Error saving token or setting cookie:", error);
-    }
-  });
 
   ipcMain.handle("get-token", async () => {
     try {
@@ -148,6 +101,29 @@ app.whenReady().then(() => {
       return null;
     }
   });
+
+
+  globalShortcut.register("Control+Shift+L", () => {
+    console.log("hotkey");
+
+    if (!mainWindow) return;
+
+    if (mainWindow.isVisible()) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore();
+        mainWindow.focus();
+        mainWindow.setAlwaysOnTop(true);
+      } else {
+        mainWindow.minimize();
+      }
+    } else {
+      mainWindow.show();
+      mainWindow.focus();
+      mainWindow.setAlwaysOnTop(true);
+    }
+  });
+
+
 
   ipcMain.handle("google-login", async () => {
     return new Promise((resolve, reject) => {
@@ -182,12 +158,20 @@ app.whenReady().then(() => {
 
   ipcMain.on("window-close", () => {
     if (mainWindow) {
+      console.log("close ");
+
       mainWindow = null;
-      app.quit(); 
+      app.quit();
     }
   });
-  ipcMain.on("window-minimize", () => mainWindow?.minimize());
+  ipcMain.on("window-minimize", () => {
+    console.log("minimize ");
+
+    mainWindow?.minimize();
+  });
   ipcMain.on("resize-window", (event, { width, height, resizable }) => {
+    console.log("resize");
+
     if (mainWindow) {
       mainWindow.setSize(width, height);
       mainWindow.setResizable(resizable);
@@ -195,7 +179,27 @@ app.whenReady().then(() => {
     }
   });
 
-  // ✅ Clipboard monitor
+
+  ipcMain.on("save-token", async (event, token) => {
+    try {
+      await keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, token);
+      const cookie = {
+        url: "http://localhost:3000",
+        name: "auth_token",
+        value: token,
+        httpOnly: true,
+        secure: app.isPackaged,
+        sameSite: "strict",
+        expirationDate: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7,
+      };
+      await session.defaultSession.cookies.set(cookie);
+    } catch (error) {
+      console.error("Error saving token or setting cookie:", error);
+    }
+  });
+
+
+
   setInterval(() => {
     const text = clipboard.readText();
     if (!text || text.trim() === "" || text === lastText) return;
@@ -204,16 +208,30 @@ app.whenReady().then(() => {
       mainWindow.webContents.send("clipboard-update", text);
     }
   }, 1000);
+
+  createWindow();
+
+  const iconPath = app.isPackaged
+    ? path.join(process.resourcesPath, "icon.ico")
+    : path.join(__dirname, "../../build/icon.ico");
+
+  tray = new Tray(iconPath);
+  const contextMenu = Menu.buildFromTemplate([
+    { label: "Show App", click: () => mainWindow?.show() },
+    { label: "Quit", click: () => app.quit() },
+  ]);
+  tray.setContextMenu(contextMenu);
+  tray.setToolTip("AI Overlay");
+
 });
 
-// ✅ Cleanup
 app.on("will-quit", () => {
   clipboard.clear();
   globalShortcut.unregisterAll();
 });
 
 app.on("window-all-closed", (event) => {
-  event.preventDefault(); // keep tray running
+  event.preventDefault();
 });
 
 app.on("activate", () => {

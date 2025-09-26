@@ -11,9 +11,9 @@ const ProtectedRoute = ({ children }) => {
 
         console.log("ProtectedRoute: Token check:", token ? "Found" : "Not found" );
          if (token) {
-          setIsAuthenticated(true);   // Token exists → authenticated
+          setIsAuthenticated(true); 
         } else {
-          setIsAuthenticated(false);  // Token not exists → not authenticated
+          setIsAuthenticated(false);
         }
         
       } catch (error) {
@@ -26,7 +26,7 @@ const ProtectedRoute = ({ children }) => {
   }, []);
 
   if (isAuthenticated === null) {
-    return <div>Loading...</div>; // Show loading state while checking token
+    return <div>Loading...</div>;
   }
 
   return isAuthenticated ? children : <Navigate to="/signup" />;
@@ -35,9 +35,3 @@ const ProtectedRoute = ({ children }) => {
 
 
 export default ProtectedRoute;
-
-
-
-
-// keytar k through store wo hogayya khi save ..
-// protected route component ka ye kaam ha k  get token jo phele se store ha ahar ha token tou chat sctren pe le jaye ga ..agar nhi ha tou login pahge pr le jsye ga aur nhi ayega 
