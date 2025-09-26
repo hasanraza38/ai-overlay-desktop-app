@@ -103,7 +103,7 @@ app.whenReady().then(() => {
   });
 
 
-  globalShortcut.register("Control+Shift+L", () => {
+  globalShortcut.register("Control+Space", () => {
     console.log("hotkey");
 
     if (!mainWindow) return;
