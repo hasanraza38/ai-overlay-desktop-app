@@ -6,6 +6,7 @@ import dotenv from "dotenv"
 import authRoutes from './routes/auth.routes.js';
 import chatbotRoutes from './routes/chatbot.route.js';
 import paymentRoutes from './routes/payment.routes.js';
+import dashboardRoutes from './routes/dashboard.routes.js';
 import './config/passport.js';
 import './config/db.js';
 import morgan from "morgan";
@@ -27,6 +28,7 @@ app.use(passport.session());
 app.use('/api/v1/auth', authRoutes);
 app.use("/api/v1/chatbot", chatbotRoutes);
 app.use("/api/v1/payment", paymentRoutes);
+app.use("/api/v1/dasboard", dashboardRoutes);
 
 
 app.get("/", (req, res) => {
