@@ -27,7 +27,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: windowWidth,
     height: windowHeight,
-    transparent: false,
+    transparent: true,
     roundedCorners: true,
     frame: false,
     titleBarStyle: "hidden",
@@ -48,20 +48,21 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false);
 
   if (app.isPackaged) {
-    // const indexPath = path.join(app.getAppPath(), "dist-react", "index.html");
 
     const indexPath = path.join(process.resourcesPath, "dist-react", "index.html");
-    console.log("Loading production file:", indexPath);
+    console.log("Attempting to load:", indexPath, "Exists:", require('fs').existsSync(indexPath));
+    // console.log("Loading production file:", indexPath);
     mainWindow
       .loadFile(indexPath)
       .catch((err) => console.error("Load error:", err));
     mainWindow.webContents.openDevTools();
   } else {
     const indexPath = path.join(__dirname, "../../dist-react/index.html");
-    console.log("Loading dev build:", indexPath);
+    // console.log("Loading dev build:", indexPath);
     mainWindow.loadFile(indexPath).catch((err) => {
       console.error("Error loading dev build:", err);
     });
+    console.log("Attempting to load:", indexPath, "Exists:", require('fs').existsSync(indexPath));
   }
 
 
@@ -121,10 +122,10 @@ app.whenReady().then(() => {
 
 
   
-  // ✅ Global shortcut
-  const { globalShortcut } = require("electron");
 
   globalShortcut.register("Alt+J", () => {
+    console.log("hotkey");
+    
     if (!mainWindow) return;
 
     if (mainWindow.isVisible()) {
@@ -196,11 +197,17 @@ app.whenReady().then(() => {
 
   ipcMain.on("window-close", () => {
     if (mainWindow) {
+      console.log("close ");
+      
       mainWindow = null;
       app.quit(); 
     }
   });
-  ipcMain.on("window-minimize", () => mainWindow?.minimize());
+  ipcMain.on("window-minimize", () => {
+      console.log("minimize ");
+
+    mainWindow?.minimize()
+  });
   ipcMain.on("resize-window", (event, { width, height, resizable }) => {
     if (mainWindow) {
       mainWindow.setSize(width, height);
@@ -237,5 +244,4 @@ app.on("activate", () => {
     mainWindow?.show();
   }
 });
-
 
