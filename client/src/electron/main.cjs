@@ -123,9 +123,7 @@ app.whenReady().then(() => {
     }
   });
 
-  if (!success) {
-    console.error("Hotkey registration failed!");
-  }
+
 
   ipcMain.handle("google-login", async () => {
     return new Promise((resolve, reject) => {
