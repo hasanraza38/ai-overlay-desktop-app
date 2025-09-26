@@ -61,6 +61,12 @@
       "output": "release-builds",
       "buildResources": "build"
     },
+        "extraResources": [
+      {
+        "from": "dist-react",
+        "to": "dist-react"
+      }
+    ],
     "files": [
       "dist-react/**/*",
       "src/electron/**/*",
