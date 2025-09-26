@@ -31,7 +31,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   minimizeApp: () => ipcRenderer.send("window-minimize"),
   maximizeApp: () => ipcRenderer.send("window-maximize"),
 
-  // functions for token handling
   saveToken: (token) => {
     try {
       console.log("Sending token to main process:", token);

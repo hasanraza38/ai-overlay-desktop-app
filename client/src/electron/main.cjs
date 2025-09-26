@@ -48,16 +48,13 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false);
 
   if (app.isPackaged) {
-
     const indexPath = path.join(process.resourcesPath, "dist-react", "index.html");
     console.log("Attempting to load:", indexPath, "Exists:", require('fs').existsSync(indexPath));
     mainWindow
       .loadFile(indexPath)
       .catch((err) => console.error("Load error:", err));
-    mainWindow.webContents.openDevTools();
   } else {
     const indexPath = path.join(__dirname, "../../dist-react/index.html");
-    // console.log("Loading dev build:", indexPath);
     mainWindow.loadFile(indexPath).catch((err) => {
       console.error("Error loading dev build:", err);
     });
@@ -65,7 +62,6 @@ function createWindow() {
   }
 
 
- 
 
   mainWindow.once("ready-to-show", () => {
     console.log("Window is ready to show");
@@ -91,7 +87,7 @@ function createWindow() {
 app.whenReady().then(() => {
   clipboard.clear();
 
-  
+
   ipcMain.handle("get-token", async () => {
     try {
       return (await keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)) || null;
@@ -102,18 +98,18 @@ app.whenReady().then(() => {
   });
 
 
-globalShortcut.register("Control+Shift+L", () => {
+  globalShortcut.register("Control+Shift+L", () => {
     console.log("hotkey");
-    
+
     if (!mainWindow) return;
 
     if (mainWindow.isVisible()) {
       if (mainWindow.isMinimized()) {
-        mainWindow.restore(); 
+        mainWindow.restore();
         mainWindow.focus();
         mainWindow.setAlwaysOnTop(true);
       } else {
-        mainWindow.minimize(); 
+        mainWindow.minimize();
       }
     } else {
       mainWindow.show();
@@ -124,7 +120,7 @@ globalShortcut.register("Control+Shift+L", () => {
 
 
 
-    ipcMain.handle("google-login", async () => {
+  ipcMain.handle("google-login", async () => {
     return new Promise((resolve, reject) => {
       const loginWindow = new BrowserWindow({
         width: 500,
@@ -158,45 +154,25 @@ globalShortcut.register("Control+Shift+L", () => {
   ipcMain.on("window-close", () => {
     if (mainWindow) {
       console.log("close ");
-      
+
       mainWindow = null;
-      app.quit(); 
+      app.quit();
     }
   });
   ipcMain.on("window-minimize", () => {
-      console.log("minimize ");
+    console.log("minimize ");
 
     mainWindow?.minimize()
   });
   ipcMain.on("resize-window", (event, { width, height, resizable }) => {
     console.log("resize");
-    
+
     if (mainWindow) {
       mainWindow.setSize(width, height);
       mainWindow.setResizable(resizable);
       if (resizable) mainWindow.center();
     }
   });
-  createWindow();
-
-  
-  const iconPath = app.isPackaged
-  ? path.join(process.resourcesPath, "icon.ico")
-  : path.join(__dirname, "../../build/icon.ico");
-  
-  tray = new Tray(iconPath);
-  const contextMenu = Menu.buildFromTemplate([
-    { label: "Show App", click: () => mainWindow?.show() },
-    { label: "Quit", click: () => app.quit() },
-  ]);
-  tray.setContextMenu(contextMenu);
-  tray.setToolTip("AI Overlay");
-
-
-
-
-  
-
 
 
   ipcMain.on("save-token", async (event, token) => {
@@ -217,8 +193,6 @@ globalShortcut.register("Control+Shift+L", () => {
     }
   });
 
-  
-
 
 
   setInterval(() => {
@@ -229,6 +203,21 @@ globalShortcut.register("Control+Shift+L", () => {
       mainWindow.webContents.send("clipboard-update", text);
     }
   }, 1000);
+
+  createWindow();
+
+  const iconPath = app.isPackaged
+    ? path.join(process.resourcesPath, "icon.ico")
+    : path.join(__dirname, "../../build/icon.ico");
+
+  tray = new Tray(iconPath);
+  const contextMenu = Menu.buildFromTemplate([
+    { label: "Show App", click: () => mainWindow?.show() },
+    { label: "Quit", click: () => app.quit() },
+  ]);
+  tray.setContextMenu(contextMenu);
+  tray.setToolTip("AI Overlay");
+
 });
 
 app.on("will-quit", () => {
@@ -237,7 +226,7 @@ app.on("will-quit", () => {
 });
 
 app.on("window-all-closed", (event) => {
-  event.preventDefault(); 
+  event.preventDefault();
 });
 
 app.on("activate", () => {
