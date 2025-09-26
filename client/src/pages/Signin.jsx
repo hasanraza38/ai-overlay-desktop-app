@@ -107,6 +107,13 @@ export default function Signin() {
                                 required
                             />
 
+                         <button
+                            type="button"
+                            className="absolute right-5 top-2 text-gray-400 hover:text-white"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {showPassword ? <EyeOffIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                        </button>
                         </div>
                     </div>
 

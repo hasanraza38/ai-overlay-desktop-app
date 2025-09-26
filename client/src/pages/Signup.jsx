@@ -137,7 +137,7 @@ export default function Signup({ setIsAuthenticated }) {
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            className="w-[300px] text-[14px] bg-[#1e1e1e] h-[40px] text-white border border-gray-600 rounded-lg px-6 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
+                            className="w-[300px] text-[14px] bg-[#1e1e1e] h-[40px] text-white border border-gray-600 rounded-lg px-4 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
                             placeholder="Enter your email"
                             required
                         />
@@ -151,7 +151,7 @@ export default function Signup({ setIsAuthenticated }) {
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            className="w-[300px] text-[14px] bg-[#1e1e1e] text-white h-[40px] border border-gray-600 rounded-lg px-6 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
+                            className="w-[300px] text-[14px] bg-[#1e1e1e] text-white h-[40px] border border-gray-600 rounded-lg px-4 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
                             placeholder="Choose a username"
                             required
                         />
@@ -165,7 +165,7 @@ export default function Signup({ setIsAuthenticated }) {
                             name="password"
                             value={formData.password}
                             onChange={handleChange}
-                            className="w-[300px] text-[14px] bg-[#1e1e1e] text-white h-[40px] border border-gray-600 rounded-lg px-6 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
+                            className="w-[300px] text-[14px] bg-[#1e1e1e] text-white h-[40px] border border-gray-600 rounded-lg px-4 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
                             placeholder="Enter your password"
                             required
                         />
@@ -174,7 +174,7 @@ export default function Signup({ setIsAuthenticated }) {
                             className="absolute right-5 top-9 text-gray-400 hover:text-white"
                             onClick={() => setShowPassword(!showPassword)}
                         >
-                            {showPassword ? <EyeOffIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                            {showPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-5 h-5" />}
                         </button>
                     </div>
 
