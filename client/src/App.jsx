@@ -26,11 +26,8 @@ function App() {
     initializeApp();
   }, []);
 
-  if (!authChecked) return null; // wait for token check
+  if (!authChecked) return null; 
 
-  // Agar token nahi hai → show Welcome page
-
-  // Token hai → normal routes
   return (
 
 
