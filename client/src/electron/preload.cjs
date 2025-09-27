@@ -54,6 +54,16 @@ contextBridge.exposeInMainWorld("electronAPI", {
     }
   },
 
+    removeToken: async () => {
+    try {
+      return await ipcRenderer.invoke("remove-token");
+    } catch (error) {
+      console.error("Error removing token in preload:", error);
+      return false;
+    }
+  },
+
+
   
   googleLogin: () => ipcRenderer.invoke("google-login"),
 
