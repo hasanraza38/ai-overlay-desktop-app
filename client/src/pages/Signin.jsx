@@ -168,7 +168,7 @@
 //     const [showPassword, setShowPassword] = useState(false);
 //     const [formData, setFormData] = useState({ email: "", password: "" });
 //     const [notification, setNotification] = useState({ message: "", type: "error" });
-    
+
 //     // Forgot Password Modal State
 //     const [showForgotModal, setShowForgotModal] = useState(false);
 //     const [forgotStep, setForgotStep] = useState(1); // 1: Email, 2: OTP, 3: New Password
@@ -241,7 +241,7 @@
 
 //     const handleForgotPasswordStep3 = async (e) => {
 //         e.preventDefault();
-        
+
 //         if (forgotData.newPassword !== forgotData.confirmPassword) {
 //             showError("Passwords do not match");
 //             return;
@@ -551,7 +551,7 @@ export default function Signin() {
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [notification, setNotification] = useState({ message: "", type: "error" });
-    
+
     // Forgot Password Modal State
     const [showForgotModal, setShowForgotModal] = useState(false);
     const [forgotStep, setForgotStep] = useState(1); // 1: Email, 2: OTP, 3: New Password
@@ -559,7 +559,7 @@ export default function Signin() {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
-    
+
 
     const showError = (message) => setNotification({ message, type: "error" });
     const showSuccess = (message) => setNotification({ message, type: "success" });
@@ -612,7 +612,7 @@ export default function Signin() {
     const handleForgotPasswordStep1 = async (e) => {
         e.preventDefault();
         try {
-            await api.post("auth/forgot-password", { email: forgotData.email });
+            await api.post("auth/sendotp", { email: forgotData.email });
             showSuccess("OTP sent to your email");
             animateStepChange(2);
         } catch (err) {
@@ -624,7 +624,7 @@ export default function Signin() {
     const handleForgotPasswordStep2 = async (e) => {
         e.preventDefault();
         try {
-            await api.post("auth/verify-otp", { email: forgotData.email, otp: forgotData.otp });
+            await api.post("auth/verifyotp", { email: forgotData.email, otp: forgotData.otp });
             showSuccess("OTP verified successfully");
             animateStepChange(3);
         } catch (err) {
@@ -635,7 +635,7 @@ export default function Signin() {
 
     const handleForgotPasswordStep3 = async (e) => {
         e.preventDefault();
-        
+
         if (forgotData.newPassword !== forgotData.confirmPassword) {
             showError("Passwords do not match");
             return;
@@ -647,7 +647,7 @@ export default function Signin() {
         }
 
         try {
-            await api.post("auth/reset-password", {
+            await api.post("auth/resetpassword", {
                 email: forgotData.email,
                 otp: forgotData.otp,
                 newPassword: forgotData.newPassword
@@ -698,6 +698,9 @@ export default function Signin() {
     };
 
     const currentStep = stepConfig[forgotStep];
+
+    // Removed duplicate  function
+
 
     return (
         <div className="bg-[#191919] flex-col items-center justify-center w-full h-full">
@@ -796,10 +799,9 @@ export default function Signin() {
             {/* Forgot Password Modal */}
             {showForgotModal && (
                 <div className="fixed inset-0 bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div 
-                        className={`bg-[#2a2a2a] rounded-2xl w-full max-w-md border border-gray-700 transform transition-all duration-300 ${
-                            showForgotModal ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
-                        }`}
+                    <div
+                        className={`bg-[#2a2a2a] rounded-2xl w-full max-w-md border border-gray-700 transform transition-all duration-300 ${showForgotModal ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+                            }`}
                         style={{ boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)' }}
                     >
                         {/* Header with Progress Steps */}
@@ -815,11 +817,11 @@ export default function Signin() {
                                 ) : (
                                     <div className="w-9"></div>
                                 )}
-                                
+
                                 <h3 className="text-xl font-semibold text-white text-center flex-1">
                                     {currentStep.title}
                                 </h3>
-                                
+
                                 <button
                                     onClick={closeForgotModal}
                                     className="p-2 rounded-full hover:bg-gray-700 transition-all duration-200 text-gray-400 hover:text-white text-xl font-bold"
@@ -833,19 +835,17 @@ export default function Signin() {
                                 <div className="flex items-center">
                                     {[1, 2, 3].map((step) => (
                                         <React.Fragment key={step}>
-                                            <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all duration-300 ${
-                                                step === forgotStep 
-                                                    ? 'border-purple-500 bg-purple-500 text-white' 
-                                                    : step < forgotStep 
+                                            <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all duration-300 ${step === forgotStep
+                                                    ? 'border-purple-500 bg-purple-500 text-white'
+                                                    : step < forgotStep
                                                         ? 'border-green-500 bg-green-500 text-white'
                                                         : 'border-gray-600 text-gray-400'
-                                            }`}>
+                                                }`}>
                                                 {step < forgotStep ? '✓' : step}
                                             </div>
                                             {step < 3 && (
-                                                <div className={`w-12 h-1 transition-all duration-300 ${
-                                                    step < forgotStep ? 'bg-green-500' : 'bg-gray-600'
-                                                }`}></div>
+                                                <div className={`w-12 h-1 transition-all duration-300 ${step < forgotStep ? 'bg-green-500' : 'bg-gray-600'
+                                                    }`}></div>
                                             )}
                                         </React.Fragment>
                                     ))}
@@ -861,13 +861,12 @@ export default function Signin() {
                         {/* Animated Content Area */}
                         <div className="p-6 relative min-h-[200px] overflow-hidden">
                             {/* Step 1: Enter Email */}
-                            <div className={`transition-all duration-300 transform ${
-                                forgotStep === 1 && !isAnimating 
-                                    ? 'translate-x-0 opacity-100' 
-                                    : forgotStep === 1 
+                            <div className={`transition-all duration-300 transform ${forgotStep === 1 && !isAnimating
+                                    ? 'translate-x-0 opacity-100'
+                                    : forgotStep === 1
                                         ? 'translate-x-0 opacity-100'
                                         : 'translate-x-full opacity-0 absolute inset-0 p-6'
-                            }`}>
+                                }`}>
                                 <form onSubmit={handleForgotPasswordStep1}>
                                     <div className="mb-6">
                                         <label className="block text-sm font-medium text-gray-300 mb-3">
@@ -893,13 +892,12 @@ export default function Signin() {
                             </div>
 
                             {/* Step 2: Enter OTP */}
-                            <div className={`transition-all duration-300 transform ${
-                                forgotStep === 2 && !isAnimating 
-                                    ? 'translate-x-0 opacity-100' 
-                                    : forgotStep === 2 
+                            <div className={`transition-all duration-300 transform ${forgotStep === 2 && !isAnimating
+                                    ? 'translate-x-0 opacity-100'
+                                    : forgotStep === 2
                                         ? 'translate-x-0 opacity-100'
                                         : 'translate-x-full opacity-0 absolute inset-0 p-6'
-                            }`}>
+                                }`}>
                                 <form onSubmit={handleForgotPasswordStep2}>
                                     <div className="mb-6">
                                         <label className="block text-sm font-medium text-gray-300 mb-3">
@@ -929,13 +927,12 @@ export default function Signin() {
                             </div>
 
                             {/* Step 3: Enter New Password */}
-                            <div className={`transition-all duration-300 transform ${
-                                forgotStep === 3 && !isAnimating 
-                                    ? 'translate-x-0 opacity-100' 
-                                    : forgotStep === 3 
+                            <div className={`transition-all duration-300 transform ${forgotStep === 3 && !isAnimating
+                                    ? 'translate-x-0 opacity-100'
+                                    : forgotStep === 3
                                         ? 'translate-x-0 opacity-100'
                                         : 'translate-x-full opacity-0 absolute inset-0 p-6'
-                            }`}>
+                                }`}>
                                 <form onSubmit={handleForgotPasswordStep3}>
                                     <div className="mb-4">
                                         <label className="block text-sm font-medium text-gray-300 mb-3">
