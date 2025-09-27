@@ -239,6 +239,8 @@ export default function Signup({ setIsAuthenticated }) {
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({ email: "", name: "", password: "" });
     const [notification, setNotification] = useState({ message: "", type: "error" });
+    const [loadingSignup, setLoadingSignup] = useState(false);
+
 
     const navigate = useNavigate();
     const showError = (message) => setNotification({ message, type: "error" });
@@ -247,6 +249,7 @@ export default function Signup({ setIsAuthenticated }) {
 
     const handleSignup = async (event) => {
         event.preventDefault();
+        setLoadingSignup(true)
 
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -269,6 +272,8 @@ export default function Signup({ setIsAuthenticated }) {
             const msg = error.response?.data?.message || "Registration failed";
             if (msg.includes("exists")) showError("User already exists");
             else showError(msg);
+        } finally {
+            setLoadingSignup(false)
         }
     };
 
@@ -352,8 +357,9 @@ export default function Signup({ setIsAuthenticated }) {
                     <button
                         type="submit"
                         className="text-[14px] w-full h-[40px] text-base font-semibold bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors cursor-pointer"
+                        disabled={loadingSignup}
                     >
-                        Create Free Account
+                     {loadingSignup ? "Creating Account..." : "Create Free Account"}
                     </button>
                 </form>
 

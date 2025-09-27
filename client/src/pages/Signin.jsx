@@ -559,6 +559,10 @@ export default function Signin() {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
+    const [loadingOTP, setLoadingOTP] = useState(false);
+    const [loadingVerify, setLoadingVerify] = useState(false);
+    const [loadingNewPassword, setloadingNewPassword] = useState(false);
+    const [loadingSignIn, setloadingSignIn] = useState(false);
 
 
     const showError = (message) => setNotification({ message, type: "error" });
@@ -568,7 +572,7 @@ export default function Signin() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-
+        setloadingSignIn(true)
         try {
             const response = await api.post("auth/login", formData);
             const token = response.data.token;
@@ -583,6 +587,8 @@ export default function Signin() {
             if (msg.includes("User does not exist")) showError("User does not exist");
             else if (msg.toLowerCase().includes("password")) showError("Incorrect password");
             else showError(msg);
+        } finally {
+            setloadingSignIn(false)
         }
     };
 
@@ -611,31 +617,37 @@ export default function Signin() {
     // Forgot Password Functions
     const handleForgotPasswordStep1 = async (e) => {
         e.preventDefault();
+        setLoadingOTP(true);
         try {
-            await api.post("auth/sendotp", { email: forgotData.email });
+            await api.post("/auth/sendotp", { email: forgotData.email });
             showSuccess("OTP sent to your email");
             animateStepChange(2);
         } catch (err) {
             const msg = err.response?.data?.message || "Failed to send OTP";
             showError(msg);
+        } finally {
+            setLoadingOTP(false);
         }
     };
 
     const handleForgotPasswordStep2 = async (e) => {
         e.preventDefault();
+        setLoadingVerify(true)
         try {
-            await api.post("auth/verifyotp", { email: forgotData.email, otp: forgotData.otp });
+            await api.post("/auth/verifyotp", { email: forgotData.email, otp: forgotData.otp });
             showSuccess("OTP verified successfully");
             animateStepChange(3);
         } catch (err) {
             const msg = err.response?.data?.message || "Invalid OTP";
             showError(msg);
+        } finally {
+            setLoadingVerify(false)
         }
     };
 
     const handleForgotPasswordStep3 = async (e) => {
         e.preventDefault();
-
+        setloadingNewPassword(true)
         if (forgotData.newPassword !== forgotData.confirmPassword) {
             showError("Passwords do not match");
             return;
@@ -647,7 +659,7 @@ export default function Signin() {
         }
 
         try {
-            await api.post("auth/resetpassword", {
+            await api.post("/auth/resetpassword", {
                 email: forgotData.email,
                 otp: forgotData.otp,
                 newPassword: forgotData.newPassword
@@ -657,6 +669,8 @@ export default function Signin() {
         } catch (err) {
             const msg = err.response?.data?.message || "Failed to reset password";
             showError(msg);
+        } finally {
+            setloadingNewPassword(false)
         }
     };
 
@@ -766,8 +780,11 @@ export default function Signin() {
                     <button
                         type="submit"
                         className="w-[300px] text-[14px] h-[40px] cursor-pointer text-base font-semibold text-white rounded-lg bg-purple-600 hover:bg-purple-700 mt-3 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                        disabled={loadingSignIn}
                     >
-                        Sign In
+                        {loadingSignIn ? ("Signing In...") : (
+                            "Sign In"
+                        )}
                     </button>
                 </form>
 
@@ -836,10 +853,10 @@ export default function Signin() {
                                     {[1, 2, 3].map((step) => (
                                         <React.Fragment key={step}>
                                             <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all duration-300 ${step === forgotStep
-                                                    ? 'border-purple-500 bg-purple-500 text-white'
-                                                    : step < forgotStep
-                                                        ? 'border-green-500 bg-green-500 text-white'
-                                                        : 'border-gray-600 text-gray-400'
+                                                ? 'border-purple-500 bg-purple-500 text-white'
+                                                : step < forgotStep
+                                                    ? 'border-green-500 bg-green-500 text-white'
+                                                    : 'border-gray-600 text-gray-400'
                                                 }`}>
                                                 {step < forgotStep ? '✓' : step}
                                             </div>
@@ -862,10 +879,10 @@ export default function Signin() {
                         <div className="p-6 relative min-h-[200px] overflow-hidden">
                             {/* Step 1: Enter Email */}
                             <div className={`transition-all duration-300 transform ${forgotStep === 1 && !isAnimating
+                                ? 'translate-x-0 opacity-100'
+                                : forgotStep === 1
                                     ? 'translate-x-0 opacity-100'
-                                    : forgotStep === 1
-                                        ? 'translate-x-0 opacity-100'
-                                        : 'translate-x-full opacity-0 absolute inset-0 p-6'
+                                    : 'translate-x-full opacity-0 absolute inset-0 p-6'
                                 }`}>
                                 <form onSubmit={handleForgotPasswordStep1}>
                                     <div className="mb-6">
@@ -885,18 +902,21 @@ export default function Signin() {
                                     <button
                                         type="submit"
                                         className="w-full h-[45px] text-base font-semibold text-white rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                                        disabled={loadingOTP}
                                     >
-                                        Send OTP
+                                        {loadingOTP ? ("Sending OTP...") : (
+                                            "Send OTP"
+                                        )}
                                     </button>
                                 </form>
                             </div>
 
                             {/* Step 2: Enter OTP */}
                             <div className={`transition-all duration-300 transform ${forgotStep === 2 && !isAnimating
+                                ? 'translate-x-0 opacity-100'
+                                : forgotStep === 2
                                     ? 'translate-x-0 opacity-100'
-                                    : forgotStep === 2
-                                        ? 'translate-x-0 opacity-100'
-                                        : 'translate-x-full opacity-0 absolute inset-0 p-6'
+                                    : 'translate-x-full opacity-0 absolute inset-0 p-6'
                                 }`}>
                                 <form onSubmit={handleForgotPasswordStep2}>
                                     <div className="mb-6">
@@ -920,18 +940,21 @@ export default function Signin() {
                                     <button
                                         type="submit"
                                         className="w-full h-[45px] text-base font-semibold text-white rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                                        disabled={loadingVerify}
                                     >
-                                        Verify OTP
+                                        {loadingVerify ? ("Verifying OTP...") : (
+                                            "Verify OTP"
+                                        )}
                                     </button>
                                 </form>
                             </div>
 
                             {/* Step 3: Enter New Password */}
                             <div className={`transition-all duration-300 transform ${forgotStep === 3 && !isAnimating
+                                ? 'translate-x-0 opacity-100'
+                                : forgotStep === 3
                                     ? 'translate-x-0 opacity-100'
-                                    : forgotStep === 3
-                                        ? 'translate-x-0 opacity-100'
-                                        : 'translate-x-full opacity-0 absolute inset-0 p-6'
+                                    : 'translate-x-full opacity-0 absolute inset-0 p-6'
                                 }`}>
                                 <form onSubmit={handleForgotPasswordStep3}>
                                     <div className="mb-4">
@@ -977,6 +1000,7 @@ export default function Signin() {
                                                 type="button"
                                                 className="absolute right-3 top-3 text-gray-400 hover:text-white transition-colors duration-200"
                                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                disabled={showConfirmPassword}
                                             >
                                                 {showConfirmPassword ? <FaRegEyeSlash className="w-4 h-4" /> : <IoEyeOutline className="w-4 h-4" />}
                                             </button>
@@ -986,7 +1010,9 @@ export default function Signin() {
                                         type="submit"
                                         className="w-full h-[45px] text-base font-semibold text-white rounded-xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
                                     >
-                                        Reset Password
+                                        {loadingNewPassword ? ("Reset Password...") : (
+                                            "Reset Password"
+                                        )}
                                     </button>
                                 </form>
                             </div>
