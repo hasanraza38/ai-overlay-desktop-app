@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import { type } from "os";
 
 const userSchema = new mongoose.Schema(
   {
     googleId: {
       type: String,
       unique: true,
-      sparse: true, 
+      sparse: true,
     },
     email: {
       type: String,
@@ -16,7 +17,7 @@ const userSchema = new mongoose.Schema(
     name: {
       type: String,
     },
-    
+
     password: {
       type: String,
     },
@@ -33,7 +34,11 @@ const userSchema = new mongoose.Schema(
     otpExpires: {
       type: Date,
     },
-  
+    isNewUser: {
+      type: Boolean,
+      default: true,
+    }
+
   },
   {
     timestamps: true,
