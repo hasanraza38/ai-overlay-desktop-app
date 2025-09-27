@@ -232,22 +232,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { api } from "../Instance/api";
 import Topbar from "../components/Topbar";
 import PopupNotification from "../components/PopupNotification";
-
-const EyeIcon = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-        <circle cx="12" cy="12" r="3" />
-    </svg>
-);
-
-const EyeOffIcon = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-        <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
-        <line x1="2" x2="22" y1="2" y2="22" />
-    </svg>
-);
+import { IoEyeOutline } from "react-icons/io5";
+import { FaRegEyeSlash } from "react-icons/fa";
 
 export default function Signup({ setIsAuthenticated }) {
     const [showPassword, setShowPassword] = useState(false);
@@ -313,7 +299,7 @@ export default function Signup({ setIsAuthenticated }) {
             )}
 
             <div className="w-full h-full flex flex-col items-center justify-center min-h-[calc(100vh-64px)] max-w-md bg-[#191919] rounded-2xl p-8 shadow-2xl">
-                <h1 className="text-3xl font-bold text-purple-600">AI Overlay</h1>
+                <h1 className="text-3xl font-bold text-purple-500">AI Overlay</h1>
                 <h1 className="text-2xl font-bold text-white mb-3">Create an account</h1>
 
                 <form onSubmit={handleSignup} className="space-y-6 mt-1">
@@ -356,10 +342,10 @@ export default function Signup({ setIsAuthenticated }) {
                         />
                         <button
                             type="button"
-                            className="absolute right-5 top-9 text-gray-400 hover:text-white"
+                            className="absolute right-6 top-9 text-gray-400 hover:text-white"
                             onClick={() => setShowPassword(!showPassword)}
                         >
-                            {showPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-5 h-5" />}
+                            {showPassword ? <FaRegEyeSlash className="w-5 h-5" /> : <IoEyeOutline className="w-5 h-5" />}
                         </button>
                     </div>
 
@@ -398,3 +384,6 @@ export default function Signup({ setIsAuthenticated }) {
         </div>
     );
 }
+
+
+
