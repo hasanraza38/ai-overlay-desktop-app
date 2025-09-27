@@ -4,6 +4,7 @@ import {
   FiCopy,
   FiArrowUpCircle,
   FiStopCircle,
+  FiArrowDown,
 } from "react-icons/fi";
 import { BiConversation } from "react-icons/bi";
 import { Plus } from "lucide-react";
@@ -60,6 +61,8 @@ export default function Chatbot() {
   const [showPopup, setShowPopup] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [currentUser, setCurrentUser] = useState("User");
 
   const [conversations, setConversations] = useState([]); // all convos
   const [activeConversation, setActiveConversation] = useState(null); // current convo
@@ -206,20 +209,76 @@ export default function Chatbot() {
     }
   };
 
+// Fetch username from Windows Credential (via electronAPI)
+  const fetchUser = async () => {
+    if (window.electronAPI?.getUser) {
+      const user = await window.electronAPI.getUser();
+      if (user?.username) {
+        setCurrentUser(user.username);
+      } else {
+        setCurrentUser("UserEmail");
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  // Logout → clear from Windows Credential too
+  const handleLogout = async () => {
+    if (window.electronAPI?.logout) {
+      await window.electronAPI.logout(); // Windows Credential se bhi remove
+    }
+    setCurrentUser("Guest");
+  };
+
   return (
     <div className="h-screen flex flex-col text-zinc-300 backdrop-blur-xl bg-black/40 shadow-2xl border border-white/20">
       <Topbar />
 
-      {/* Controls */}
-      <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">
+                  {/* Controls */}
+     <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">
+      <button
+        onClick={() => setShowContext(true)}
+        className="flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
+      >
+        <BiConversation size={18} />
+        <span>Chats</span>
+      </button>
+
+      {/* User Dropdown Right Side */}
+      <div className="relative">
         <button
-          onClick={() => setShowContext(true)}
-          className="flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
+          className="flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition text-gray-200 text-sm"
+          onClick={() => setShowUserDropdown((prev) => !prev)}
         >
-          <BiConversation size={18} />
-          <span>Chats</span>
+          {currentUser}
         </button>
+
+        {showUserDropdown && (
+          <div className="absolute right-0 mt-1 w-44 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-lg z-50">
+            <div className="px-3 py-2 text-gray-200 text-sm border-b border-white/20">
+              {currentUser}
+            </div>
+            <button
+              onClick={() => alert("Personal API Key option clicked")}
+              className="w-full text-left px-3 py-2 text-gray-300 hover:bg-white/20 text-sm"
+            >
+              Personal API Key
+            </button>
+            <button
+              onClick={handleLogout}
+              className="w-full text-left px-3 py-2 text-red-400 hover:bg-red-500/20 text-sm"
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </div>
+    </div>
+
+
 
       {/* Chat Body */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/20 scrollbar-thin">

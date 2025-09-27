@@ -105,7 +105,7 @@ app.whenReady().then(() => {
   createWindow();
 
   
-  // ✅ Tray icon path
+  // Tray icon path
   const iconPath = app.isPackaged
   ? path.join(process.resourcesPath, "icon.ico")
   : path.join(__dirname, "../../build/icon.ico");
@@ -143,7 +143,7 @@ app.whenReady().then(() => {
     }
   });
 
-  // ✅ IPC handlers
+  // IPC handlers
   ipcMain.on("save-token", async (event, token) => {
     try {
       await keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, token);
