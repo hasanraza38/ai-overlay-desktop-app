@@ -728,7 +728,7 @@ export default function Signin() {
                 />
             )}
 
-            <div className="flex flex-col items-center justify-center w-full h-full bg-[#191919] p-8">
+            <div className={`flex flex-col items-center justify-center w-full h-full bg-[#191919] p-8 ${showForgotModal ? 'filter blur-sm' : ''}`}>
                 <h1 className="text-3xl font-bold text-center text-purple-500 mb-2 mt-5">AI Overlay</h1>
                 <h1 className="text-2xl font-bold text-center text-white mb-[30px]">Sign in to your account</h1>
 
@@ -815,7 +815,7 @@ export default function Signin() {
 
             {/* Forgot Password Modal */}
             {showForgotModal && (
-                <div className="fixed inset-0 bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
                     <div
                         className={`bg-[#2a2a2a] rounded-2xl w-full max-w-md border border-gray-700 transform transition-all duration-300 ${showForgotModal ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
                             }`}
