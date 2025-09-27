@@ -48,25 +48,25 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false);
 
   if (app.isPackaged) {
-
     const indexPath = path.join(process.resourcesPath, "dist-react", "index.html");
     console.log("Attempting to load:", indexPath, "Exists:", require('fs').existsSync(indexPath));
-    // console.log("Loading production file:", indexPath);
     mainWindow
       .loadFile(indexPath)
       .catch((err) => console.error("Load error:", err));
-    mainWindow.webContents.openDevTools();
   } else {
     const indexPath = path.join(__dirname, "../../dist-react/index.html");
-    // console.log("Loading dev build:", indexPath);
     mainWindow.loadFile(indexPath).catch((err) => {
       console.error("Error loading dev build:", err);
     });
-    console.log("Attempting to load:", indexPath, "Exists:", require('fs').existsSync(indexPath));
+    console.log(
+      "Attempting to load:",
+      indexPath,
+      "Exists:",
+      require("fs").existsSync(indexPath)
+    );
   }
 
 
- 
 
   mainWindow.once("ready-to-show", () => {
     console.log("Window is ready to show");
@@ -93,7 +93,6 @@ app.whenReady().then(() => {
   clipboard.clear();
 
 
-
   ipcMain.handle("get-token", async () => {
     try {
       return (await keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)) || null;
@@ -102,39 +101,20 @@ app.whenReady().then(() => {
       return null;
     }
   });
-  createWindow();
-
-  
-  // Tray icon path
-  const iconPath = app.isPackaged
-  ? path.join(process.resourcesPath, "icon.ico")
-  : path.join(__dirname, "../../build/icon.ico");
-  
-  tray = new Tray(iconPath);
-  const contextMenu = Menu.buildFromTemplate([
-    { label: "Show App", click: () => mainWindow?.show() },
-    { label: "Quit", click: () => app.quit() },
-  ]);
-  tray.setContextMenu(contextMenu);
-  tray.setToolTip("AI Overlay");
 
 
-
-
-  
-
-  globalShortcut.register("Alt+J", () => {
+  globalShortcut.register("Control+Space", () => {
     console.log("hotkey");
-    
+
     if (!mainWindow) return;
 
     if (mainWindow.isVisible()) {
       if (mainWindow.isMinimized()) {
-        mainWindow.restore(); 
+        mainWindow.restore();
         mainWindow.focus();
         mainWindow.setAlwaysOnTop(true);
       } else {
-        mainWindow.minimize(); 
+        mainWindow.minimize();
       }
     } else {
       mainWindow.show();
@@ -143,26 +123,7 @@ app.whenReady().then(() => {
     }
   });
 
-  // IPC handlers
-  ipcMain.on("save-token", async (event, token) => {
-    try {
-      await keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, token);
-      const cookie = {
-        url: "http://localhost:3000",
-        name: "auth_token",
-        value: token,
-        httpOnly: true,
-        secure: app.isPackaged,
-        sameSite: "strict",
-        expirationDate: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7,
-      };
-      await session.defaultSession.cookies.set(cookie);
-    } catch (error) {
-      console.error("Error saving token or setting cookie:", error);
-    }
-  });
 
-  
 
   ipcMain.handle("google-login", async () => {
     return new Promise((resolve, reject) => {
@@ -198,17 +159,19 @@ app.whenReady().then(() => {
   ipcMain.on("window-close", () => {
     if (mainWindow) {
       console.log("close ");
-      
+
       mainWindow = null;
-      app.quit(); 
+      app.quit();
     }
   });
   ipcMain.on("window-minimize", () => {
-      console.log("minimize ");
+    console.log("minimize ");
 
-    mainWindow?.minimize()
+    mainWindow?.minimize();
   });
   ipcMain.on("resize-window", (event, { width, height, resizable }) => {
+    console.log("resize");
+
     if (mainWindow) {
       mainWindow.setSize(width, height);
       mainWindow.setResizable(resizable);
@@ -216,7 +179,27 @@ app.whenReady().then(() => {
     }
   });
 
-  // ✅ Clipboard monitor
+
+  ipcMain.on("save-token", async (event, token) => {
+    try {
+      await keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, token);
+      const cookie = {
+        url: "http://localhost:3000",
+        name: "auth_token",
+        value: token,
+        httpOnly: true,
+        secure: app.isPackaged,
+        sameSite: "strict",
+        expirationDate: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7,
+      };
+      await session.defaultSession.cookies.set(cookie);
+    } catch (error) {
+      console.error("Error saving token or setting cookie:", error);
+    }
+  });
+
+
+
   setInterval(() => {
     const text = clipboard.readText();
     if (!text || text.trim() === "" || text === lastText) return;
@@ -225,16 +208,30 @@ app.whenReady().then(() => {
       mainWindow.webContents.send("clipboard-update", text);
     }
   }, 1000);
+
+  createWindow();
+
+  const iconPath = app.isPackaged
+    ? path.join(process.resourcesPath, "icon.ico")
+    : path.join(__dirname, "../../build/icon.ico");
+
+  tray = new Tray(iconPath);
+  const contextMenu = Menu.buildFromTemplate([
+    { label: "Show App", click: () => mainWindow?.show() },
+    { label: "Quit", click: () => app.quit() },
+  ]);
+  tray.setContextMenu(contextMenu);
+  tray.setToolTip("AI Overlay");
+
 });
 
-// ✅ Cleanup
 app.on("will-quit", () => {
   clipboard.clear();
   globalShortcut.unregisterAll();
 });
 
 app.on("window-all-closed", (event) => {
-  event.preventDefault(); // keep tray running
+  event.preventDefault();
 });
 
 app.on("activate", () => {
@@ -244,4 +241,3 @@ app.on("activate", () => {
     mainWindow?.show();
   }
 });
-
