@@ -22,7 +22,9 @@ passport.use(
             name: profile.displayName,
             email: profile.emails?.[0]?.value,
             avatar: profile.photos?.[0]?.value, 
+            isNewUser: true
           });
+
         }
 
         return done(null, user);
