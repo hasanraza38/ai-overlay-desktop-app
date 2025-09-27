@@ -760,7 +760,7 @@ export default function Signin() {
                             />
                             <button
                                 type="button"
-                                className="absolute right-6 top-3 text-gray-400 hover:text-white transition-colors duration-200"
+                                className="absolute cursor-pointer right-6 top-3 text-gray-400 hover:text-white transition-colors duration-200"
                                 onClick={() => setShowPassword(!showPassword)}
                             >
                                 {showPassword ? <FaRegEyeSlash className="w-5 h-5" /> : <IoEyeOutline className="w-5 h-5" />}
@@ -770,7 +770,7 @@ export default function Signin() {
                             <button
                                 type="button"
                                 onClick={() => setShowForgotModal(true)}
-                                className="text-sm text-purple-400 hover:underline transition-all duration-200 hover:text-purple-300"
+                                className="text-sm text-purple-400 hover:underline transition-all duration-200 hover:text-purple-300 cursor-pointer"
                             >
                                 Forgot Password?
                             </button>
@@ -827,7 +827,7 @@ export default function Signin() {
                                 {forgotStep > 1 ? (
                                     <button
                                         onClick={goBackStep}
-                                        className="p-2 rounded-full hover:bg-gray-700 transition-all duration-200 text-gray-400 hover:text-white"
+                                        className="p-2 rounded-full cursor-pointer hover:bg-gray-700 transition-all duration-200 text-gray-400 hover:text-white"
                                     >
                                         <IoIosArrowBack className="w-5 h-5" />
                                     </button>
@@ -841,7 +841,7 @@ export default function Signin() {
 
                                 <button
                                     onClick={closeForgotModal}
-                                    className="p-2 rounded-full hover:bg-gray-700 transition-all duration-200 text-gray-400 hover:text-white text-xl font-bold"
+                                    className="p-2 rounded-full hover:bg-gray-700 cursor-pointer transition-all duration-200 text-gray-400 hover:text-white text-xl font-bold"
                                 >
                                     <MdOutlineClose />
                                 </button>
@@ -901,7 +901,7 @@ export default function Signin() {
                                     </div>
                                     <button
                                         type="submit"
-                                        className="w-full h-[45px] text-base font-semibold text-white rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                                        className="w-full h-[45px] text-base cursor-pointer font-semibold text-white rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
                                         disabled={loadingOTP}
                                     >
                                         {loadingOTP ? ("Sending OTP...") : (
@@ -939,7 +939,7 @@ export default function Signin() {
                                     </div>
                                     <button
                                         type="submit"
-                                        className="w-full h-[45px] text-base font-semibold text-white rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                                        className="w-full h-[45px] text-base cursor-pointer font-semibold text-white rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
                                         disabled={loadingVerify}
                                     >
                                         {loadingVerify ? ("Verifying OTP...") : (
@@ -974,7 +974,7 @@ export default function Signin() {
                                             />
                                             <button
                                                 type="button"
-                                                className="absolute right-3 top-3 text-gray-400 hover:text-white transition-colors duration-200"
+                                                className="absolute cursor-pointer right-3 top-3 text-gray-400 hover:text-white transition-colors duration-200"
                                                 onClick={() => setShowNewPassword(!showNewPassword)}
                                             >
                                                 {showNewPassword ? <FaRegEyeSlash className="w-4 h-4" /> : <IoEyeOutline className="w-4 h-4" />}
@@ -998,7 +998,7 @@ export default function Signin() {
                                             />
                                             <button
                                                 type="button"
-                                                className="absolute right-3 top-3 text-gray-400 hover:text-white transition-colors duration-200"
+                                                className="absolute right-3 top-3 text-gray-400 cursor-pointer hover:text-white transition-colors duration-200"
                                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                                 disabled={showConfirmPassword}
                                             >
@@ -1008,7 +1008,7 @@ export default function Signin() {
                                     </div>
                                     <button
                                         type="submit"
-                                        className="w-full h-[45px] text-base font-semibold text-white rounded-xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                                        className="w-full h-[45px] text-base font-semibold cursor-pointer text-white rounded-xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
                                     >
                                         {loadingNewPassword ? ("Reset Password...") : (
                                             "Reset Password"

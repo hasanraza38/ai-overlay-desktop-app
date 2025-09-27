@@ -347,7 +347,7 @@ export default function Signup({ setIsAuthenticated }) {
                         />
                         <button
                             type="button"
-                            className="absolute right-6 top-9 text-gray-400 hover:text-white"
+                            className="absolute right-6 top-9 text-gray-400 hover:text-white cursor-pointer"
                             onClick={() => setShowPassword(!showPassword)}
                         >
                             {showPassword ? <FaRegEyeSlash className="w-5 h-5" /> : <IoEyeOutline className="w-5 h-5" />}
@@ -356,7 +356,7 @@ export default function Signup({ setIsAuthenticated }) {
 
                     <button
                         type="submit"
-                        className="text-[14px] w-full h-[40px] text-base font-semibold bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors cursor-pointer"
+                        className="w-[300px] text-[14px] h-[40px] cursor-pointer text-base font-semibold text-white rounded-lg bg-purple-600 hover:bg-purple-700 mt-3 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
                         disabled={loadingSignup}
                     >
                      {loadingSignup ? "Creating Account..." : "Create Free Account"}
