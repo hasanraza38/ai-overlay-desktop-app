@@ -1,6 +1,10 @@
 import bcrypt from "bcrypt";
 import User from "../models/user.model.js";
 import { generateToken } from "../utils/jwt.js";
+import crypto from "crypto"
+import { sendOTPEmail, sendWelcomeEmail } from "../utils/mail.js";
+
+
 
 const registerUser = async (req, res) => {
   try {
@@ -8,12 +12,7 @@ const registerUser = async (req, res) => {
 
     if (!email) return res.status(400).json({ message: "Email required" });
     if (!name) return res.status(400).json({ message: "Name required" });
-
-    if (!password) {
-      return res
-        .status(400)
-        .json({ message: "Password required" });
-    }
+    if (!password) return res.status(400).json({ message: "Password required" });
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -27,6 +26,8 @@ const registerUser = async (req, res) => {
       name,
       password,
     });
+
+    sendWelcomeEmail(createUser.email, createUser.name);
 
     const token = generateToken(createUser);
 
@@ -51,32 +52,31 @@ const login = async (req, res) => {
     if (!email) {
       return res.status(400).json({ message: "Email is required" });
     }
-
-    let user;
-
     if (!password) {
-      return res
-        .status(400)
-        .json({ message: "Password is required" });
+      return res.status(400).json({ message: "Password is required" });
     }
 
-    user = await User.findOne({ email });
+    const user = await User.findOne({ email });
     if (!user || !user.password) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-  
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
     const token = generateToken(user);
+
+    const safeUser = user.toObject();
+    delete safeUser.password;
+    delete safeUser.otp;
+    delete safeUser.otpExpires;
 
     return res.json({
       message: "User logged in",
       role: user.role,
-      user,
+      user: safeUser,
       token,
     });
   } catch (error) {
@@ -87,14 +87,16 @@ const login = async (req, res) => {
   }
 };
 
-
-
 const googleCallback = async (req, res) => {
   try {
     const user = req.user;
 
     if (!user) {
       return res.status(401).json({ message: "Authentication failed" });
+    }
+
+    if (user.isNewUser) {
+      sendWelcomeEmail(user.email, user.name);
     }
 
     const token = generateToken(user);
@@ -105,7 +107,6 @@ const googleCallback = async (req, res) => {
       user,
       token,
     });
-
   } catch (error) {
     console.error("Google callback error:", error);
     res
@@ -114,4 +115,83 @@ const googleCallback = async (req, res) => {
   }
 };
 
-export { registerUser, login, googleCallback };
+
+const sendOTP = async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ message: "User not found" });
+  console.log(user);
+
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+
+  user.otp = hashedOtp;
+  user.otpExpires = Date.now() + 10 * 60 * 1000;
+  await user.save();
+
+  await sendOTPEmail(email, otp);
+
+  res.status(200).json({ message: "OTP sent to email" });
+};
+
+
+
+
+
+
+const verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+
+    const user = await User.findOne({
+      email,
+      otp: hashedOtp,
+      otpExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    res.status(200).json({ message: "OTP verified" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+
+    const user = await User.findOne({
+      email,
+      otp: hashedOtp,
+      otpExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    user.password = newPassword;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+
+
+export { registerUser, login, googleCallback, sendOTP, verifyOTP, resetPassword };
