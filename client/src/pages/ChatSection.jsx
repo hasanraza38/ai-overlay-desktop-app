@@ -4,12 +4,12 @@ import {
   FiCopy,
   FiArrowUpCircle,
   FiStopCircle,
-  FiArrowDown,
 } from "react-icons/fi";
 import { BiConversation } from "react-icons/bi";
 import { Plus } from "lucide-react";
 import Topbar from "../components/Topbar";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 async function streamGroqResponse(userMessage, onChunk, onDone, conversationId) {
   const token = await window.electronAPI.getToken();
@@ -60,8 +60,10 @@ export default function Chatbot() {
   const [showPopup, setShowPopup] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [currentUser, setCurrentUser] = useState("User");
+
+  const [user, setUser] = useState(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
@@ -69,6 +71,59 @@ export default function Chatbot() {
   const messagesEndRef = useRef(null);
   const tokenQueue = useRef([]);
   const streamingInterval = useRef(null);
+
+  useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const token = await window.electronAPI.getToken();
+
+      if (!token) {
+        console.warn("No token found");
+        return;
+      }
+
+      const res = await fetch("https://ai-overlay.vercel.app/api/v1/dashboard/user", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      if (data.success) {
+        setUser(data.data);
+      } else {
+        console.error("User fetch failed:", data.message);
+      }
+    } catch (err) {
+      console.error("Error fetching user:", err);
+    }
+  };
+
+  fetchUser();
+}, []);
+
+
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      // Remove token from Electron secure storage
+      await window.electronAPI.removeToken();
+
+      // Clear user state
+      setUser(null);
+
+      // Redirect to signup page
+      navigate("/signup");
+    } catch (err) {
+      console.error("Error during logout:", err);
+    }
+  };
 
   // Clipboard listen
   useEffect(() => {
@@ -144,7 +199,7 @@ export default function Chatbot() {
       });
       const newConv = await res.json();
 
-      setConversations((prev) => [newConv, ...prev]); // top pe add
+      setConversations((prev) => [newConv, ...prev]);
       setActiveConversation(newConv._id);
       setShowContext(false);
     } catch (err) {
@@ -203,78 +258,22 @@ export default function Chatbot() {
     }
   };
 
-// Fetch username from Windows Credential (via electronAPI)
-  const fetchUser = async () => {
-    if (window.electronAPI?.getUser) {
-      const user = await window.electronAPI.getUser();
-      if (user?.username) {
-        setCurrentUser(user.username);
-      } else {
-        setCurrentUser("UserEmail");
-      }
-    }
-  };
-
-  useEffect(() => {
-    fetchUser();
-  }, []);
-
-  // Logout → clear from Windows Credential too
-  const handleLogout = async () => {
-    if (window.electronAPI?.logout) {
-      await window.electronAPI.logout(); // Windows Credential se bhi remove
-    }
-    setCurrentUser("Guest");
-  };
-
   return (
-   <div className="h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
+    <div className="h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
       <Topbar />
 
-
-                  {/* Controls */}
-     <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">
-      <button
-        onClick={() => setShowContext(true)}
-        className="flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
-      >
-        <BiConversation size={18} />
-        <span>Chats</span>
-      </button>
-
-      {/* User Dropdown Right Side */}
-      <div className="relative">
+      {/* Controls */}
+      <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">
         <button
-          className="flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition text-gray-200 text-sm"
-          onClick={() => setShowUserDropdown((prev) => !prev)}
+          onClick={() => setShowContext(true)}
+          className="flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
         >
-          {currentUser}
+          <BiConversation size={18} />
+          <span>Chats</span>
         </button>
-
-        {showUserDropdown && (
-          <div className="absolute right-0 mt-1 w-44 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-lg z-50">
-            <div className="px-3 py-2 text-gray-200 text-sm border-b border-white/20">
-              {currentUser}
-            </div>
-            <button
-              onClick={() => alert("Personal API Key option clicked")}
-              className="w-full text-left px-3 py-2 text-gray-300 hover:bg-white/20 text-sm"
-            >
-              Personal API Key
-            </button>
-            <button
-              onClick={handleLogout}
-              className="w-full text-left px-3 py-2 text-red-400 hover:bg-red-500/20 text-sm"
-            >
-              Logout
-            </button>
-          </div>
-        )}
       </div>
-    </div>
 
-
-
+      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/20 scrollbar-thin">
         {messages.map((msg, i) => {
           const parts = msg.content.split(/```/g);
@@ -323,7 +322,6 @@ export default function Chatbot() {
 
       {/* Input */}
       <div className="p-1 border-t border-white/20 bg-white/5 backdrop-blur-md">
-        {/* Copied Text Box */}
         {copiedText && (
           <div
             className="mx-auto max-w-4xl w-full mb-2 px-3 py-1.5 
@@ -387,29 +385,29 @@ export default function Chatbot() {
               onClick={() => setShowContext(false)}
             />
             <motion.div
-              className="relative top-10 w-72 h-[calc(100vh-2.75rem)] bg-gray-500/10 backdrop-blur-md border-r border-white/20 p-4 flex flex-col z-50 shadow-lg scrollbar-thin"
+              className="relative top-10 w-72 h-[calc(100vh-2.75rem)] bg-gray-500/10 backdrop-blur-md border-r border-white/20 flex flex-col z-50 shadow-lg"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
             >
-              <div className="flex justify-between items-center border-b border-white/20 pb-2">
+              <div className="flex justify-between items-center border-b border-white/20 p-4">
                 <h2 className="text-lg font-semibold text-gray-200">Chats</h2>
                 <button onClick={() => setShowContext(false)} className="text-gray-400 hover:text-gray-200 transition">
                   <FiX size={20} />
                 </button>
               </div>
 
-              {/* New Chat Btn */}
-              <button
-                onClick={startNewConversation}
-                className="flex items-center gap-2 mt-3 mb-4 px-3 py-2 rounded hover:bg-white/20 text-white text-sm"
-              >
-                <Plus size={16} /> New Chat
-              </button>
+              {/* Chats Scrollable */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-2 text-sm text-gray-100 scrollbar-thin">
+                <button
+                  onClick={startNewConversation}
+                  className="flex items-center gap-2 w-full px-3 py-2 rounded hover:bg-white/20 text-white text-sm mb-3"
+                >
+                  <Plus size={16} /> New Chat
+                </button>
 
-              <h3 className="text-xs uppercase text-gray-400 mb-2">Recent Chats</h3>
-              <div className="space-y-2 text-sm text-gray-100 overflow-y-auto scrollbar-thin">
+                <h3 className="text-xs uppercase text-gray-400 mb-2">Recent Chats</h3>
                 {conversations.length > 0 ? (
                   conversations.map((conv) => (
                     <button
@@ -426,12 +424,67 @@ export default function Chatbot() {
                   <p className="text-gray-400">No chats yet</p>
                 )}
               </div>
+
+              {/* User Section at Bottom */}
+              <div className="border-t border-white/20 p-3">
+                {user ? (
+                  <div className="relative">
+                    <button
+                      onClick={() => setUserMenuOpen(!userMenuOpen)}
+                      className="flex items-center gap-2 w-full px-2 py-2 rounded hover:bg-white/10 text-white"
+                    >
+                      <img
+                        src={user.avatar || "/default-avatar.png"}
+                        alt="avatar"
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                      <span className="text-sm font-medium">{user.name || "User"}</span>
+                    </button>
+
+                    {userMenuOpen && (
+                      <div className="absolute bottom-12 left-0 w-48 bg-gray-800/90 backdrop-blur-md border border-white/20 rounded-lg shadow-lg p-2 text-sm z-50">
+                        <p className="px-2 py-1 text-gray-300 border-b border-white/10">
+                          {user.email}
+                        </p>
+                        <button
+                          onClick={() => setShowSettings(true)}
+                          className="block w-full text-left px-2 py-2 rounded hover:bg-white/10 text-gray-200"
+                        >
+                          Settings
+                        </button>
+                        <button
+                          onClick={handleLogout}
+                          className="block w-full text-left px-2 py-2 rounded hover:bg-red-500/20 text-red-400"
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-gray-400 text-sm">Loading user...</p>
+                )}
+              </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
-      {/* Themed Popup */}
+      {showSettings && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg w-96">
+            <h3 className="text-lg font-semibold mb-4">Settings</h3>
+            <p className="text-sm text-gray-400 mb-4">User preferences here...</p>
+            <button
+              onClick={() => setShowSettings(false)}
+              className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowPopup(false)} />
@@ -453,7 +506,6 @@ export default function Chatbot() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

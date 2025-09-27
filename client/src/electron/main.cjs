@@ -102,6 +102,19 @@ app.whenReady().then(() => {
     }
   });
 
+    ipcMain.handle("remove-token", async () => {
+    try {
+      await keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT);
+      // Also remove cookie if set
+      await session.defaultSession.cookies.remove("http://localhost:3000", "auth_token");
+      return true;
+    } catch (error) {
+      console.error("Error removing token:", error);
+      return false;
+    }
+  });
+
+
 
   globalShortcut.register("Control+Space", () => {
     console.log("hotkey");

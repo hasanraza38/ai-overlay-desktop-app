@@ -28,7 +28,7 @@ app.use(passport.session());
 app.use('/api/v1/auth', authRoutes);
 app.use("/api/v1/chatbot", chatbotRoutes);
 app.use("/api/v1/payment", paymentRoutes);
-app.use("/api/v1/dasboard", dashboardRoutes);
+app.use("/api/v1/dashboard", dashboardRoutes);
 
 
 app.get("/", (req, res) => {
