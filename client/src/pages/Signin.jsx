@@ -541,6 +541,10 @@ import PopupNotification from "../components/PopupNotification";
 import { IoEyeOutline } from "react-icons/io5";
 import { FaRegEyeSlash } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
+import { HiOutlineMail } from "react-icons/hi";
+import { TfiLock } from "react-icons/tfi";
+import { GiKey } from "react-icons/gi";
+import { MdOutlineClose } from "react-icons/md";
 
 export default function Signin() {
     const navigate = useNavigate();
@@ -555,6 +559,7 @@ export default function Signin() {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
+    
 
     const showError = (message) => setNotification({ message, type: "error" });
     const showSuccess = (message) => setNotification({ message, type: "success" });
@@ -678,17 +683,17 @@ export default function Signin() {
         1: {
             title: "Reset Your Password",
             description: "Enter your email address and we'll send you an OTP to reset your password.",
-            icon: "📧"
+            icon: <HiOutlineMail />
         },
         2: {
             title: "Verify OTP",
             description: "Enter the 6-digit OTP sent to your email address.",
-            icon: "🔒"
+            icon: <TfiLock />
         },
         3: {
             title: "Create New Password",
             description: "Enter your new password and confirm it.",
-            icon: "🔑"
+            icon: <GiKey />
         }
     };
 
@@ -819,7 +824,7 @@ export default function Signin() {
                                     onClick={closeForgotModal}
                                     className="p-2 rounded-full hover:bg-gray-700 transition-all duration-200 text-gray-400 hover:text-white text-xl font-bold"
                                 >
-                                    ×
+                                    <MdOutlineClose />
                                 </button>
                             </div>
 
@@ -847,8 +852,8 @@ export default function Signin() {
                                 </div>
                             </div>
 
-                            <div className="text-center">
-                                <div className="text-3xl mb-2">{currentStep.icon}</div>
+                            <div className="flex flex-col items-center justify-center">
+                                <div className="text-3xl mb-2 text-white">{currentStep.icon}</div>
                                 <p className="text-gray-400 text-sm">{currentStep.description}</p>
                             </div>
                         </div>
