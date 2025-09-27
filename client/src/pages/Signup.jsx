@@ -239,6 +239,8 @@ export default function Signup({ setIsAuthenticated }) {
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({ email: "", name: "", password: "" });
     const [notification, setNotification] = useState({ message: "", type: "error" });
+    const [loadingSignup, setLoadingSignup] = useState(false);
+
 
     const navigate = useNavigate();
     const showError = (message) => setNotification({ message, type: "error" });
@@ -247,6 +249,7 @@ export default function Signup({ setIsAuthenticated }) {
 
     const handleSignup = async (event) => {
         event.preventDefault();
+        setLoadingSignup(true)
 
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -269,6 +272,8 @@ export default function Signup({ setIsAuthenticated }) {
             const msg = error.response?.data?.message || "Registration failed";
             if (msg.includes("exists")) showError("User already exists");
             else showError(msg);
+        } finally {
+            setLoadingSignup(false)
         }
     };
 
@@ -302,7 +307,7 @@ export default function Signup({ setIsAuthenticated }) {
                 <h1 className="text-3xl font-bold text-purple-500">AI Overlay</h1>
                 <h1 className="text-2xl font-bold text-white mb-3">Create an account</h1>
 
-                <form onSubmit={handleSignup} className="space-y-6 mt-1">
+                <form onSubmit={handleSignup} className="space-y-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-300 mb-1">Email</label>
                         <input
@@ -342,7 +347,7 @@ export default function Signup({ setIsAuthenticated }) {
                         />
                         <button
                             type="button"
-                            className="absolute right-6 top-9 text-gray-400 hover:text-white"
+                            className="absolute right-6 top-9 text-gray-400 hover:text-white cursor-pointer"
                             onClick={() => setShowPassword(!showPassword)}
                         >
                             {showPassword ? <FaRegEyeSlash className="w-5 h-5" /> : <IoEyeOutline className="w-5 h-5" />}
@@ -351,9 +356,10 @@ export default function Signup({ setIsAuthenticated }) {
 
                     <button
                         type="submit"
-                        className="text-[14px] w-full h-[40px] text-base font-semibold bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors cursor-pointer"
+                        className="w-[300px] text-[14px] h-[40px] cursor-pointer text-base font-semibold text-white rounded-lg bg-purple-600 hover:bg-purple-700 mt-3 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                        disabled={loadingSignup}
                     >
-                        Create Free Account
+                     {loadingSignup ? "Creating Account..." : "Create Free Account"}
                     </button>
                 </form>
 
@@ -363,20 +369,24 @@ export default function Signup({ setIsAuthenticated }) {
                     <div className="flex-grow border-t border-gray-600"></div>
                 </div>
 
-                <button
+                 <button
                     onClick={handleGoogleSignup}
-                    className="flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-7 h-7 pr-1.5" />
+                    className="flex items-center justify-center border border-gray-600 w-[300px] h-[40px] text-base font-semibold text-white rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-800 transform hover:scale-[1.02] active:scale-[0.98]">
+                    <img
+                        src="https://www.svgrepo.com/show/475656/google-color.svg"
+                        alt="Google"
+                        className="w-7 h-7 pr-1.5"
+                    />
                     <span className="text-white font-medium text-[14px]">Continue With Google</span>
                 </button>
 
-                <p className="text-xs text-gray-500 text-center mt-8">
+                <p className="text-xs text-gray-500 text-center mt-7">
                     By creating an account, you agree to our{" "}
                     <Link to="#" className="text-purple-400 hover:underline">terms</Link> and{" "}
                     <Link to="#" className="text-purple-400 hover:underline">privacy policy</Link>.
                 </p>
 
-                <p className="text-sm text-gray-300 text-center mt-4">
+                <p className="text-sm text-gray-300 text-center mt-3">
                     Already have an account?{" "}
                     <Link to="/signin" className="text-purple-400 font-medium hover:underline">Sign in</Link>
                 </p>
