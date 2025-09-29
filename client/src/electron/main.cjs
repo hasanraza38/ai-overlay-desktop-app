@@ -24,7 +24,7 @@ function createWindow() {
   const windowWidth = 400;
   const windowHeight = 700;
 
-  mainWindow = new BrowserWindow({
+mainWindow = new BrowserWindow({
     width: windowWidth,
     height: windowHeight,
     transparent: true,
@@ -43,11 +43,11 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
     },
-  });
+});
 
-  mainWindow.setMenuBarVisibility(false);
+mainWindow.setMenuBarVisibility(false);
 
-  if (app.isPackaged) {
+if (app.isPackaged) {
     const indexPath = path.join(process.resourcesPath, "dist-react", "index.html");
     console.log("Attempting to load:", indexPath, "Exists:", require('fs').existsSync(indexPath));
     mainWindow
@@ -64,21 +64,21 @@ function createWindow() {
       "Exists:",
       require("fs").existsSync(indexPath)
     );
-  }
+}
 
 
 
-  mainWindow.once("ready-to-show", () => {
+mainWindow.once("ready-to-show", () => {
     console.log("Window is ready to show");
     mainWindow.show();
   });
 
-  mainWindow.on("close", (event) => {
+mainWindow.on("close", (event) => {
     mainWindow = null;
     app.quit();
   });
 
-  mainWindow.webContents.once("did-finish-load", () => {
+mainWindow.webContents.once("did-finish-load", () => {
     mainWindow.webContents.setZoomFactor(1);
     mainWindow.webContents.setVisualZoomLevelLimits(1, 1);
 
@@ -93,7 +93,7 @@ app.whenReady().then(() => {
   clipboard.clear();
 
 
-  ipcMain.handle("get-token", async () => {
+ipcMain.handle("get-token", async () => {
     try {
       return (await keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)) || null;
     } catch (error) {
@@ -102,21 +102,20 @@ app.whenReady().then(() => {
     }
   });
 
-    ipcMain.handle("remove-token", async () => {
+ipcMain.handle("remove-token", async () => {
     try {
       await keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT);
-      // Also remove cookie if set
       await session.defaultSession.cookies.remove("http://localhost:3000", "auth_token");
       return true;
     } catch (error) {
       console.error("Error removing token:", error);
       return false;
     }
-  });
+});
 
 
 
-  globalShortcut.register("Control+Space", () => {
+globalShortcut.register("Control+Space", () => {
     console.log("hotkey");
 
     if (!mainWindow) return;
@@ -134,11 +133,11 @@ app.whenReady().then(() => {
       mainWindow.focus();
       mainWindow.setAlwaysOnTop(true);
     }
-  });
+});
 
 
 
-  ipcMain.handle("google-login", async () => {
+ipcMain.handle("google-login", async () => {
     return new Promise((resolve, reject) => {
       const loginWindow = new BrowserWindow({
         width: 500,
@@ -167,22 +166,22 @@ app.whenReady().then(() => {
         }
       });
     });
-  });
+});
 
-  ipcMain.on("window-close", () => {
+ipcMain.on("window-close", () => {
     if (mainWindow) {
       console.log("close ");
 
       mainWindow = null;
       app.quit();
     }
-  });
-  ipcMain.on("window-minimize", () => {
+});
+ipcMain.on("window-minimize", () => {
     console.log("minimize ");
 
     mainWindow?.minimize();
-  });
-  ipcMain.on("resize-window", (event, { width, height, resizable }) => {
+});
+ipcMain.on("resize-window", (event, { width, height, resizable }) => {
     console.log("resize");
 
     if (mainWindow) {
@@ -190,10 +189,10 @@ app.whenReady().then(() => {
       mainWindow.setResizable(resizable);
       if (resizable) mainWindow.center();
     }
-  });
+});
 
 
-  ipcMain.on("save-token", async (event, token) => {
+ipcMain.on("save-token", async (event, token) => {
     try {
       await keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, token);
       const cookie = {
@@ -209,27 +208,27 @@ app.whenReady().then(() => {
     } catch (error) {
       console.error("Error saving token or setting cookie:", error);
     }
-  });
+});
 
 
 
-  setInterval(() => {
+setInterval(() => {
     const text = clipboard.readText();
     if (!text || text.trim() === "" || text === lastText) return;
     lastText = text;
     if (mainWindow && mainWindow.webContents) {
       mainWindow.webContents.send("clipboard-update", text);
     }
-  }, 1000);
+}, 1000);
 
-  createWindow();
+createWindow();
 
 
 const iconFile = process.platform === "win32" 
   ? "icon.ico" 
   : process.platform === "darwin" 
     ? "icon.icns" 
-    : "512x512.png"; // Linux
+    : "512x512.png"; 
 
 const iconPath = app.isPackaged
   ? path.join(process.resourcesPath, "icons", iconFile)
@@ -242,7 +241,7 @@ const iconPath = app.isPackaged
   // : path.join(__dirname, "../../build/icons/512x512.png");
 
   tray = new Tray(iconPath);
-  const contextMenu = Menu.buildFromTemplate([
+const contextMenu = Menu.buildFromTemplate([
     { label: "Show App", click: () => mainWindow?.show() },
     { label: "Quit", click: () => app.quit() },
   ]);
