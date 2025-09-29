@@ -14,8 +14,8 @@ router.get('/google/callback',
 
 router.post('/login', login);
 router.post('/register', registerUser);
-router.post("/sendotp", sendOTP);
-router.post("/verifyotp", verifyOTP);
-router.post("/resetpassword", resetPassword);
+router.post('/sendotp', sendOTP);
+router.post('/verifyotp', verifyOTP);
+router.post('/resetpassword', resetPassword);
 
 export default router;
