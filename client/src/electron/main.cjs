@@ -48,8 +48,17 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false);
 
   if (app.isPackaged) {
-    const indexPath = path.join(process.resourcesPath, "dist-react", "index.html");
-    console.log("Attempting to load:", indexPath, "Exists:", require('fs').existsSync(indexPath));
+    const indexPath = path.join(
+      process.resourcesPath,
+      "dist-react",
+      "index.html"
+    );
+    console.log(
+      "Attempting to load:",
+      indexPath,
+      "Exists:",
+      require("fs").existsSync(indexPath)
+    );
     mainWindow
       .loadFile(indexPath)
       .catch((err) => console.error("Load error:", err));
@@ -65,8 +74,6 @@ function createWindow() {
       require("fs").existsSync(indexPath)
     );
   }
-
-
 
   mainWindow.once("ready-to-show", () => {
     console.log("Window is ready to show");
@@ -92,7 +99,6 @@ function createWindow() {
 app.whenReady().then(() => {
   clipboard.clear();
 
-
   ipcMain.handle("get-token", async () => {
     try {
       return (await keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)) || null;
@@ -102,11 +108,14 @@ app.whenReady().then(() => {
     }
   });
 
-    ipcMain.handle("remove-token", async () => {
+  ipcMain.handle("remove-token", async () => {
     try {
       await keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT);
       // Also remove cookie if set
-      await session.defaultSession.cookies.remove("http://localhost:3000", "auth_token");
+      await session.defaultSession.cookies.remove(
+        "http://localhost:3000",
+        "auth_token"
+      );
       return true;
     } catch (error) {
       console.error("Error removing token:", error);
@@ -114,7 +123,67 @@ app.whenReady().then(() => {
     }
   });
 
+  // ====== ADD API CONFIG HANDLERS HERE ======
+  const KEYTAR_API_SERVICE = "my-electron-app-api-config";
+  const KEYTAR_API_ACCOUNT = "api-config";
 
+  ipcMain.handle("save-api-config", async (event, config) => {
+    try {
+      const data = JSON.stringify(config);
+      await keytar.setPassword(KEYTAR_API_SERVICE, KEYTAR_API_ACCOUNT, data);
+      return true;
+    } catch (err) {
+      console.error("Error saving API config:", err);
+      return false;
+    }
+  });
+
+  ipcMain.handle("get-api-config", async () => {
+    try {
+      const data = await keytar.getPassword(
+        KEYTAR_API_SERVICE,
+        KEYTAR_API_ACCOUNT
+      );
+      if (!data) return null;
+      return JSON.parse(data);
+    } catch (err) {
+      console.error("Error retrieving API config:", err);
+      return null;
+    }
+  });
+
+  
+  const KEYTAR_MODEL_SERVICE = "my-electron-app-model";
+  const KEYTAR_MODEL_ACCOUNT = "selected-model";
+
+  // Save selected model
+  ipcMain.handle("save-model-selection", async (event, model) => {
+    try {
+      await keytar.setPassword(
+        KEYTAR_MODEL_SERVICE,
+        KEYTAR_MODEL_ACCOUNT,
+        model
+      );
+      return true;
+    } catch (err) {
+      console.error("Error saving model selection:", err);
+      return false;
+    }
+  });
+
+  // Get selected model
+  ipcMain.handle("get-model-selection", async () => {
+    try {
+      const model = await keytar.getPassword(
+        KEYTAR_MODEL_SERVICE,
+        KEYTAR_MODEL_ACCOUNT
+      );
+      return model || null;
+    } catch (err) {
+      console.error("Error retrieving model selection:", err);
+      return null;
+    }
+  });
 
   globalShortcut.register("Control+Space", () => {
     console.log("hotkey");
@@ -135,8 +204,6 @@ app.whenReady().then(() => {
       mainWindow.setAlwaysOnTop(true);
     }
   });
-
-
 
   ipcMain.handle("google-login", async () => {
     return new Promise((resolve, reject) => {
@@ -192,7 +259,6 @@ app.whenReady().then(() => {
     }
   });
 
-
   ipcMain.on("save-token", async (event, token) => {
     try {
       await keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, token);
@@ -210,8 +276,6 @@ app.whenReady().then(() => {
       console.error("Error saving token or setting cookie:", error);
     }
   });
-
-
 
   setInterval(() => {
     const text = clipboard.readText();
@@ -235,7 +299,6 @@ app.whenReady().then(() => {
   ]);
   tray.setContextMenu(contextMenu);
   tray.setToolTip("AI Overlay");
-
 });
 
 app.on("will-quit", () => {

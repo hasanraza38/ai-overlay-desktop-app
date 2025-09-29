@@ -1,8 +1,8 @@
 import axios from "axios";
 
 export const api = axios.create({
-  // baseURL: 'https://ai-overlay.vercel.app/api/v1/',
-    baseURL: 'http://localhost:4000/api/v1/',
+  baseURL: 'https://ai-overlay.vercel.app/api/v1/',
+    // baseURL: 'http://localhost:4000/api/v1/',
   withCredentials: true
 });
 
