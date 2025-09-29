@@ -224,9 +224,22 @@ app.whenReady().then(() => {
 
   createWindow();
 
-  const iconPath = app.isPackaged
-    ? path.join(process.resourcesPath, "icon.ico")
-    : path.join(__dirname, "../../build/icon.ico");
+
+const iconFile = process.platform === "win32" 
+  ? "icon.ico" 
+  : process.platform === "darwin" 
+    ? "icon.icns" 
+    : "512x512.png"; // Linux
+
+const iconPath = app.isPackaged
+  ? path.join(process.resourcesPath, "icons", iconFile)
+  : path.join(__dirname, "../../build/icons", iconFile);
+
+// tray = new Tray(iconPath);
+
+  // const iconPath = app.isPackaged
+  // ? path.join(process.resourcesPath, "icons/512x512.png")
+  // : path.join(__dirname, "../../build/icons/512x512.png");
 
   tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([
