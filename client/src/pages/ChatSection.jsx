@@ -46,7 +46,7 @@ async function streamGroqResponse(userMessage, onChunk, onDone, conversationId) 
           const json = JSON.parse(data);
           const token = json.token;
           if (token) onChunk(token);
-        } catch {}
+        } catch { }
       }
     }
   }
@@ -61,6 +61,10 @@ export default function Chatbot() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const [provider, setProvider] = useState("openai");
+  const [apiKey, setApiKey] = useState("");
+
+
   const [user, setUser] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -72,41 +76,55 @@ export default function Chatbot() {
   const tokenQueue = useRef([]);
   const streamingInterval = useRef(null);
 
+
   useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const token = await window.electronAPI.getToken();
-
-      if (!token) {
-        console.warn("No token found");
-        return;
+    const loadConfig = async () => {
+      const config = await window.electronAPI.getApiConfig();
+      if (config) {
+        setProvider(config.provider);
+        setApiKey(config.apiKey);
       }
+      const savedModel = await window.electronAPI.getModelSelection();
+      if (savedModel) setProvider(savedModel); // or another state if you separate provider & model
+    };
+    loadConfig();
+  }, []);
 
-      const res = await fetch("https://ai-overlay.vercel.app/api/v1/dashboard/user", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
 
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = await window.electronAPI.getToken();
+
+        if (!token) {
+          console.warn("No token found");
+          return;
+        }
+
+        const res = await fetch("https://ai-overlay.vercel.app/api/v1/dashboard/user", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (data.success) {
+          setUser(data.data);
+        } else {
+          console.error("User fetch failed:", data.message);
+        }
+      } catch (err) {
+        console.error("Error fetching user:", err);
       }
+    };
 
-      const data = await res.json();
-      if (data.success) {
-        setUser(data.data);
-      } else {
-        console.error("User fetch failed:", data.message);
-      }
-    } catch (err) {
-      console.error("Error fetching user:", err);
-    }
-  };
-
-  fetchUser();
-}, []);
-
+    fetchUser();
+  }, []);
 
   const navigate = useNavigate();
 
@@ -257,6 +275,18 @@ export default function Chatbot() {
       handleSend();
     }
   };
+
+  const handleSaveSettings = async () => {
+    if (!apiKey) {
+      alert("API Key required");
+      return;
+    }
+    await window.electronAPI.saveApiConfig({ provider, apiKey });
+    await window.electronAPI.saveModelSelection(provider);
+    alert("Settings saved!");
+    setShowSettings(false);
+  };
+
 
   return (
     <div className="h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
@@ -413,9 +443,8 @@ export default function Chatbot() {
                     <button
                       key={conv._id}
                       onClick={() => loadConversation(conv._id)}
-                      className={`block w-full text-left px-2 py-1 rounded hover:bg-white/20 ${
-                        activeConversation === conv._id ? "bg-white/10" : ""
-                      }`}
+                      className={`block w-full text-left px-2 py-1 rounded hover:bg-white/20 ${activeConversation === conv._id ? "bg-white/10" : ""
+                        }`}
                     >
                       {conv.title || "Untitled Chat"}
                     </button>
@@ -443,9 +472,6 @@ export default function Chatbot() {
 
                     {userMenuOpen && (
                       <div className="absolute bottom-12 left-0 w-48 bg-gray-800/90 backdrop-blur-md border border-white/20 rounded-lg shadow-lg p-2 text-sm z-50">
-                        <p className="px-2 py-1 text-gray-300 border-b border-white/10">
-                          {user.email}
-                        </p>
                         <button
                           onClick={() => setShowSettings(true)}
                           className="block w-full text-left px-2 py-2 rounded hover:bg-white/10 text-gray-200"
@@ -471,16 +497,57 @@ export default function Chatbot() {
       </AnimatePresence>
 
       {showSettings && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-lg font-semibold mb-4">Settings</h3>
-            <p className="text-sm text-gray-400 mb-4">User preferences here...</p>
-            <button
-              onClick={() => setShowSettings(false)}
-              className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
-            >
-              Close
-            </button>
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowSettings(false)}
+          />
+
+          {/* Modal */}
+          <div className="relative bg-black/40 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-xl w-96 p-6 flex flex-col gap-4">
+            <h3 className="text-xl font-semibold text-white">Settings</h3>
+
+            {/* Provider Dropdown */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-gray-300 bg-black">Select Provider</label>
+              <select
+                value={provider}
+                onChange={(e) => setProvider(e.target.value)}
+                className="w-full p-2 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="openai">OpenAI</option>
+                <option value="gemini">Gemini</option>
+              </select>
+            </div>
+
+            {/* API Key Input */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-gray-300">API Key</label>
+              <input
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="Enter API Key"
+                className="w-full p-2 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={() => setShowSettings(false)}
+                className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveSettings}
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition"
+              >
+                Save
+              </button>
+            </div>
           </div>
         </div>
       )}

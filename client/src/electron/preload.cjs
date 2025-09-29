@@ -54,7 +54,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     }
   },
 
-    removeToken: async () => {
+  removeToken: async () => {
     try {
       return await ipcRenderer.invoke("remove-token");
     } catch (error) {
@@ -63,11 +63,16 @@ contextBridge.exposeInMainWorld("electronAPI", {
     }
   },
 
-
-  
   googleLogin: () => ipcRenderer.invoke("google-login"),
-
 
   resizeWindow: (width, height, resizable = false) =>
     ipcRenderer.send("resize-window", { width, height, resizable }),
+
+  // Add API Config methods
+  saveApiConfig: (config) => ipcRenderer.invoke("save-api-config", config),
+  getApiConfig: () => ipcRenderer.invoke("get-api-config"),
+
+  // Add model selection methods
+  saveModelSelection: (model) => ipcRenderer.invoke("save-model-selection", model),
+  getModelSelection: () => ipcRenderer.invoke("get-model-selection"),
 });
