@@ -68,11 +68,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
   resizeWindow: (width, height, resizable = false) =>
     ipcRenderer.send("resize-window", { width, height, resizable }),
 
-  // Add API Config methods
-  saveApiConfig: (config) => ipcRenderer.invoke("save-api-config", config),
-  getApiConfig: () => ipcRenderer.invoke("get-api-config"),
+  // ==== New unified model config methods ====
+  saveModelConfig: ({ model, apiKey }) =>
+    ipcRenderer.invoke("save-model-config", { model, apiKey }),
 
-  // Add model selection methods
-  saveModelSelection: (model) => ipcRenderer.invoke("save-model-selection", model),
-  getModelSelection: () => ipcRenderer.invoke("get-model-selection"),
+  getModelConfig: (model) => ipcRenderer.invoke("get-model-config", model),
+
+  removeModelConfig: (model) =>
+    ipcRenderer.invoke("remove-model-config", model),
 });

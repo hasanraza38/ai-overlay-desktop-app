@@ -124,68 +124,44 @@ ipcMain.handle("remove-token", async () => {
     }
 });
 
-  const KEYTAR_API_SERVICE = "my-electron-app-api-config";
-  const KEYTAR_API_ACCOUNT = "api-config";
+  // ====== NEW SINGLE MODEL CONFIG HANDLER ======
+  const KEYTAR_MODEL_SERVICE = "my-electron-app-model-config";
 
-  ipcMain.handle("save-api-config", async (event, config) => {
+  // Save config (model = username, apiKey = password)
+  ipcMain.handle("save-model-config", async (event, { model, apiKey }) => {
     try {
-      const data = JSON.stringify(config);
-      await keytar.setPassword(KEYTAR_API_SERVICE, KEYTAR_API_ACCOUNT, data);
+      await keytar.setPassword(KEYTAR_MODEL_SERVICE, model, apiKey);
       return true;
     } catch (err) {
-      console.error("Error saving API config:", err);
+      console.error("Error saving model config:", err);
       return false;
     }
   });
 
-  ipcMain.handle("get-api-config", async () => {
+  // Get config
+  ipcMain.handle("get-model-config", async (event, model) => {
     try {
-      const data = await keytar.getPassword(
-        KEYTAR_API_SERVICE,
-        KEYTAR_API_ACCOUNT
-      );
-      if (!data) return null;
-      return JSON.parse(data);
+      const apiKey = await keytar.getPassword(KEYTAR_MODEL_SERVICE, model);
+      if (!apiKey) return null;
+      return { model, apiKey };
     } catch (err) {
-      console.error("Error retrieving API config:", err);
+      console.error("Error retrieving model config:", err);
       return null;
     }
   });
 
-  
-  const KEYTAR_MODEL_SERVICE = "my-electron-app-model";
-  const KEYTAR_MODEL_ACCOUNT = "selected-model";
-
-  // Save selected model
-  ipcMain.handle("save-model-selection", async (event, model) => {
+  // Remove config
+  ipcMain.handle("remove-model-config", async (event, model) => {
     try {
-      await keytar.setPassword(
-        KEYTAR_MODEL_SERVICE,
-        KEYTAR_MODEL_ACCOUNT,
-        model
-      );
+      await keytar.deletePassword(KEYTAR_MODEL_SERVICE, model);
       return true;
     } catch (err) {
-      console.error("Error saving model selection:", err);
+      console.error("Error removing model config:", err);
       return false;
     }
   });
 
-  // Get selected model
-  ipcMain.handle("get-model-selection", async () => {
-    try {
-      const model = await keytar.getPassword(
-        KEYTAR_MODEL_SERVICE,
-        KEYTAR_MODEL_ACCOUNT
-      );
-      return model || null;
-    } catch (err) {
-      console.error("Error retrieving model selection:", err);
-      return null;
-    }
-  });
-
-globalShortcut.register("Control+Space", () => {
+  globalShortcut.register("Control+Space", () => {
     console.log("hotkey");
 
     if (!mainWindow) return;

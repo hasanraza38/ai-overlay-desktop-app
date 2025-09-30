@@ -992,11 +992,11 @@ export default function Signin() {
                                                 value={forgotData.confirmPassword}
                                                 onChange={handleForgotDataChange}
                                                 className="w-full text-[14px] h-[45px] bg-[#1a1a1a] text-white border border-gray-600 rounded-xl px-4 pr-12 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all duration-200"
-                                                placeholder="Confirm new password"
+                                                placeholder="Confirm new password" 
                                                 minLength="6"
                                                 required
                                             />
-                                            <button
+                                            <button 
                                                 type="button"
                                                 className="absolute right-3 top-3 text-gray-400 cursor-pointer hover:text-white transition-colors duration-200"
                                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -1023,3 +1023,4 @@ export default function Signin() {
         </div>
     );
 }
+
