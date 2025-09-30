@@ -79,13 +79,11 @@ export default function Chatbot() {
 
   useEffect(() => {
     const loadConfig = async () => {
-      const config = await window.electronAPI.getApiConfig();
-      if (config) {
-        setProvider(config.provider);
-        setApiKey(config.apiKey);
+      const savedConfig = await window.electronAPI.getModelConfig("Grok");
+      if (savedConfig) {
+        setProvider(savedConfig.model);
+        setApiKey(savedConfig.apiKey);
       }
-      const savedModel = await window.electronAPI.getModelSelection();
-      if (savedModel) setProvider(savedModel); // or another state if you separate provider & model
     };
     loadConfig();
   }, []);
@@ -281,8 +279,9 @@ export default function Chatbot() {
       alert("API Key required");
       return;
     }
-    await window.electronAPI.saveApiConfig({ provider, apiKey });
-    await window.electronAPI.saveModelSelection(provider);
+
+    await window.electronAPI.saveModelConfig({ model: provider, apiKey });
+
     alert("Settings saved!");
     setShowSettings(false);
   };
