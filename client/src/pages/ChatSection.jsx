@@ -24,6 +24,8 @@ async function streamGroqResponse(userMessage, onChunk, onDone, conversationId) 
       userInput: userMessage,
       context: "general",
       conversationId,
+      provider,
+      apiKey,
     }),
   });
 
@@ -264,7 +266,7 @@ export default function Chatbot() {
       }
     }, 40);
 
-    await streamGroqResponse(combinedMessage, onChunk, onDone, activeConversation);
+    await streamGroqResponse(combinedMessage, onChunk, onDone, activeConversation, provider, apiKey);
   };
 
   const handleKeyDown = (e) => {
