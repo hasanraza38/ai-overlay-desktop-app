@@ -4,6 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "main": "src/electron/main.cjs",
+  "description": "Ai overlay is a ai powered desktop app",
+  "author": {
+    "name": "Muhammad Hassan Raza",
+    "email": "92hasanraza689@gmail.com"
+  },
   "scripts": {
     "dev": "vite",
     "dev:electron": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
@@ -61,7 +66,7 @@
       "output": "release-builds",
       "buildResources": "build"
     },
-        "extraResources": [
+    "extraResources": [
       {
         "from": "dist-react",
         "to": "dist-react"
@@ -83,6 +88,14 @@
         }
       ],
       "icon": "build/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "icon": "build/icons"
     },
     "nsis": {
       "oneClick": false,
