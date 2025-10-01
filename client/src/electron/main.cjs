@@ -24,7 +24,7 @@ function createWindow() {
   const windowWidth = 400;
   const windowHeight = 700;
 
-mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: windowWidth,
     height: windowHeight,
     transparent: true,
@@ -43,10 +43,9 @@ mainWindow = new BrowserWindow({
       contextIsolation: true,
       nodeIntegration: false,
     },
-});
+  });
 
-mainWindow.setMenuBarVisibility(false);
-
+  mainWindow.setMenuBarVisibility(false);
 
   if (app.isPackaged) {
     const indexPath = path.join(
@@ -74,20 +73,19 @@ mainWindow.setMenuBarVisibility(false);
       "Exists:",
       require("fs").existsSync(indexPath)
     );
-}
+  }
 
-
-mainWindow.once("ready-to-show", () => {
+  mainWindow.once("ready-to-show", () => {
     console.log("Window is ready to show");
     mainWindow.show();
   });
 
-mainWindow.on("close", (event) => {
+  mainWindow.on("close", (event) => {
     mainWindow = null;
     app.quit();
   });
 
-mainWindow.webContents.once("did-finish-load", () => {
+  mainWindow.webContents.once("did-finish-load", () => {
     mainWindow.webContents.setZoomFactor(1);
     mainWindow.webContents.setVisualZoomLevelLimits(1, 1);
 
@@ -101,10 +99,7 @@ mainWindow.webContents.once("did-finish-load", () => {
 app.whenReady().then(() => {
   clipboard.clear();
 
-
-
-
-ipcMain.handle("get-token", async () => {
+  ipcMain.handle("get-token", async () => {
     try {
       return (await keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)) || null;
     } catch (error) {
@@ -113,21 +108,49 @@ ipcMain.handle("get-token", async () => {
     }
   });
 
-ipcMain.handle("remove-token", async () => {
+  ipcMain.handle("remove-token", async () => {
     try {
       await keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT);
-      await session.defaultSession.cookies.remove("http://localhost:3000", "auth_token");
+      await session.defaultSession.cookies.remove(
+        "http://localhost:3000",
+        "auth_token"
+      );
       return true;
     } catch (error) {
       console.error("Error removing token:", error);
       return false;
     }
-});
+  });
 
-  // ====== NEW SINGLE MODEL CONFIG HANDLER ======
+  // // ====== NEW SINGLE MODEL CONFIG HANDLER ======
+  // const KEYTAR_MODEL_SERVICE = "my-electron-app-model-config";
+
+  // // Save config (model = username, apiKey = password)
+  // ipcMain.handle("save-model-config", async (event, { model, apiKey }) => {
+  //   try {
+  //     await keytar.setPassword(KEYTAR_MODEL_SERVICE, model, apiKey);
+  //     return true;
+  //   } catch (err) {
+  //     console.error("Error saving model config:", err);
+  //     return false;
+  //   }
+  // });
+
+  // // Get config
+  // ipcMain.handle("get-model-config", async (event, model) => {
+  //   try {
+  //     const apiKey = await keytar.getPassword(KEYTAR_MODEL_SERVICE, model);
+  //     if (!apiKey) return null;
+  //     return { model, apiKey };
+  //   } catch (err) {
+  //     console.error("Error retrieving model config:", err);
+  //     return null;
+  //   }
+  // });
+
   const KEYTAR_MODEL_SERVICE = "my-electron-app-model-config";
 
-  // Save config (model = username, apiKey = password)
+  // Save config
   ipcMain.handle("save-model-config", async (event, { model, apiKey }) => {
     try {
       await keytar.setPassword(KEYTAR_MODEL_SERVICE, model, apiKey);
@@ -140,6 +163,10 @@ ipcMain.handle("remove-token", async () => {
 
   // Get config
   ipcMain.handle("get-model-config", async (event, model) => {
+    if (!model) {
+      console.error("Model is required for keytar lookup");
+      return null;
+    }
     try {
       const apiKey = await keytar.getPassword(KEYTAR_MODEL_SERVICE, model);
       if (!apiKey) return null;
@@ -179,11 +206,9 @@ ipcMain.handle("remove-token", async () => {
       mainWindow.focus();
       mainWindow.setAlwaysOnTop(true);
     }
-});
+  });
 
-
-
-ipcMain.handle("google-login", async () => {
+  ipcMain.handle("google-login", async () => {
     return new Promise((resolve, reject) => {
       const loginWindow = new BrowserWindow({
         width: 500,
@@ -212,22 +237,22 @@ ipcMain.handle("google-login", async () => {
         }
       });
     });
-});
+  });
 
-ipcMain.on("window-close", () => {
+  ipcMain.on("window-close", () => {
     if (mainWindow) {
       console.log("close ");
 
       mainWindow = null;
       app.quit();
     }
-});
-ipcMain.on("window-minimize", () => {
+  });
+  ipcMain.on("window-minimize", () => {
     console.log("minimize ");
 
     mainWindow?.minimize();
-});
-ipcMain.on("resize-window", (event, { width, height, resizable }) => {
+  });
+  ipcMain.on("resize-window", (event, { width, height, resizable }) => {
     console.log("resize");
 
     if (mainWindow) {
@@ -235,9 +260,9 @@ ipcMain.on("resize-window", (event, { width, height, resizable }) => {
       mainWindow.setResizable(resizable);
       if (resizable) mainWindow.center();
     }
-});
+  });
 
-ipcMain.on("save-token", async (event, token) => {
+  ipcMain.on("save-token", async (event, token) => {
     try {
       await keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, token);
       const cookie = {
@@ -253,40 +278,38 @@ ipcMain.on("save-token", async (event, token) => {
     } catch (error) {
       console.error("Error saving token or setting cookie:", error);
     }
-});
+  });
 
-
-
-setInterval(() => {
+  setInterval(() => {
     const text = clipboard.readText();
     if (!text || text.trim() === "" || text === lastText) return;
     lastText = text;
     if (mainWindow && mainWindow.webContents) {
       mainWindow.webContents.send("clipboard-update", text);
     }
-}, 1000);
+  }, 1000);
 
-createWindow();
+  createWindow();
 
+  const iconFile =
+    process.platform === "win32"
+      ? "icon.ico"
+      : process.platform === "darwin"
+      ? "icon.icns"
+      : "512x512.png";
 
-const iconFile = process.platform === "win32" 
-  ? "icon.ico" 
-  : process.platform === "darwin" 
-    ? "icon.icns" 
-    : "512x512.png"; 
+  const iconPath = app.isPackaged
+    ? path.join(process.resourcesPath, "icons", iconFile)
+    : path.join(__dirname, "../../build/icons", iconFile);
 
-const iconPath = app.isPackaged
-  ? path.join(process.resourcesPath, "icons", iconFile)
-  : path.join(__dirname, "../../build/icons", iconFile);
-
-// tray = new Tray(iconPath);
+  // tray = new Tray(iconPath);
 
   // const iconPath = app.isPackaged
   // ? path.join(process.resourcesPath, "icons/512x512.png")
   // : path.join(__dirname, "../../build/icons/512x512.png");
 
   tray = new Tray(iconPath);
-const contextMenu = Menu.buildFromTemplate([
+  const contextMenu = Menu.buildFromTemplate([
     { label: "Show App", click: () => mainWindow?.show() },
     { label: "Quit", click: () => app.quit() },
   ]);
