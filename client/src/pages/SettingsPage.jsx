@@ -14,7 +14,8 @@ export default function SettingsPage() {
 
     useEffect(() => {
         const loadConfig = async () => {
-            const data = await window.electronAPI.getModelConfig();
+            const model = localStorage.getItem("lastModel") || "openai"; // default model
+            const data = await window.electronAPI.getModelConfig(model);
             if (data) {
                 setProvider(data.model || "openai");
                 setApiKey(data.apiKey || "");
@@ -29,6 +30,7 @@ export default function SettingsPage() {
             return;
         }
         await window.electronAPI.saveModelConfig({ model: provider, apiKey });
+        localStorage.setItem("lastModel", provider); // last model save
         setMessage({ type: "success", text: "Settings saved!" });
     };
 
