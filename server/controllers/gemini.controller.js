@@ -1,6 +1,7 @@
 import Conversation from "../models/conversation.model.js";
 import Chat from "../models/chats.model.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { SYSTEM_PROMPT } from "../utils/systemPrompt.js";
 
 export const getGeminiResponse = async (req, res) => {
   try {
@@ -14,7 +15,6 @@ export const getGeminiResponse = async (req, res) => {
       return res.status(400).json({ error: "Gemini API key and model are required" });
     }
 
-    // SSE Setup
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
@@ -29,12 +29,8 @@ export const getGeminiResponse = async (req, res) => {
       conversation = await Conversation.findById(conversationId);
     }
 
-    const SYSTEM_PROMPT = `
-You are an AI assistant integrated into a universal overlay desktop application. 
-This overlay can be opened on any app (VSCode, Gmail, Docs, Browser). 
-Your job is to provide structured, professional, and concise responses — always tailored to the user’s request.  
-... (same rules as before) ...
-`;
+
+
 
     let finalPrompt = userInput;
     const continuationKeywords = ["continue", "expand", "improve", "summarize", "detail", "aur", "add"];
@@ -58,19 +54,12 @@ Continue or update the last response accordingly. Do NOT start a new topic.`;
       }
     }
 
-    const combinedPrompt = (context ? context + "\n\n" : "") + finalPrompt;
+    const combinedPrompt = `${SYSTEM_PROMPT}\n\n${context ? context + "\n\n" : ""}${finalPrompt}`;
 
-    // Gemini client with USER API Key
     const genAI = new GoogleGenerativeAI(apiKey);
-
-    // User-selected model (ex: "gemini-1.5-flash", "gemini-1.5-pro")
     const geminiModel = genAI.getGenerativeModel({ model });
 
-    // Streaming response
-    const stream = await geminiModel.generateContentStream([
-      { role: "system", parts: [{ text: SYSTEM_PROMPT }] },
-      { role: "user", parts: [{ text: combinedPrompt }] },
-    ]);
+    const stream = await geminiModel.generateContentStream(combinedPrompt);
 
     let fullResponse = "";
 
@@ -94,7 +83,8 @@ Continue or update the last response accordingly. Do NOT start a new topic.`;
     res.end();
   } catch (error) {
     console.error("Gemini API Error:", error);
-    res.status(500).json({ error: "Something went wrong" });
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Something went wrong" });
+    }
   }
 };
-
