@@ -11,10 +11,23 @@ import Topbar from "../components/Topbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-async function streamGroqResponse(userMessage, onChunk, onDone, conversationId) {
+async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, provider, apiKey) {
+
+  let endpoint = "";
+
+  if (provider === "grok") {
+    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot";
+  } else if (provider === "openai") {
+    endpoint = "https:localhost:4000/api/v1/chatbot/openai";
+  } else if (provider === "gemini") {
+    endpoint = "https:localhost:4000/api/v1/chatbot/gemini";
+  } else {
+    throw new Error("Invalid provider selected");
+  }
+
   const token = await window.electronAPI.getToken();
 
-  const response = await fetch("https://ai-overlay.vercel.app/api/v1/chatbot", {
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -24,8 +37,11 @@ async function streamGroqResponse(userMessage, onChunk, onDone, conversationId) 
       userInput: userMessage,
       context: "general",
       conversationId,
+      provider,
+      apiKey,
     }),
   });
+
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
@@ -61,7 +77,7 @@ export default function Chatbot() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const [provider, setProvider] = useState("openai");
+  const [provider, setProvider] = useState("");
   const [apiKey, setApiKey] = useState("");
 
 
@@ -78,17 +94,21 @@ export default function Chatbot() {
 
 
   useEffect(() => {
-    const loadConfig = async () => {
-      const config = await window.electronAPI.getApiConfig();
-      if (config) {
-        setProvider(config.provider);
-        setApiKey(config.apiKey);
+    const loadProviderKey = async () => {
+      try {
+        const allConfigs = await window.electron.invoke("get-all-model-configs"); // backend function
+        if (allConfigs && allConfigs[provider]) {
+          setApiKey(allConfigs[provider].apiKey);
+        } else {
+          setApiKey(""); // no key saved yet
+        }
+      } catch (err) {
+        console.error(err);
       }
-      const savedModel = await window.electronAPI.getModelSelection();
-      if (savedModel) setProvider(savedModel); // or another state if you separate provider & model
     };
-    loadConfig();
-  }, []);
+    loadProviderKey();
+  }, [provider]);
+
 
 
   useEffect(() => {
@@ -228,6 +248,11 @@ export default function Chatbot() {
   const handleSend = async () => {
     if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
 
+    // Load latest settings from electron storage
+    const savedConfig = await window.electronAPI.getModelConfig();
+    const currentProvider = savedConfig?.model || "grok";
+    const currentApiKey = savedConfig?.apiKey || "";
+
     const combinedMessage = copiedText ? copiedText + "\n\n" + input : input;
     const userMessage = { role: "user", content: combinedMessage };
 
@@ -266,8 +291,9 @@ export default function Chatbot() {
       }
     }, 40);
 
-    await streamGroqResponse(combinedMessage, onChunk, onDone, activeConversation);
+    await streamGroqResponse(combinedMessage, onChunk, onDone, activeConversation, currentProvider, currentApiKey);
   };
+
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -281,8 +307,9 @@ export default function Chatbot() {
       alert("API Key required");
       return;
     }
-    await window.electronAPI.saveApiConfig({ provider, apiKey });
-    await window.electronAPI.saveModelSelection(provider);
+
+    await window.electronAPI.saveModelConfig({ model: provider, apiKey });
+
     alert("Settings saved!");
     setShowSettings(false);
   };
@@ -473,7 +500,7 @@ export default function Chatbot() {
                     {userMenuOpen && (
                       <div className="absolute bottom-12 left-0 w-48 bg-gray-800/90 backdrop-blur-md border border-white/20 rounded-lg shadow-lg p-2 text-sm z-50">
                         <button
-                          onClick={() => setShowSettings(true)}
+                          onClick={() => navigate("/settings")}
                           className="block w-full text-left px-2 py-2 rounded hover:bg-white/10 text-gray-200"
                         >
                           Settings
@@ -503,52 +530,6 @@ export default function Chatbot() {
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setShowSettings(false)}
           />
-
-          {/* Modal */}
-          <div className="relative bg-black/40 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-xl w-96 p-6 flex flex-col gap-4">
-            <h3 className="text-xl font-semibold text-white">Settings</h3>
-
-            {/* Provider Dropdown */}
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-gray-300 bg-black">Select Provider</label>
-              <select
-                value={provider}
-                onChange={(e) => setProvider(e.target.value)}
-                className="w-full p-2 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="openai">OpenAI</option>
-                <option value="gemini">Gemini</option>
-              </select>
-            </div>
-
-            {/* API Key Input */}
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-gray-300">API Key</label>
-              <input
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Enter API Key"
-                className="w-full p-2 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-
-            {/* Buttons */}
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                onClick={() => setShowSettings(false)}
-                className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveSettings}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition"
-              >
-                Save
-              </button>
-            </div>
-          </div>
         </div>
       )}
 
