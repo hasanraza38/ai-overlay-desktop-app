@@ -1,4 +1,4 @@
-import Payment from "../models/payment.model";
+import Payment from "../models/payment.model.js";
 
 export const hook = async (req, res) => {
   try {
