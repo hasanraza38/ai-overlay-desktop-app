@@ -5,7 +5,7 @@ import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import ChatSection from "./pages/ChatSection";
 import Wellcome from "./pages/Wellcome";
-import CheckoutPage from "./pages/Pricingplane";
+import CheckoutPage from "./pages/PricingPlan";
 
 function App() {
   const [authChecked, setAuthChecked] = useState(false);
@@ -34,14 +34,14 @@ function App() {
 
     <Routes>
 
-      {!isAuthenticated && (
+      {/* {!isAuthenticated && (
         <Route path="/" element={<Wellcome />} />
       )}
       <Route path="/chatbot" element={<ProtectedRoute><ChatSection /></ProtectedRoute>} />
       <Route path="/signin" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signin />} />
       <Route path="/signup" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signup setIsAuthenticated={setIsAuthenticated} />} />
-      <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} />
-      {/* <Route path="/" element={<CheckoutPage />} /> */}
+      <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} /> */}
+      <Route path="/" element={<CheckoutPage />} />
     </Routes>
   );
 }
