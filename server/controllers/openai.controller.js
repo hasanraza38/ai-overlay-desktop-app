@@ -1,6 +1,7 @@
 import Conversation from "../models/conversation.model.js";
 import Chat from "../models/chats.model.js";
 import OpenAI from "openai";
+import { SYSTEM_PROMPT } from "../utils/systemPrompt.js";
 
 export const getOpenaiResponse = async (req, res) => {
   try {
@@ -14,7 +15,6 @@ export const getOpenaiResponse = async (req, res) => {
       return res.status(400).json({ error: "OpenAI API key and model are required" });
     }
 
-    // SSE Setup
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
@@ -29,12 +29,7 @@ export const getOpenaiResponse = async (req, res) => {
       conversation = await Conversation.findById(conversationId);
     }
 
-    const SYSTEM_PROMPT = `
-You are an AI assistant integrated into a universal overlay desktop application. 
-This overlay can be opened on any app (VSCode, Gmail, Docs, Browser). 
-Your job is to provide structured, professional, and concise responses — always tailored to the user’s request.  
-... (same rules as Groq/Gemini) ...
-`;
+ 
 
     let finalPrompt = userInput;
     const continuationKeywords = ["continue", "expand", "improve", "summarize", "detail", "aur", "add"];
@@ -60,12 +55,10 @@ Continue or update the last response accordingly. Do NOT start a new topic.`;
 
     const combinedPrompt = (context ? context + "\n\n" : "") + finalPrompt;
 
-    // OpenAI client with USER API Key
     const client = new OpenAI({ apiKey });
 
-    // Streaming response
     const stream = await client.chat.completions.create({
-      model, // e.g. "gpt-4o-mini", "gpt-4.1", etc.
+      model,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: combinedPrompt },
