@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 // import defaultAvatar from "../assets/default-avatar.png"; // make sure file exists in assets
 
 export default function SettingsPage() {
-    const [provider, setProvider] = useState("openai");
+    const [provider, setProvider] = useState("Grok llama-3.3-70b-versatile");
     const [apiKey, setApiKey] = useState("");
     const [message, setMessage] = useState({ type: "", text: "" });
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -39,10 +39,11 @@ export default function SettingsPage() {
     useEffect(() => {
         const loadConfig = async () => {
             try {
-                const model = localStorage.getItem("lastModel") || "openai";
+                const model = localStorage.getItem("lastModel") || "Grok";
                 if (window.electronAPI) {
                     const data = await window.electronAPI.getModelConfig(model);
                     if (data) {
+                        // const { model, apiKey } = JSON.parse(data);
                         setProvider(data.model || "openai");
                         setApiKey(data.apiKey || "");
                     }

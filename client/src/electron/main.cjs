@@ -153,7 +153,10 @@ app.whenReady().then(() => {
   // Save config
   ipcMain.handle("save-model-config", async (event, { model, apiKey }) => {
     try {
+
       await keytar.setPassword(KEYTAR_MODEL_SERVICE, model, apiKey);
+
+
       return true;
     } catch (err) {
       console.error("Error saving model config:", err);
