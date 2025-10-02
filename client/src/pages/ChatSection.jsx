@@ -14,16 +14,24 @@ import { useNavigate } from "react-router-dom";
 
 async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, provider, apiKey) {
 
+  console.log("Provider selected:", provider);
+
   let endpoint = "";
 
   if (provider === "grok") {
     endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot";
-  } else if (provider === "openai") {
-    endpoint = "https:localhost:4000/api/v1/chatbot/openai";
-  } else if (provider === "gemini") {
-    endpoint = "https:localhost:4000/api/v1/chatbot/gemini";
+    console.log("Using Grok endpoint");
+
+  } else if (provider === "openai-4.0-mini") {
+    endpoint = "http:localhost:4000/api/v1/chatbot/openai";
+    console.log("Using OpenAI endpoint");
+
+  } else if (provider === "gemini-2.0-flash") {
+    endpoint = "http:localhost:4000/api/v1/chatbot/gemini";
+    console.log("Using Gemini endpoint");
   } else {
     throw new Error("Invalid provider selected");
+
   }
 
   const token = await window.electronAPI.getToken();
@@ -38,8 +46,8 @@ async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, 
       userInput: userMessage,
       context: "general",
       conversationId,
-      provider,
-      apiKey,
+      model: provider,
+      apiKey ,
     }),
   });
 
@@ -273,8 +281,19 @@ export default function Chatbot() {
   const handleSend = async () => {
     if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
 
+
+
+    const lastModel = localStorage.getItem("lastModel") || "grok"; // ya "openai"
     // Load latest settings from electron storage
-    const savedConfig = await window.electronAPI.getModelConfig();
+
+
+    const savedConfig = await window.electronAPI.getModelConfig(lastModel);
+    console.log("Loaded model config:", savedConfig);
+
+
+
+
+
     const currentProvider = savedConfig?.model || "grok";
     const currentApiKey = savedConfig?.apiKey || "";
 
@@ -327,17 +346,17 @@ export default function Chatbot() {
     }
   };
 
-  const handleSaveSettings = async () => {
-    if (!apiKey) {
-      alert("API Key required");
-      return;
-    }
+  // const handleSaveSettings = async () => {
+  //   if (!apiKey) {
+  //     alert("API Key required");
+  //     return;
+  //   }
 
-    await window.electronAPI.saveModelConfig({ model: provider, apiKey });
+  //   await window.electronAPI.saveModelConfig({ model: provider, apiKey });
 
-    alert("Settings saved!");
-    setShowSettings(false);
-  };
+  //   alert("Settings saved!");
+  //   setShowSettings(false);
+  // };
 
 
   return (

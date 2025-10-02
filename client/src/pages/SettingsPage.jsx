@@ -165,7 +165,7 @@ export default function SettingsPage() {
                             </button>
                             {isDropdownOpen && (
                                 <div className="absolute w-full mt-1 bg-[#222] rounded border border-white/20 z-10">
-                                    {["openai", "gemini"].map((p) => (
+                                    {["openai-4.0-mini ", "gemini-2.0-flash"].map((p) => (
                                         <button
                                             key={p}
                                             onClick={() => {
