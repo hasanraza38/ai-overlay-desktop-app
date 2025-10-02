@@ -35,16 +35,20 @@ function App() {
 
     <Routes>
 
-      {!isAuthenticated && (
+      {/* {!isAuthenticated && (
         <Route path="/" element={<Wellcome />} />
       )}
       <Route path="/chatbot" element={<ProtectedRoute><ChatSection /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="/signin" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signin />} />
       <Route path="/signup" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signup setIsAuthenticated={setIsAuthenticated} />} />
+
+      <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} /> */}
+
       <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} />
 
       {/* <Route path="/" element={<CheckoutPage />} /> */}
+
     </Routes>
   );
 }

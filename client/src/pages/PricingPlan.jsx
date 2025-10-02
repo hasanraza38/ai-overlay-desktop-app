@@ -70,9 +70,12 @@ const CheckoutPage = () => {
     // Handle purchase
     const handlePurchase = async () => {
         const plan = plans[selectedPlan];
+        console.log(plan);
+        
         if (!plan) return;
 
         try {
+
             const response = await api.post('payment/checkout', {
                 amount: plan.price * 100, // Safepay expects amount in smallest currency unit
                 orderId: `SUB-${Date.now()}`,
