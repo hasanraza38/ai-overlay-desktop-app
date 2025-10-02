@@ -2,8 +2,7 @@ import User from "../models/user.model.js";
 
 export const getUser = async (req, res) => {
   try {
-    // JWT payload me jo bhi field use hui hai usko read karo
-    // Agar tumne login ke waqt { id: user._id } sign kiya tha:
+
     const { id, userId, _id } = req.user;  
 
     const user = await User.findById(userId || id || _id).select("-password");
