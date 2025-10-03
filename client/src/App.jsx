@@ -6,9 +6,9 @@ import Signup from "./pages/Signup";
 import ChatSection from "./pages/ChatSection";
 import Wellcome from "./pages/Wellcome";
 
-// import CheckoutPage from "./pages/Pricingplane";
-
 import SettingsPage from "./pages/SettingsPage";
+import Pricingplan from "./pages/Pricingplan";
+
 
 function App() {
   const [authChecked, setAuthChecked] = useState(false);
@@ -45,14 +45,9 @@ function App() {
       <Route path="/signin" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signin />} />
       <Route path="/signup" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signup setIsAuthenticated={setIsAuthenticated} />} />
 
-
-      {/* <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} /> */}
-
       <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} />
 
-      {/* <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} /> */}
-
-      {/* <Route path="/" element={<CheckoutPage />} /> */}
+      <Route path="/checkoutPage" element={<Pricingplan />} />
 
     </Routes>
   );

@@ -47,7 +47,7 @@ async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, 
       context: "general",
       conversationId,
       model: provider,
-      apiKey ,
+      apiKey,
     }),
   });
 
@@ -255,27 +255,27 @@ export default function Chatbot() {
   };
 
   const handleDeleteConversation = async (conversationId) => {
-  try {
-    const token = await window.electronAPI.getToken();
-    const res = await fetch(`http://localhost:4000/api/v1/chatbot/conversations/${conversationId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const token = await window.electronAPI.getToken();
+      const res = await fetch(`http://localhost:4000/api/v1/chatbot/conversations/${conversationId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    if (!res.ok) throw new Error("Failed to delete conversation");
+      if (!res.ok) throw new Error("Failed to delete conversation");
 
-    setConversations((prev) => prev.filter((c) => c._id !== conversationId));
+      setConversations((prev) => prev.filter((c) => c._id !== conversationId));
 
-    if (activeConversation === conversationId) {
-      setActiveConversation(null);
-      setMessages([]);
+      if (activeConversation === conversationId) {
+        setActiveConversation(null);
+        setMessages([]);
+      }
+    } catch (err) {
+      console.error("Error deleting conversation:", err);
     }
-  } catch (err) {
-    console.error("Error deleting conversation:", err);
-  }
-};
+  };
 
 
   const handleSend = async () => {
@@ -510,32 +510,32 @@ export default function Chatbot() {
 
                 <h3 className="text-xs uppercase text-gray-400 mb-2">Recent Chats</h3>
                 {conversations.length > 0 ? (
-  conversations.map((conv) => (
-    <div
-      key={conv._id}
-      className={`group flex items-center justify-between w-full px-2 py-1 rounded hover:bg-white/20 ${activeConversation === conv._id ? "bg-white/10" : ""
-        }`}
-    >
-      {/* Chat Title Button */}
-      <button
-        onClick={() => loadConversation(conv._id)}
-        className="flex-1 text-left text-sm truncate"
-      >
-        {conv.title || "Untitled Chat"}
-      </button>
+                  conversations.map((conv) => (
+                    <div
+                      key={conv._id}
+                      className={`group flex items-center justify-between w-full px-2 py-1 rounded hover:bg-white/20 ${activeConversation === conv._id ? "bg-white/10" : ""
+                        }`}
+                    >
+                      {/* Chat Title Button */}
+                      <button
+                        onClick={() => loadConversation(conv._id)}
+                        className="flex-1 text-left text-sm truncate"
+                      >
+                        {conv.title || "Untitled Chat"}
+                      </button>
 
-      {/* Delete Icon (Visible on Hover) */}
-      <button
-        onClick={() => handleDeleteConversation(conv._id)}
-        className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-gray-300 transition ml-2"
-      >
-        <FiTrash2 size={16} />
-      </button>
-    </div>
-  ))
-) : (
-  <p className="text-gray-400">No chats yet</p>
-)}
+                      {/* Delete Icon (Visible on Hover) */}
+                      <button
+                        onClick={() => handleDeleteConversation(conv._id)}
+                        className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-gray-300 transition ml-2"
+                      >
+                        <FiTrash2 size={16} />
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-400">No chats yet</p>
+                )}
 
               </div>
 

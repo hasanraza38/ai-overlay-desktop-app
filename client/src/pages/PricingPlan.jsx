@@ -3,7 +3,7 @@ import { Check } from 'lucide-react';
 import Topbar from '../components/Topbar';
 import { api } from '../Instance/api';
 
-const CheckoutPage = () => {
+const Pricingplan = () => {
     const [plans, setPlans] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedPlan, setSelectedPlan] = useState(0);
@@ -132,7 +132,7 @@ const CheckoutPage = () => {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-white font-bold text-lg">{plan.price}</div>
+                                    <div className="text-white font-bold text-lg">${plan.price}</div>
                                 </div>
                             </div>
 
@@ -161,4 +161,4 @@ const CheckoutPage = () => {
     );
 };
 
-export default CheckoutPage;
+export default Pricingplan;
