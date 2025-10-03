@@ -139,8 +139,6 @@ const sendOTP = async (req, res) => {
 
 
 
-
-
 const verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
