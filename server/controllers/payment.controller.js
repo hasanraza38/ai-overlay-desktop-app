@@ -5,11 +5,10 @@ import safepay from "../config/safepayconfig.js";
     const { amount, orderId, cancelUrl, redirectUrl } = req.body;
 
     const { token } = await safepay.payments.create({
-      amount: amount || 1000, 
+      amount: amount , 
       currency: "PKR",
     });
 
-    console.log("Token:", token);
 
     const url = safepay.checkout.create({
       token,
