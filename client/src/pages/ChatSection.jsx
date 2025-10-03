@@ -5,6 +5,7 @@ import {
   FiArrowUpCircle,
   FiStopCircle,
   FiTrash2,
+  FiUser,
 } from "react-icons/fi";
 import { BiConversation } from "react-icons/bi";
 import { Plus } from "lucide-react";
@@ -544,16 +545,21 @@ export default function Chatbot() {
                 {user ? (
                   <div className="relative">
                     <button
-                      onClick={() => setUserMenuOpen(!userMenuOpen)}
-                      className="flex items-center gap-2 w-full px-2 py-2 rounded hover:bg-white/10 text-white"
-                    >
-                      <img
-                        src={user.avatar || "/default-avatar.png"}
-                        alt="avatar"
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                      <span className="text-sm font-medium">{user.name || "User"}</span>
-                    </button>
+  onClick={() => setUserMenuOpen(!userMenuOpen)}
+  className="flex items-center gap-2 w-full px-2 py-2 rounded hover:bg-white/10 text-white"
+>
+  {user.avatar ? (
+    <img
+      src={user.avatar}
+      alt="avatar"
+      className="w-8 h-8 rounded-full object-cover"
+    />
+  ) : (
+    <FiUser className="w-8 h-8 text-gray-400 bg-gray-700 rounded-full p-1" />
+  )}
+  <span className="text-sm font-medium">{user.name || "User"}</span>
+</button>
+
 
                     {userMenuOpen && (
                       <div className="absolute bottom-12 left-0 w-48 bg-gray-800/90 backdrop-blur-md border border-white/20 rounded-lg shadow-lg p-2 text-sm z-50">
@@ -565,7 +571,7 @@ export default function Chatbot() {
                         </button>
                         <button
                           onClick={handleLogout}
-                          className="block w-full text-left px-2 py-2 rounded hover:bg-red-500/20 text-red-400"
+                          className="block w-full text-left px-2 py-2 rounded hover:bg-gray-500/20 text-gray-400 hover:text-gray-100"
                         >
                           Logout
                         </button>
