@@ -134,8 +134,8 @@ export default function SettingsPage() {
 
     return (
         <div className="min-h-screen flex flex-col bg-[#111] text-white text-sm">
-            <Topbar />
-
+                  <Topbar />
+            
             <div className="bg-black/40 backdrop-blur-md border-b border-white/10 px-4 py-2 flex items-center justify-between">
                 <button onClick={handleBack} className="p-1 rounded hover:bg-white/10">
                     <ArrowLeft className="w-4 h-4" />
@@ -144,7 +144,7 @@ export default function SettingsPage() {
                     <Settings className="w-5 h-5 text-blue-400" />
                     <span className="font-semibold">Settings</span>
                 </div>
-            </div> 
+            </div> */}
 
             <div className="bg-white/5 backdrop-blur-xl rounded-xl m-4 p-4 mb-4 border border-white/10 flex items-center gap-3">
                 {user?.avatar ? (
@@ -313,7 +313,7 @@ export default function SettingsPage() {
                     </div>
 
 
-                    <button
+                      <button
                         onClick={handleUpgrade}
                         className="group relative dark:bg-neutral-800 bg-neutral-200 rounded-full p-px overflow-hidden"
                     >
