@@ -20,7 +20,7 @@ async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, 
   let endpoint = "";
 
   if (provider === "grok") {
-    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot";
+    endpoint = "http://localhost:4000/api/v1/chatbot";
     console.log("Using Grok endpoint");
 
   } else if (provider === "openai-4.0-mini") {

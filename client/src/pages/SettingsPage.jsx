@@ -10,6 +10,8 @@ import {
     Lock,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../Instance/api";
+import Topbar from "../components/Topbar";
 
 export default function SettingsPage() {
     const [provider, setProvider] = useState("Grok llama-3.3-70b-versatile");
@@ -17,7 +19,7 @@ export default function SettingsPage() {
     const [message, setMessage] = useState({ type: "", text: "" });
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [user, setUser] = useState(null); 
+    const [user, setUser] = useState(null);
     const [theme, setTheme] = useState("dark");
 
     const navigate = useNavigate();
@@ -132,7 +134,8 @@ export default function SettingsPage() {
 
     return (
         <div className="min-h-screen flex flex-col bg-[#111] text-white text-sm">
-            {/* Topbar */}
+            <Topbar />
+
             <div className="bg-black/40 backdrop-blur-md border-b border-white/10 px-4 py-2 flex items-center justify-between">
                 <button onClick={handleBack} className="p-1 rounded hover:bg-white/10">
                     <ArrowLeft className="w-4 h-4" />
@@ -141,21 +144,20 @@ export default function SettingsPage() {
                     <Settings className="w-5 h-5 text-blue-400" />
                     <span className="font-semibold">Settings</span>
                 </div>
-            </div>
-
+            </div> 
 
             <div className="bg-white/5 backdrop-blur-xl rounded-xl m-4 p-4 mb-4 border border-white/10 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg font-bold shadow overflow-hidden">
-                    {user.name ? (
-                        getInitials(user.name)
-                    ) : (
-                        <img
-                            // src={defaultAvatar}
-                            alt="avatar"
-                            className="w-full h-full object-cover"
-                        />
-                    )}
-                </div>
+                {user?.avatar ? (
+                    <img
+                        src={user.avatar}
+                        alt="avatar"
+                        className="w-12 h-12 rounded-full object-cover"
+                    />
+                ) : (
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg font-bold shadow overflow-hidden">
+                        {user ? getInitials(user.name) : "NA"}
+                    </div>
+                )}
                 <div>
                     <p className="font-medium">{user?.name || "Loading..."}</p>
                     <p className="text-gray-400">{user?.email || ""}</p>
@@ -165,11 +167,10 @@ export default function SettingsPage() {
             <div className="flex-1 p-4 overflow-auto">
                 {message.text && (
                     <div
-                        className={`mb-4 p-2 rounded flex items-center gap-2 ${
-                            message.type === "success"
+                        className={`mb-4 p-2 rounded flex items-center gap-2 ${message.type === "success"
                                 ? "bg-green-500/20 border border-green-500/30"
                                 : "bg-red-500/20 border border-red-500/30"
-                        }`}
+                            }`}
                     >
                         {message.type === "success" ? (
                             <Check className="w-4 h-4 text-green-400" />
@@ -187,15 +188,21 @@ export default function SettingsPage() {
                 )}
 
                 <div
-                    className={`rounded-xl p-4 mb-4 border border-white/10 ${
-                        apiConfigDisabled
+                    className={`rounded-xl p-4 mb-4 border border-white/10 ${apiConfigDisabled
                             ? "bg-white/5 opacity-50 cursor-not-allowed"
                             : "bg-white/5 backdrop-blur-xl"
-                    }`}
+                        }`}
                 >
                     <div className="flex items-center gap-2 mb-2">
                         <Key className="w-4 h-4 text-green-400" />
-                        <h2 className="font-semibold">API Config</h2>
+                        <h2 className="font-semibold flex items-center gap-2">
+                            API Config{" "}
+                            {apiConfigDisabled && (
+                                <span className="flex items-center text-xs text-gray-400 gap-1">
+                                    <Lock className="w-3 h-3" /> Upgrade to unlock
+                                </span>
+                            )}
+                        </h2>
                     </div>
                     <div className="space-y-2">
                         <input
@@ -216,9 +223,8 @@ export default function SettingsPage() {
                             >
                                 <span className="capitalize">{provider}</span>
                                 <ChevronDown
-                                    className={`w-4 h-4 transition-transform ${
-                                        isDropdownOpen ? "rotate-180" : ""
-                                    }`}
+                                    className={`w-4 h-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""
+                                        }`}
                                 />
                             </button>
                             {isDropdownOpen && !apiConfigDisabled && (
@@ -241,44 +247,41 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex gap-2 justify-end">
-                    <button
-                        onClick={handleBack}
-                        className="px-4 py-2 rounded bg-white/5 hover:bg-white/10 border border-white/10"
-                    >
-                        Cancel
-                    </button>
-
-                    <button
-                        onClick={handleReset}
-                        className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 shadow text-white"
-                    >
-                        Reset
-                    </button>
-
-                    {isEditing && (
+                {!apiConfigDisabled && (
+                    <div className="flex gap-2 justify-end">
                         <button
-                            onClick={handleSave}
-                            className="px-4 py-2 rounded bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow"
+                            onClick={handleBack}
+                            className="px-4 py-2 rounded bg-white/5 hover:bg-white/10 border border-white/10"
                         >
-                            Save
+                            Cancel
                         </button>
-                    )}
-                    {!isEditing ? (
+
                         <button
-                            onClick={handleEdit}
-                            className="px-4 py-2 rounded bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow "
+                            onClick={handleReset}
+                            className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 shadow text-white"
                         >
-                            Edit
+                            Reset
                         </button>
-                    ) : null}
-                </div>
 
+                        {isEditing && (
+                            <button
+                                onClick={handleSave}
+                                className="px-4 py-2 rounded bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow"
+                            >
+                                Save
+                            </button>
+                        )}
+                        {!isEditing ? (
+                            <button
+                                onClick={handleEdit}
+                                className="px-4 py-2 rounded bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow "
+                            >
+                                Edit
+                            </button>
+                        ) : null}
+                    </div>
+                )}
 
-
-
-                {/* Theme */}
                 <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 mb-4 border border-white/10 mt-7">
                     <div className="flex items-center gap-2 mb-2">
                         <Palette className="w-4 h-4 text-purple-400" />
@@ -290,8 +293,8 @@ export default function SettingsPage() {
                                 key={t}
                                 onClick={() => setTheme(t)}
                                 className={`flex-1 p-2 rounded transition-all ${theme === t
-                                    ? "bg-gradient-to-br from-blue-500 to-purple-600 shadow scale-105"
-                                    : "bg-white/5 hover:bg-white/10"
+                                        ? "bg-gradient-to-br from-blue-500 to-purple-600 shadow scale-105"
+                                        : "bg-white/5 hover:bg-white/10"
                                     }`}
                             >
                                 {t}
@@ -300,7 +303,6 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
-                {/* Upgrade Section */}
                 <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 mb-4 border border-white/10 flex items-center justify-between">
                     <div>
                         <p className="text-gray-400 text-sm">Current Plan:</p>
@@ -309,15 +311,8 @@ export default function SettingsPage() {
                             Tokens used today: <span className="text-white font-medium">{tokensUsedToday}</span>
                         </p>
                     </div>
-                    {/* <button
-                        onClick={handleUpgrade}
-                        className="px-3 py-1 text-sm rounded bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow transition-all"
-                    >
-                        Upgrade Plan
-                    </button> */}
 
 
-                    {/* <!-- From Uiverse.io by Itskrish01 --> */}
                     <button
                         onClick={handleUpgrade}
                         className="group relative dark:bg-neutral-800 bg-neutral-200 rounded-full p-px overflow-hidden"
