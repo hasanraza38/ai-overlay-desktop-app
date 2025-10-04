@@ -6,7 +6,7 @@ import Signup from "./pages/Signup";
 import ChatSection from "./pages/ChatSection";
 import Wellcome from "./pages/Wellcome";
 import SettingsPage from "./pages/SettingsPage";
-import Pricingplan from "./pages/Pricingplan";
+import Pricingplan from "./pages/PricingPlan";
 
 
 function App() {
