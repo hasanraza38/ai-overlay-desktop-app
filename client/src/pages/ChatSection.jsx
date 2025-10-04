@@ -5,7 +5,6 @@ import {
   FiArrowUpCircle,
   FiStopCircle,
   FiTrash2,
-  FiUser,
 } from "react-icons/fi";
 import { BiConversation } from "react-icons/bi";
 import { Plus } from "lucide-react";
@@ -278,6 +277,7 @@ export default function Chatbot() {
     }
   };
 
+  const [isWaiting, setIsWaiting] = useState(false);
 
   const handleSend = async () => {
     if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
@@ -305,10 +305,16 @@ export default function Chatbot() {
     setInput("");
     setCopiedText("");
     setIsStreaming(true);
+    setIsWaiting(true);
 
-    const onChunk = (token) => tokenQueue.current.push(token);
+    const onChunk = (token) => {
+      // if (isWaiting) setIsWaiting(false);
+      setIsWaiting(false); 
+      tokenQueue.current.push(token);
+    };
 
     const onDone = () => {
+       setIsWaiting(false);
       const flushInterval = setInterval(() => {
         if (tokenQueue.current.length === 0) {
           clearInterval(flushInterval);
@@ -419,6 +425,16 @@ export default function Chatbot() {
             </div>
           );
         })}
+
+
+        {isWaiting && (
+          <div className="self-start bg-white/10 border border-white/20 p-3 rounded-xl text-sm text-gray-400 max-w-[85%] flex gap-1">
+            <span className="animate-bounce">●</span>
+            <span className="animate-bounce delay-150">●</span>
+            <span className="animate-bounce delay-300">●</span>
+          </div>
+        )}
+
         <div ref={messagesEndRef}></div>
       </div>
 
@@ -487,7 +503,7 @@ export default function Chatbot() {
               onClick={() => setShowContext(false)}
             />
             <motion.div
-              className="relative top-10 w-72 h-[calc(100vh-2.75rem)] bg-gray-500/10 backdrop-blur-md border-r border-white/20 flex flex-col z-50 shadow-lg"
+              className="relative top-10 w-52 h-[calc(100vh-2.75rem)] bg-gray-500/10 backdrop-blur-lg border-r border-white/20 flex flex-col z-50 shadow-lg"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
@@ -545,21 +561,16 @@ export default function Chatbot() {
                 {user ? (
                   <div className="relative">
                     <button
-  onClick={() => setUserMenuOpen(!userMenuOpen)}
-  className="flex items-center gap-2 w-full px-2 py-2 rounded hover:bg-white/10 text-white"
->
-  {user.avatar ? (
-    <img
-      src={user.avatar}
-      alt="avatar"
-      className="w-8 h-8 rounded-full object-cover"
-    />
-  ) : (
-    <FiUser className="w-8 h-8 text-gray-400 bg-gray-700 rounded-full p-1" />
-  )}
-  <span className="text-sm font-medium">{user.name || "User"}</span>
-</button>
-
+                      onClick={() => setUserMenuOpen(!userMenuOpen)}
+                      className="flex items-center gap-2 w-full px-2 py-2 rounded hover:bg-white/10 text-white"
+                    >
+                      <img
+                        src={user.avatar || "/default-avatar.png"}
+                        alt="avatar"
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                      <span className="text-sm font-medium">{user.name || "User"}</span>
+                    </button>
 
                     {userMenuOpen && (
                       <div className="absolute bottom-12 left-0 w-48 bg-gray-800/90 backdrop-blur-md border border-white/20 rounded-lg shadow-lg p-2 text-sm z-50">
@@ -571,7 +582,7 @@ export default function Chatbot() {
                         </button>
                         <button
                           onClick={handleLogout}
-                          className="block w-full text-left px-2 py-2 rounded hover:bg-gray-500/20 text-gray-400 hover:text-gray-100"
+                          className="block w-full text-left px-2 py-2 rounded hover:bg-red-500/20 text-red-400"
                         >
                           Logout
                         </button>

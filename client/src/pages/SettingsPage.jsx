@@ -9,6 +9,8 @@ import {
     Palette,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { TfiKey } from "react-icons/tfi";
+import Topbar from "../components/Topbar";
 
 export default function SettingsPage() {
     const [provider, setProvider] = useState("Grok llama-3.3-70b-versatile");
@@ -140,7 +142,10 @@ export default function SettingsPage() {
     return (
         <div className="min-h-screen flex flex-col bg-[#111] text-white text-sm">
             {/* Topbar */}
-            <div className="bg-black/40 backdrop-blur-md border-b border-white/10 px-4 py-2 flex items-center justify-between">
+
+            {/* <div
+                className="bg-black/40 backdrop-blur-md border-b border-white/10 h-12 px-4 py-2 flex items-center justify-between">
+
                 <button onClick={handleBack} className="p-1 rounded hover:bg-white/10">
                     <ArrowLeft className="w-4 h-4" />
                 </button>
@@ -148,11 +153,12 @@ export default function SettingsPage() {
                     <Settings className="w-5 h-5 text-blue-400" />
                     <span className="font-semibold">Settings</span>
                 </div>
-            </div>
+            </div> */}
 
+            < Topbar />
 
             <div className="bg-white/5 backdrop-blur-xl rounded-xl m-4 p-4 mb-4 border border-white/10 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg font-bold shadow overflow-hidden">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-lg font-bold shadow overflow-hidden">
                     {user.name ? (
                         getInitials(user.name)
                     ) : (
@@ -197,7 +203,7 @@ export default function SettingsPage() {
                 {/* API Config */}
                 <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 mb-4 border border-white/10">
                     <div className="flex items-center gap-2 mb-2">
-                        <Key className="w-4 h-4 text-green-400" />
+                        <TfiKey className="w-5 h-5 text-white" />
                         <h2 className="font-semibold">API Config</h2>
                     </div>
                     <div className="space-y-2">
@@ -246,14 +252,14 @@ export default function SettingsPage() {
                 <div className="flex gap-2 justify-end">
                     <button
                         onClick={handleBack}
-                        className="px-4 py-2 rounded bg-white/5 hover:bg-white/10 border border-white/10"
+                        className="px-4 py-2 rounded cursor-pointer bg-white/5 hover:bg-white/10 border border-white/10"
                     >
                         Cancel
                     </button>
 
                     <button
                         onClick={handleReset}
-                        className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 shadow text-white"
+                        className="px-4 py-2 rounded cursor-pointer bg-red-600 hover:bg-red-700 shadow text-white"
                     >
                         Reset
                     </button>
@@ -261,7 +267,7 @@ export default function SettingsPage() {
                     {isEditing && (
                         <button
                             onClick={handleSave}
-                            className="px-4 py-2 rounded bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow"
+                            className="px-4 py-2 rounded cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 hover:from-purple-500 hover:to-purple-700 shadow"
                         >
                             Save
                         </button>
@@ -269,53 +275,20 @@ export default function SettingsPage() {
                     {!isEditing ? (
                         <button
                             onClick={handleEdit}
-                            className="px-4 py-2 rounded bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow "
+                            className="px-4 py-2 rounded cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 hover:purple-blue-500 hover:to-purple-700 shadow "
                         >
                             Edit
                         </button>
                     ) : null}
                 </div>
 
-
-
-
-                {/* Theme */}
-                <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 mb-4 border border-white/10 mt-7">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Palette className="w-4 h-4 text-purple-400" />
-                        <h2 className="font-semibold">Appearance</h2>
-                    </div>
-                    <div className="flex gap-2">
-                        {["dark", "light", "auto"].map((t) => (
-                            <button
-                                key={t}
-                                onClick={() => setTheme(t)}
-                                className={`flex-1 p-2 rounded transition-all ${theme === t
-                                    ? "bg-gradient-to-br from-blue-500 to-purple-600 shadow scale-105"
-                                    : "bg-white/5 hover:bg-white/10"
-                                    }`}
-                            >
-                                {t}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
                 {/* Upgrade Section */}
-                <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 mb-4 border border-white/10 flex items-center justify-between">
+                <div className="bg-white/5 backdrop-blur-xl rounded-xl mt-7 p-4 mb-4 border border-white/10 flex items-center justify-between">
                     <div>
                         <p className="text-gray-400 text-sm">Current Plan:</p>
                         <p className="font-medium">{currentPlan}</p>
                     </div>
-                    {/* <button
-                        onClick={handleUpgrade}
-                        className="px-3 py-1 text-sm rounded bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow transition-all"
-                    >
-                        Upgrade Plan
-                    </button> */}
 
-
-                    {/* <!-- From Uiverse.io by Itskrish01 --> */}
                     <button
                         onClick={handleUpgrade}
                         className="group relative dark:bg-neutral-800 bg-neutral-200 rounded-full p-px overflow-hidden"
