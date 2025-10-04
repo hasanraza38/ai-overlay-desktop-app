@@ -12,6 +12,7 @@ import { Plus } from "lucide-react";
 import Topbar from "../components/Topbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { api } from "../Instance/api";
 
 async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, provider, apiKey) {
 
@@ -197,11 +198,8 @@ export default function Chatbot() {
 
   const fetchConversations = async () => {
     try {
-      const token = await window.electronAPI.getToken();
-      const res = await fetch("https://ai-overlay.vercel.app/api/v1/chatbot/conversations", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const res = await api("chatbot/conversations");
+      console.log(res.data)
       setConversations(data);
     } catch (err) {
       console.error("Error fetching conversations:", err);
@@ -210,14 +208,11 @@ export default function Chatbot() {
 
   const loadConversation = async (id) => {
     try {
-      const token = await window.electronAPI.getToken();
-      const res = await fetch(`https://ai-overlay.vercel.app/api/v1/chatbot/conversations/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const res = await api(`chatbot/conversations/${id}`);
+      console.log(res.data);
 
       const formatted = [];
-      data.forEach((chat) => {
+      res.data.forEach((chat) => {
         formatted.push({ role: "user", content: chat.prompt });
         formatted.push({ role: "assistant", content: chat.response });
       });
@@ -258,12 +253,7 @@ export default function Chatbot() {
   const handleDeleteConversation = async (conversationId) => {
     try {
       const token = await window.electronAPI.getToken();
-      const res = await fetch(`http://localhost:4000/api/v1/chatbot/conversations/${conversationId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await api(`chatbot/conversations/${conversationId}`);
 
       if (!res.ok) throw new Error("Failed to delete conversation");
 
@@ -290,10 +280,6 @@ export default function Chatbot() {
 
     const savedConfig = await window.electronAPI.getModelConfig(lastModel);
     console.log("Loaded model config:", savedConfig);
-
-
-
-
 
     const currentProvider = savedConfig?.model || "grok";
     const currentApiKey = savedConfig?.apiKey || "";
