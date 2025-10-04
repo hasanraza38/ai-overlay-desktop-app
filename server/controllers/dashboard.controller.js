@@ -2,10 +2,9 @@ import User from "../models/user.model.js";
 
 export const getUser = async (req, res) => {
   try {
+    const { userId } = req.user;  
 
-    const { id, userId, _id } = req.user;  
-
-    const user = await User.findById(userId || id || _id).select("-password");
+    const user = await User.findById(userId).select("-password -otp -otpExpires");
 
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
