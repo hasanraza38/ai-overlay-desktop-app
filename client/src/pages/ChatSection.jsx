@@ -5,6 +5,7 @@ import {
   FiArrowUpCircle,
   FiStopCircle,
   FiTrash2,
+  FiUser,
 } from "react-icons/fi";
 import { BiConversation } from "react-icons/bi";
 import { Plus } from "lucide-react";
@@ -21,15 +22,15 @@ async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, 
   let endpoint = "";
 
   if (provider === "grok") {
-    endpoint = "http:localhost:4000/api/v1/chatbot";
+    endpoint = "http://localhost:4000/api/v1/chatbot";
     console.log("Using Grok endpoint");
 
   } else if (provider === "openai-4.0-mini") {
-    endpoint = "http:localhost:4000/api/v1/chatbot/openai";
+    endpoint = "http://localhost:4000/api/v1/chatbot/openai";
     console.log("Using OpenAI endpoint");
 
   } else if (provider === "gemini-2.0-flash") {
-    endpoint = "http:localhost:4000/api/v1/chatbot/gemini";
+    endpoint = "http://localhost:4000/api/v1/chatbot/gemini";
     console.log("Using Gemini endpoint");
   } else {
     throw new Error("Invalid provider selected");
@@ -138,7 +139,7 @@ export default function Chatbot() {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
 
-        const data =  res.data;
+        const data = res.data;
         if (data.success) {
           setUser(data.data);
         } else {
@@ -291,12 +292,12 @@ export default function Chatbot() {
 
     const onChunk = (token) => {
       // if (isWaiting) setIsWaiting(false);
-      setIsWaiting(false); 
+      setIsWaiting(false);
       tokenQueue.current.push(token);
     };
 
     const onDone = () => {
-       setIsWaiting(false);
+      setIsWaiting(false);
       const flushInterval = setInterval(() => {
         if (tokenQueue.current.length === 0) {
           clearInterval(flushInterval);
@@ -546,11 +547,15 @@ export default function Chatbot() {
                       onClick={() => setUserMenuOpen(!userMenuOpen)}
                       className="flex items-center gap-2 w-full px-2 py-2 rounded hover:bg-white/10 text-white"
                     >
-                      <img
-                        src={user.avatar || "/default-avatar.png"}
-                        alt="avatar"
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
+                      {user.avatar ? (
+                        <img
+                          src={user.avatar}
+                          alt="avatar"
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <FiUser className="w-8 h-8 text-gray-400 bg-gray-700 rounded-full p-1" />
+                      )}
                       <span className="text-sm font-medium">{user.name || "User"}</span>
                     </button>
 

@@ -46,7 +46,7 @@ function App() {
 
       <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} />
 
-      <Route path="/checkoutPage" element={<Pricingplan />} />
+      <Route path="/pricingplan" element={<Pricingplan />} />
 
     </Routes>
   );

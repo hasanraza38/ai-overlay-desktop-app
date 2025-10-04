@@ -12,14 +12,16 @@ import {
 import { useNavigate } from "react-router-dom";
 import { api } from "../Instance/api";
 import Topbar from "../components/Topbar";
+import PopupNotification from "../components/PopupNotification";
 
 export default function SettingsPage() {
     const [provider, setProvider] = useState("Grok llama-3.3-70b-versatile");
     const [apiKey, setApiKey] = useState("");
     const [message, setMessage] = useState({ type: "", text: "" });
+    const [notification, setNotification] = useState({ message: "", type: "error" });
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [user, setUser] = useState(null); 
+    const [user, setUser] = useState(null);
     const [theme, setTheme] = useState("dark");
 
     const navigate = useNavigate();
@@ -83,25 +85,43 @@ export default function SettingsPage() {
 
     const handleSave = async () => {
         if (!apiKey) {
-            setMessage({ type: "error", text: "API Key required" });
+            setNotification({ message: "API Key required", type: "error" });
             return;
         }
+
+        // OpenAI key validation
+        if (provider.startsWith("openai")) {
+            if (!apiKey.startsWith("sk-") || apiKey.length !== 43) {
+                setNotification({ message: "OpenAI key must start with sk- and be 43 characters long", type: "error" });
+                return;
+            }
+        }
+
+        // Gemini key validation
+        if (provider.startsWith("gemini")) {
+            if (!apiKey.startsWith("AIzaSy") || apiKey.length !== 39) {
+                setNotification({ message: "Gemini key must start with AIzaSy and be 39 characters long", type: "error" });
+                return;
+            }
+        }
+
         try {
             if (window.electronAPI) {
                 await window.electronAPI.saveModelConfig({ model: provider, apiKey });
             }
             localStorage.setItem("lastModel", provider);
-            setMessage({ type: "success", text: "Settings saved!" });
+            setNotification({ message: "Settings saved!", type: "success" });
             setIsEditing(false);
         } catch (err) {
-            setMessage({ type: "error", text: "Failed to save settings" });
+            setNotification({ message: "Failed to save settings", type: "error" });
         }
     };
+
 
     const handleEdit = () => setIsEditing(true);
 
     const handleUpgrade = () => {
-        navigate("/checkoutPage");
+        navigate("/pricingplan");
     };
 
     const handleReset = async () => {
@@ -134,8 +154,17 @@ export default function SettingsPage() {
 
     return (
         <div className="min-h-screen flex flex-col bg-[#111] text-white text-sm">
-                  <Topbar />
-            
+            <Topbar />
+
+            {/* Notification Popup */}
+            {notification.message && (
+                <PopupNotification
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={() => setNotification({ message: "", type: "error" })}
+                />
+            )}
+
             <div className="bg-black/40 backdrop-blur-md border-b border-white/10 px-4 py-2 flex items-center justify-between">
                 <button onClick={handleBack} className="p-1 rounded hover:bg-white/10">
                     <ArrowLeft className="w-4 h-4" />
@@ -144,7 +173,7 @@ export default function SettingsPage() {
                     <Settings className="w-5 h-5 text-blue-400" />
                     <span className="font-semibold">Settings</span>
                 </div>
-            </div> */}
+            </div>
 
             <div className="bg-white/5 backdrop-blur-xl rounded-xl m-4 p-4 mb-4 border border-white/10 flex items-center gap-3">
                 {user?.avatar ? (
@@ -167,11 +196,10 @@ export default function SettingsPage() {
             <div className="flex-1 p-4 overflow-auto">
                 {message.text && (
                     <div
-                        className={`mb-4 p-2 rounded flex items-center gap-2 ${
-                            message.type === "success"
-                                ? "bg-green-500/20 border border-green-500/30"
-                                : "bg-red-500/20 border border-red-500/30"
-                        }`}
+                        className={`mb-4 p-2 rounded flex items-center gap-2 ${message.type === "success"
+                            ? "bg-green-500/20 border border-green-500/30"
+                            : "bg-red-500/20 border border-red-500/30"
+                            }`}
                     >
                         {message.type === "success" ? (
                             <Check className="w-4 h-4 text-green-400" />
@@ -189,11 +217,10 @@ export default function SettingsPage() {
                 )}
 
                 <div
-                    className={`rounded-xl p-4 mb-4 border border-white/10 ${
-                        apiConfigDisabled
-                            ? "bg-white/5 opacity-50 cursor-not-allowed"
-                            : "bg-white/5 backdrop-blur-xl"
-                    }`}
+                    className={`rounded-xl p-4 mb-4 border border-white/10 ${apiConfigDisabled
+                        ? "bg-white/5 opacity-50 cursor-not-allowed"
+                        : "bg-white/5 backdrop-blur-xl"
+                        }`}
                 >
                     <div className="flex items-center gap-2 mb-2">
                         <Key className="w-4 h-4 text-green-400" />
@@ -225,9 +252,8 @@ export default function SettingsPage() {
                             >
                                 <span className="capitalize">{provider}</span>
                                 <ChevronDown
-                                    className={`w-4 h-4 transition-transform ${
-                                        isDropdownOpen ? "rotate-180" : ""
-                                    }`}
+                                    className={`w-4 h-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""
+                                        }`}
                                 />
                             </button>
                             {isDropdownOpen && !apiConfigDisabled && (
@@ -295,11 +321,10 @@ export default function SettingsPage() {
                             <button
                                 key={t}
                                 onClick={() => setTheme(t)}
-                                className={`flex-1 p-2 rounded transition-all ${
-                                    theme === t
-                                        ? "bg-gradient-to-br from-blue-500 to-purple-600 shadow scale-105"
-                                        : "bg-white/5 hover:bg-white/10"
-                                }`}
+                                className={`flex-1 p-2 rounded transition-all ${theme === t
+                                    ? "bg-gradient-to-br from-blue-500 to-purple-600 shadow scale-105"
+                                    : "bg-white/5 hover:bg-white/10"
+                                    }`}
                             >
                                 {t}
                             </button>
@@ -317,7 +342,7 @@ export default function SettingsPage() {
                     </div>
 
 
-                      <button
+                    <button
                         onClick={handleUpgrade}
                         className="group relative dark:bg-neutral-800 bg-neutral-200 rounded-full p-px overflow-hidden"
                     >
@@ -406,3 +431,9 @@ export default function SettingsPage() {
         </div>
     );
 }
+
+
+// AIzaSyB52jgWP4B005I2jbqbnwld271bDjGVrtE
+// AIzaSyD7NWHo - 87p1kUf8E0bTFYStHkoFBw9KF8
+// AIzaSyAUbs664pldvN83mpWxv5Z8tD_9ZtJAGnw
+
