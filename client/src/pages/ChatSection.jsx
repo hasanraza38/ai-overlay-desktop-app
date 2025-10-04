@@ -12,6 +12,7 @@ import Topbar from "../components/Topbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { api } from "../Instance/api";
+import log from "electronmon/src/log";
 
 async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, provider, apiKey) {
 
@@ -20,7 +21,7 @@ async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, 
   let endpoint = "";
 
   if (provider === "grok") {
-    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot";
+    endpoint = "http:localhost:4000/api/v1/chatbot";
     console.log("Using Grok endpoint");
 
   } else if (provider === "openai-4.0-mini") {
@@ -106,11 +107,11 @@ export default function Chatbot() {
   useEffect(() => {
     const loadProviderKey = async () => {
       try {
-        const allConfigs = await window.electron.invoke("get-all-model-configs"); // backend function
+        const allConfigs = await window.electron.invoke("get-all-model-configs");
         if (allConfigs && allConfigs[provider]) {
           setApiKey(allConfigs[provider].apiKey);
         } else {
-          setApiKey(""); // no key saved yet
+          setApiKey("");
         }
       } catch (err) {
         console.error(err);
@@ -131,18 +132,13 @@ export default function Chatbot() {
           return;
         }
 
-        const res = await fetch("https://ai-overlay.vercel.app/api/v1/dashboard/user", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!res.ok) {
+        const res = await api("dashboard/user");
+        console.log("User API response:", res);
+        if (res.status !== 200) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
 
-        const data = await res.json();
+        const data =  res.data;
         if (data.success) {
           setUser(data.data);
         } else {
@@ -199,7 +195,7 @@ export default function Chatbot() {
     try {
       const res = await api("chatbot/conversations");
       console.log(res.data)
-      setConversations(data);
+      setConversations(res.data || []);
     } catch (err) {
       console.error("Error fetching conversations:", err);
     }
