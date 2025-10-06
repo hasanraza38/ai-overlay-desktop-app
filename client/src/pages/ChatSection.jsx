@@ -247,22 +247,23 @@ export default function Chatbot() {
   };
 
   const handleDeleteConversation = async (conversationId) => {
-    try {
-      const token = await window.electronAPI.getToken();
-      const res = await api(`chatbot/conversations/${conversationId}`);
+  try {
+    const token = await window.electronAPI.getToken();
+    
+    await api.delete(`chatbot/conversations/${conversationId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      if (!res.ok) throw new Error("Failed to delete conversation");
+    setConversations((prev) => prev.filter((c) => c._id !== conversationId));
 
-      setConversations((prev) => prev.filter((c) => c._id !== conversationId));
-
-      if (activeConversation === conversationId) {
-        setActiveConversation(null);
-        setMessages([]);
-      }
-    } catch (err) {
-      console.error("Error deleting conversation:", err);
+    if (activeConversation === conversationId) {
+      setActiveConversation(null);
+      setMessages([]);
     }
-  };
+  } catch (err) {
+    console.error("Error deleting conversation:", err);
+  }
+};
 
   const [isWaiting, setIsWaiting] = useState(false);
 
