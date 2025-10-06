@@ -481,13 +481,6 @@ export default function Chatbot() {
         })}
 
 
-        {isWaiting && (
-          <div className="self-start bg-white/10 border border-white/20 p-3 rounded-xl text-sm text-gray-400 max-w-[85%] flex gap-1">
-            <span className="animate-bounce">●</span>
-            <span className="animate-bounce delay-150">●</span>
-            <span className="animate-bounce delay-300">●</span>
-          </div>
-        )}
 
         <div ref={messagesEndRef}></div>
       </div>
@@ -572,9 +565,9 @@ export default function Chatbot() {
                 <h2 className="text-lg font-semibold text-gray-200">Chats</h2>
 
                 <button onClick={() => setShowContext(false)} className="cursor-pointer text-gray-400 hover:text-gray-200 transition">
-               
                   <FiX size={20} />
                 </button>
+
               </div>
 
               {/* Chats Scrollable */}
