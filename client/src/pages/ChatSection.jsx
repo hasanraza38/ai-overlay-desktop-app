@@ -358,7 +358,7 @@ export default function Chatbot() {
       <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">
         <button
           onClick={() => setShowContext(true)}
-          className="flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
+          className="cursor-pointer flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
         >
           <BiConversation size={18} />
           <span>Chats</span>
@@ -439,7 +439,7 @@ export default function Chatbot() {
                 e.stopPropagation();
                 setCopiedText("");
               }}
-              className="text-gray-400 hover:text-red-400 flex items-center"
+              className="cursor-pointer text-gray-400 hover:text-red-400 flex items-center"
             >
               <FiX size={14} />
             </button>
@@ -496,7 +496,7 @@ export default function Chatbot() {
             >
               <div className="flex justify-between items-center border-b border-white/20 p-4">
                 <h2 className="text-lg font-semibold text-gray-200">Chats</h2>
-                <button onClick={() => setShowContext(false)} className="text-gray-400 hover:text-gray-200 transition">
+                <button onClick={() => setShowContext(false)} className="cursor-pointer text-gray-400 hover:text-gray-200 transition">
                   <FiX size={20} />
                 </button>
               </div>
@@ -505,7 +505,7 @@ export default function Chatbot() {
               <div className="flex-1 overflow-y-auto p-4 space-y-2 text-sm text-gray-100 scrollbar-thin">
                 <button
                   onClick={startNewConversation}
-                  className="flex items-center gap-2 w-full px-3 py-2 rounded hover:bg-white/20 text-white text-sm mb-3"
+                  className="cursor-pointer flex items-center gap-2 w-full px-3 py-2 rounded hover:bg-white/20 text-white text-sm mb-3"
                 >
                   <Plus size={16} /> New Chat
                 </button>
@@ -521,7 +521,7 @@ export default function Chatbot() {
                       {/* Chat Title Button */}
                       <button
                         onClick={() => loadConversation(conv._id)}
-                        className="flex-1 text-left text-sm truncate"
+                        className="cursor-pointer flex-1 text-left text-sm truncate"
                       >
                         {conv.title || "Untitled Chat"}
                       </button>
@@ -529,7 +529,7 @@ export default function Chatbot() {
                       {/* Delete Icon (Visible on Hover) */}
                       <button
                         onClick={() => handleDeleteConversation(conv._id)}
-                        className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-gray-300 transition ml-2"
+                        className="cursor-pointer opacity-0 group-hover:opacity-100 text-gray-500 hover:text-gray-300 transition ml-2"
                       >
                         <FiTrash2 size={16} />
                       </button>
@@ -538,7 +538,6 @@ export default function Chatbot() {
                 ) : (
                   <p className="text-gray-400">No chats yet</p>
                 )}
-
               </div>
 
               {/* User Section at Bottom */}
@@ -547,7 +546,7 @@ export default function Chatbot() {
                   <div className="relative">
                     <button
                       onClick={() => setUserMenuOpen(!userMenuOpen)}
-                      className="flex items-center gap-2 w-full px-2 py-2 rounded hover:bg-white/10 text-white"
+                      className="flex items-center cursor-pointer gap-2 w-full px-2 py-2 rounded hover:bg-white/10 text-white"
                     >
                       {user.avatar ? (
                         <img
@@ -565,13 +564,13 @@ export default function Chatbot() {
                       <div className="absolute bottom-12 left-0 w-48 bg-gray-800/90 backdrop-blur-md border border-white/20 rounded-lg shadow-lg p-2 text-sm z-50">
                         <button
                           onClick={() => navigate("/settings")}
-                          className="block w-full text-left px-2 py-2 rounded hover:bg-white/10 text-gray-200"
+                          className="block w-full cursor-pointer text-left px-2 py-2 rounded hover:bg-white/10 text-gray-200"
                         >
                           Settings
                         </button>
                         <button
                           onClick={handleLogout}
-                          className="block w-full text-left px-2 py-2 rounded hover:bg-red-500/20 text-red-400"
+                          className="block w-full cursor-pointer text-left px-2 py-2 rounded hover:bg-red-500/20 text-red-400"
                         >
                           Logout
                         </button>
@@ -610,7 +609,7 @@ export default function Chatbot() {
             </p>
             <button
               onClick={() => setShowPopup(false)}
-              className="mt-3 px-3 py-1 text-xs rounded-lg bg-white/20 
+              className="cursor-pointer mt-3 px-3 py-1 text-xs rounded-lg bg-white/20 
                        hover:bg-white/30 text-gray-200 transition"
             >
               Close
