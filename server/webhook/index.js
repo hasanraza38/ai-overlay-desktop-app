@@ -9,7 +9,6 @@ export const hook = async (req, res) => {
     let event;
     try {
       event = JSON.parse(rawBody);
-      console.log("Parsed event:", event);
     } catch (err) {
       console.log(`Error parsing JSON: ${err.message}`);
       return res.status(400).send(`Webhook Error: Invalid JSON`);
@@ -21,12 +20,13 @@ export const hook = async (req, res) => {
       const amount = payment.amount;
       const email = payment.user;
 
-      console.log(`Payment successful: order ${orderId}, amount ${amount}, customer ${email}`);
+      console.log("amount:", amount, "data type:", typeof amount);
+      
+      
 
       let plan = null;
-      if (amount === 1000) plan = "basic";
-      if (amount === 2000) plan = "pro";
-
+      if (amount === 1000.00 || amount === 1000 || amount === "1000" || amount === "1000.00") plan = "basic";
+      if (amount === 2000.00 || amount === 2000 || amount === "2000" || amount === "2000.00") plan = "pro";
       try {
         let paymentDoc = await Payment.findOneAndUpdate(
           { orderId },

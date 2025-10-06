@@ -6,7 +6,7 @@ import Signup from "./pages/Signup";
 import ChatSection from "./pages/ChatSection";
 import Wellcome from "./pages/Wellcome";
 import SettingsPage from "./pages/SettingsPage";
-import Pricingplan from "./pages/PricingPlan";
+import PricingPlan from "./pages/PricingPlan";
 
 
 function App() {
@@ -46,7 +46,7 @@ function App() {
 
       <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} />
 
-      <Route path="/pricingplan" element={<Pricingplan />} />
+      <Route path="/pricingplan" element={<PricingPlan />} />
 
     </Routes>
   );

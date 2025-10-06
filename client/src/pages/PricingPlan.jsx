@@ -3,14 +3,12 @@ import { ArrowLeft, Check } from 'lucide-react';
 import Topbar from '../components/Topbar';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../Instance/api';
-import log from 'electronmon/src/log';
 
-const Pricingplan = () => {
+const PricingPlan = () => {
     const [plans, setPlans] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedPlan, setSelectedPlan] = useState(0);
     const [purchasedPlan, setPurchasedPlan] = useState(null);
-    const [userPlan, setUserPlan] = useState(null);
     const navigate = useNavigate();
 
     const handleBack = () => navigate("/settings");
@@ -18,66 +16,54 @@ const Pricingplan = () => {
     const defaultPlans = [
         {
             id: 0,
-            avatars: 'Free',
-            variations: 'Basic Plan',
-            price: 0.00,
+            avatars: "Free",
+            variations: "Basic Plan",
+            price: 0.0,
             benefits: [
-                'Limited AI queries per day (e.g., 20 queries/day)',
-                'Basic avatars / themes',
-                'Limited export/download options'
-            ]
+                "2,000 Groq tokens per day",
+                "Access to Groq model only",
+            ],
         },
         {
             id: 1,
-            avatars: 'Pro',
-            variations: 'Standard Plan',
+            avatars: "Basic",
+            variations: "Standard Plan",
             price: 1000,
             popular: true,
             benefits: [
-                'Unlimited AI queries',
-                'Extra avatars / themes',
-                'Export conversations',
-                'Priority support'
-            ]
+                "Unlimited tokens",
+                "Access to multiple AI models",
+                "Priority support",
+            ],
         },
         {
             id: 2,
-            avatars: 'Premium',
-            variations: 'Advanced Plan',
+            avatars: "Pro",
+            variations: "Advanced Plan",
             price: 2000,
             benefits: [
-                'All Pro features +',
-                'Custom AI prompts',
-                'Team / multi-user support',
-                'Early access to new features',
-            ]
-        }
+                "All Basic features +",
+                "Add and use your own API keys for any supported model",
+                "Early access to new features",
+            ],
+        },
     ];
-
-    const planNameToIndex = {
-        'free': 0,
-        'pro': 1,
-        'premium': 2
-    };
 
     useEffect(() => {
         const fetchUserAndPlans = async () => {
             try {
                 const userResponse = await api.get('dashboard/user');
-                console.log("User API response:", userResponse.data);
-
+                
                 if (userResponse.data.success) {
                     const userPlanName = userResponse.data.data.plan.toLowerCase();
-                    setUserPlan(userPlanName);
+                    const planNameToIndex = { 'free': 0, 'basic': 1, 'pro': 2 };
                     setPurchasedPlan(planNameToIndex[userPlanName]);
                     setSelectedPlan(planNameToIndex[userPlanName]);
                 }
 
-                const plansResponse = await api.get('plans');
-                console.log("Plans API response:", plansResponse.data);
-                setPlans(plansResponse.data || defaultPlans);
+                setPlans(defaultPlans);
             } catch (error) {
-                console.error('Error fetching data:', error.response?.data || error.message || error);
+                console.error('Error fetching user data:', error);
                 setPlans(defaultPlans);
             } finally {
                 setLoading(false);
@@ -89,12 +75,7 @@ const Pricingplan = () => {
 
     const handlePurchase = async () => {
         const plan = plans[selectedPlan];
-        if (!plan) return;
-
-        if (purchasedPlan === selectedPlan) {
-            alert("You are already on this plan!");
-            return;
-        }
+        if (!plan || purchasedPlan === selectedPlan) return;
 
         try {
             const response = await api.post("payment/checkout", {
@@ -106,19 +87,16 @@ const Pricingplan = () => {
                 if (window?.electronAPI?.openExt) {
                     window.electronAPI.openExt(response.data.url);
                 } else {
-                    console.error("electronAPI not available, fallback to window.open");
                     window.open(response.data.url, "_blank");
                 }
             }
 
             setPurchasedPlan(selectedPlan);
         } catch (error) {
-            console.error("Payment error:", error.response?.data || error);
+            console.error("Payment error:", error);
             alert("Payment failed. Try again!");
         }
     };
-
-
 
     if (loading) {
         return <div className="text-white text-center mt-20">Loading plans...</div>;
@@ -152,7 +130,7 @@ const Pricingplan = () => {
                 <div className="space-y-6 mb-8">
                     {plans.map((plan, idx) => (
                         <div
-                            key={plan.id || idx}
+                            key={plan.id}
                             onClick={() => setSelectedPlan(idx)}
                             className={`relative bg-gray-800 rounded-[12px] p-4 cursor-pointer transition-all duration-200 ${selectedPlan === idx ? 'bg-gray-700 ring-2 ring-purple-500' : 'hover:bg-gray-700'
                                 } ${purchasedPlan === idx ? 'border-2 border-green-500' : ''}`}
@@ -205,9 +183,9 @@ const Pricingplan = () => {
 
                 <button
                     onClick={purchasedPlan === selectedPlan ? null : handlePurchase}
-                    className={`w-full font-semibold py-4 rounded-lg text-lg mt-2 transition-colors duration-200 focus:ring-opacity-50 cursor-pointer ${purchasedPlan === selectedPlan
+                    className={`w-full font-semibold py-4 rounded-lg text-lg mt-2 transition-colors duration-200 ${purchasedPlan === selectedPlan
                         ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
-                        : 'bg-purple-600 text-white hover:bg-purple-700'
+                        : 'bg-purple-600 text-white hover:bg-purple-700 cursor-pointer'
                         }`}
                 >
                     {purchasedPlan === selectedPlan
@@ -220,4 +198,4 @@ const Pricingplan = () => {
     );
 };
 
-export default Pricingplan;
+export default PricingPlan;
