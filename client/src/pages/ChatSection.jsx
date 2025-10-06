@@ -7,6 +7,7 @@ import {
   FiTrash2,
   FiUser,
   FiCheck,
+  FiChevronDown
 } from "react-icons/fi";
 import { BiConversation } from "react-icons/bi";
 import { Plus } from "lucide-react";
@@ -80,7 +81,7 @@ async function streamGroqResponse(
           const json = JSON.parse(data);
           const token = json.token;
           if (token) onChunk(token);
-        } catch {}
+        } catch { }
       }
     }
   }
@@ -96,7 +97,7 @@ export default function Chatbot() {
   const [copied, setCopied] = useState(null);
   const [provider, setProvider] = useState("");
   const [apiKey, setApiKey] = useState("");
-
+  const [selectedModel, setSelectedModel] = useState('gpt-4');
   const [user, setUser] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -256,7 +257,7 @@ export default function Chatbot() {
         body: JSON.stringify({ title: "New Chat" }),
       });
 
-     
+
       const newConv = await res.json();
 
       setConversations((prev) => [newConv, ...prev]);
@@ -448,7 +449,6 @@ export default function Chatbot() {
 
               {msg.role === "assistant" && i === messages.length - 1 && isWaiting && (
                 <div className="flex justify-center items-center gap-1 mt-1 text-gray-400">
-                  <span className="pr-1">Thinking</span>
                   <span className="animate-bounce text-[8px]">●</span>
                   <span className="animate-bounce delay-150 text-[8px]">●</span>
                   <span className="animate-bounce delay-300 text-[8px]">●</span>
@@ -459,13 +459,7 @@ export default function Chatbot() {
         })}
 
 
-        {isWaiting && (
-          <div className="self-start bg-white/10 border border-white/20 p-3 rounded-xl text-sm text-gray-400 max-w-[85%] flex gap-1">
-            <span className="animate-bounce">●</span>
-            <span className="animate-bounce delay-150">●</span>
-            <span className="animate-bounce delay-300">●</span>
-          </div>
-        )}
+       
 
         <div ref={messagesEndRef}></div>
       </div>
@@ -494,6 +488,8 @@ export default function Chatbot() {
         )}
 
         <div className="relative flex items-end max-w-4xl mx-auto w-full rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-1">
+      
+
           <textarea
             ref={inputRef}
             value={input}
@@ -525,6 +521,7 @@ export default function Chatbot() {
             </button>
           )}
         </div>
+
       </div>
 
       <AnimatePresence>
@@ -549,7 +546,7 @@ export default function Chatbot() {
                 <h2 className="text-lg font-semibold text-gray-200">Chats</h2>
 
                 <button onClick={() => setShowContext(false)} className="cursor-pointer text-gray-400 hover:text-gray-200 transition">
-               
+
                   <FiX size={20} />
                 </button>
               </div>
@@ -569,9 +566,8 @@ export default function Chatbot() {
                   conversations.map((conv) => (
                     <div
                       key={conv._id}
-                      className={`group flex items-center justify-between w-full px-2 py-1 rounded hover:bg-white/20 ${
-                        activeConversation === conv._id ? "bg-white/10" : ""
-                      }`}
+                      className={`group flex items-center justify-between w-full px-2 py-1 rounded hover:bg-white/20 ${activeConversation === conv._id ? "bg-white/10" : ""
+                        }`}
                     >
                       {/* Chat Title Button */}
                       <button
