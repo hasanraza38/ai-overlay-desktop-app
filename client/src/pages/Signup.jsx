@@ -34,7 +34,7 @@ export default function Signup({ setIsAuthenticated }) {
 
             if (token) {
                 await window.electronAPI.saveToken(token);
-                if (window.electronAPI?.resizeWindow) window.electronAPI.resizeWindow(400, 300, true);
+                if (window.electronAPI?.resizeWindow) window.electronAPI.resizeWindow(400, 700, true);
                 setIsAuthenticated(true);
                 navigate("/chatbot");
             }
@@ -52,7 +52,7 @@ export default function Signup({ setIsAuthenticated }) {
             const result = await window.electronAPI.googleLogin();
             if (result?.token) {
                 await window.electronAPI.saveToken(result.token);
-                if (window.electronAPI?.resizeWindow) window.electronAPI.resizeWindow(400, 300, true);
+                if (window.electronAPI?.resizeWindow) window.electronAPI.resizeWindow(400, 700, true);
                 setIsAuthenticated(true);
                 navigate("/chatbot");
             }

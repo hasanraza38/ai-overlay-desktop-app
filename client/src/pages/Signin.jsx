@@ -43,7 +43,7 @@ export default function Signin() {
 
             if (token) {
                 await window.electronAPI.saveToken(token);
-                if (window.electronAPI?.resizeWindow) window.electronAPI.resizeWindow(400, 300, true);
+                if (window.electronAPI?.resizeWindow) window.electronAPI.resizeWindow(400, 700, true);
                 navigate("/chatbot");
             }
         } catch (err) {
@@ -61,7 +61,7 @@ export default function Signin() {
             const result = await window.electronAPI.googleLogin();
             if (result?.token) {
                 await window.electronAPI.saveToken(result.token);
-                if (window.electronAPI?.resizeWindow) window.electronAPI.resizeWindow(400, 300, true);
+                if (window.electronAPI?.resizeWindow) window.electronAPI.resizeWindow(400, 700, true);
                 navigate("/chatbot");
             } else showError("Google login failed");
         } catch (err) {

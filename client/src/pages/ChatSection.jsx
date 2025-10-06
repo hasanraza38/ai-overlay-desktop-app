@@ -15,7 +15,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { api } from "../Instance/api";
 
-
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 // import log from "electronmon/src/log";
@@ -255,17 +254,17 @@ export default function Chatbot() {
 
     try {
       const token = await window.electronAPI.getToken();
-      const res = await fetch(
-        "https://ai-overlay.vercel.app/api/v1/chatbot/conversations",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ title: "New Chat" }),
-        }
-      );
+
+      const res = await fetch("http://localhost:4000/api/v1/chatbot/conversations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ title: "New Chat" }),
+      });
+
+     
       const newConv = await res.json();
 
       setConversations((prev) => [newConv, ...prev]);
@@ -401,17 +400,18 @@ export default function Chatbot() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/20 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
         {messages.map((msg, i) => {
           const parts = msg.content.split(/```/g);
           return (
             <div
               key={i}
               className={`whitespace-pre-wrap break-words p-3 rounded-xl max-w-[85%] backdrop-blur-sm
-                ${
-                  msg.role === "user"
-                    ? "self-end bg-blue-500/20 border border-blue-400/30"
-                    : "self-start bg-white/10 border border-white/20"
+
+        ${msg.role === "user"
+                  ? "self-end bg-blue-500/20 border border-blue-400/30"
+                  : "self-start bg-white/10 border border-white/20"
+
                 }`}
             >
               {parts.map((part, idx) => {
@@ -466,9 +466,20 @@ export default function Chatbot() {
                   return <p key={idx}>{part}</p>;
                 }
               })}
+
+              {/* Loading dots last assistant message ke andar */}
+              {msg.role === "assistant" && i === messages.length - 1 && isWaiting && (
+                <div className="flex justify-center items-center gap-1 mt-1 text-gray-400">
+                  <span className="pr-1">Thinking</span>
+                  <span className="animate-bounce text-[8px]">●</span>
+                  <span className="animate-bounce delay-150 text-[8px]">●</span>
+                  <span className="animate-bounce delay-300 text-[8px]">●</span>
+                </div>
+              )}
             </div>
           );
         })}
+
 
         {isWaiting && (
           <div className="self-start bg-white/10 border border-white/20 p-3 rounded-xl text-sm text-gray-400 max-w-[85%] flex gap-1">
