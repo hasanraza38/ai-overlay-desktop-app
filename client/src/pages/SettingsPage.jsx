@@ -58,7 +58,7 @@ export default function SettingsPage() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const res = await api("/dashboard/user");
+                const res = await api.get("/dashboard/user");
                 if (res.data.success) {
                     setUser(res.data.data);
                 } else {

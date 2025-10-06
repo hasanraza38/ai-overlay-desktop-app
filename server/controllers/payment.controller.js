@@ -14,7 +14,7 @@ import safepay from "../config/safepayconfig.js";
       token,
       orderId: orderId || `SUB-${Date.now()}`, 
       cancelUrl: cancelUrl || "https://www.google.com/",
-      redirectUrl: redirectUrl || "http://localhost:4000/success",
+      redirectUrl: redirectUrl || "http://localhost:3000/success",
       source: "custom",
       webhooks: true,
     });
