@@ -25,9 +25,8 @@ export default function SettingsPage() {
     const [user, setUser] = useState(null);
     const [theme, setTheme] = useState("dark");
 
-    const dropdownRef = useRef(null); // ✅ create ref
+    const dropdownRef = useRef(null); 
 
-    // ✅ Close dropdown when clicking outside
     useEffect(() => {
         function handleClickOutside(event) {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -44,6 +43,9 @@ export default function SettingsPage() {
     const navigate = useNavigate();
 
     const handleBack = () => navigate("/chatbot");
+    const handleCancel = () => {
+        setIsEditing(false);
+    }
 
     const getInitials = (name) => {
         if (!name) return "NA";
@@ -106,7 +108,6 @@ export default function SettingsPage() {
             return;
         }
 
-        // OpenAI key validation
         if (provider.startsWith("openai")) {
             if (!apiKey.startsWith("sk-") || apiKey.length !== 43) {
                 setNotification({ message: "OpenAI key must start with sk- and be 43 characters long", type: "error" });
@@ -258,7 +259,7 @@ export default function SettingsPage() {
                             className="cursor-pointer w-full h-12 p-4 text-[15px] rounded-[10px] bg-white/10 border border-white/20 outline-none text-sm"
                             disabled={apiConfigDisabled || !isEditing}
                         />
-                        <div className="relative" ref={dropdownRef}> {/* ✅ Add ref here */}
+                        <div className="relative" ref={dropdownRef}>
                             <button
                                 onClick={() =>
                                     !apiConfigDisabled && isEditing && setIsDropdownOpen(!isDropdownOpen)
@@ -295,7 +296,7 @@ export default function SettingsPage() {
                 {!apiConfigDisabled && (
                     <div className="flex gap-2 justify-end">
                         <button
-                            onClick={handleBack}
+                            onClick={handleCancel}
                             className="px-4 py-2 cursor-pointer rounded-[7px] p-4 text-[15px] bg-white/5 hover:bg-white/10 border border-white/10"
                         >
                             Cancel
@@ -426,3 +427,4 @@ export default function SettingsPage() {
             </div>
         </div>
     );
+}
