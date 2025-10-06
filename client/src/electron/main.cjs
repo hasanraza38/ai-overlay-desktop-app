@@ -219,12 +219,12 @@ app.whenReady().then(() => {
         webPreferences: { nodeIntegration: false },
       });
 
-      loginWindow.loadURL("https://ai-overlay.vercel.app/api/v1/auth/google");
+      loginWindow.loadURL("http://localhost:4000/api/v1/auth/google");
 
       loginWindow.webContents.on("will-redirect", async (event, url) => {
         if (
           url.startsWith(
-            "https://ai-overlay.vercel.app/api/v1/auth/google/callback"
+            "http://localhost:4000/api/v1/auth/google/callback"
           )
         ) {
           try {
@@ -304,7 +304,7 @@ app.whenReady().then(() => {
   const iconPath = app.isPackaged
     ? path.join(process.resourcesPath, "icons", iconFile)
     : path.join(__dirname, "../../build/icons", iconFile);
-
+// 
   // tray = new Tray(iconPath);
 
   // const iconPath = app.isPackaged

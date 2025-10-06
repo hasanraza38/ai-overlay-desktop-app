@@ -21,15 +21,15 @@ async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, 
   let endpoint = "";
 
   if (provider === "grok") {
-    endpoint = "http:localhost:4000/api/v1/chatbot";
+    endpoint = "http://localhost:4000/api/v1/chatbot";
     console.log("Using Grok endpoint");
 
   } else if (provider === "openai-4.0-mini") {
-    endpoint = "http:localhost:4000/api/v1/chatbot/openai";
+    endpoint = "http://localhost:4000/api/v1/chatbot/openai";
     console.log("Using OpenAI endpoint");
 
   } else if (provider === "gemini-2.0-flash") {
-    endpoint = "http:localhost:4000/api/v1/chatbot/gemini";
+    endpoint = "http://localhost:4000/api/v1/chatbot/gemini";
     console.log("Using Gemini endpoint");
   } else {
     throw new Error("Invalid provider selected");
@@ -245,24 +245,25 @@ export default function Chatbot() {
   };
 
   const handleDeleteConversation = async (conversationId) => {
-    try {
+  try {
+    const token = await window.electronAPI.getToken();
+    
+    await api.delete(`chatbot/conversations/${conversationId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      const token = await window.electronAPI.getToken();
-      const res = await api(`chatbot/conversations/${conversationId}`);
+    setConversations((prev) => prev.filter((c) => c._id !== conversationId));
 
-      if (!res.ok) throw new Error("Failed to delete conversation");
-
-      setConversations((prev) => prev.filter((c) => c._id !== conversationId));
-
-      if (activeConversation === conversationId) {
-        setActiveConversation(null);
-        setMessages([]);
-      }
-    } catch (err) {
-      console.error("Error deleting conversation:", err);
+    if (activeConversation === conversationId) {
+      setActiveConversation(null);
+      setMessages([]);
     }
-  };
+  } catch (err) {
+    console.error("Error deleting conversation:", err);
+  }
+};
 
+  const [isWaiting, setIsWaiting] = useState(false);
 
   const handleSend = async () => {
     if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
@@ -286,10 +287,16 @@ export default function Chatbot() {
     setInput("");
     setCopiedText("");
     setIsStreaming(true);
+    setIsWaiting(true);
 
-    const onChunk = (token) => tokenQueue.current.push(token);
+    const onChunk = (token) => {
+      // if (isWaiting) setIsWaiting(false);
+      setIsWaiting(false);
+      tokenQueue.current.push(token);
+    };
 
     const onDone = () => {
+      setIsWaiting(false);
       const flushInterval = setInterval(() => {
         if (tokenQueue.current.length === 0) {
           clearInterval(flushInterval);
@@ -399,6 +406,16 @@ export default function Chatbot() {
             </div>
           );
         })}
+
+
+        {isWaiting && (
+          <div className="self-start bg-white/10 border border-white/20 p-3 rounded-xl text-sm text-gray-400 max-w-[85%] flex gap-1">
+            <span className="animate-bounce">●</span>
+            <span className="animate-bounce delay-150">●</span>
+            <span className="animate-bounce delay-300">●</span>
+          </div>
+        )}
+
         <div ref={messagesEndRef}></div>
       </div>
 
@@ -467,7 +484,7 @@ export default function Chatbot() {
               onClick={() => setShowContext(false)}
             />
             <motion.div
-              className="relative top-10 w-72 h-[calc(100vh-2.75rem)] bg-gray-500/10 backdrop-blur-md border-r border-white/20 flex flex-col z-50 shadow-lg"
+              className="relative top-10 w-52 h-[calc(100vh-2.75rem)] bg-gray-500/10 backdrop-blur-lg border-r border-white/20 flex flex-col z-50 shadow-lg"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
@@ -539,8 +556,6 @@ export default function Chatbot() {
                       )}
                       <span className="text-sm font-medium">{user.name || "User"}</span>
                     </button>
-
-
                     {userMenuOpen && (
                       <div className="absolute bottom-12 left-0 w-48 bg-gray-800/90 backdrop-blur-md border border-white/20 rounded-lg shadow-lg p-2 text-sm z-50">
                         <button
@@ -551,7 +566,7 @@ export default function Chatbot() {
                         </button>
                         <button
                           onClick={handleLogout}
-                          className="block w-full text-left px-2 py-2 rounded hover:bg-gray-500/20 text-gray-400 hover:text-gray-100"
+                          className="block w-full text-left px-2 py-2 rounded hover:bg-red-500/20 text-red-400"
                         >
                           Logout
                         </button>
