@@ -17,7 +17,6 @@ import { api } from "../Instance/api";
 
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-// import log from "electronmon/src/log";
 
 async function streamGroqResponse(
   userMessage,
@@ -161,20 +160,16 @@ export default function Chatbot() {
 
   const handleLogout = async () => {
     try {
-      // Remove token from Electron secure storage
       await window.electronAPI.removeToken();
 
-      // Clear user state
       setUser(null);
 
-      // Redirect to signup page
       navigate("/signup");
     } catch (err) {
       console.error("Error during logout:", err);
     }
   };
 
-  // Clipboard listen
   useEffect(() => {
     if (window.electronAPI?.onClipboardUpdate) {
       const unsubscribe = window.electronAPI.onClipboardUpdate((text) => {
@@ -192,17 +187,14 @@ export default function Chatbot() {
 
   useEffect(() => {
     if (!isStreaming) {
-      // small delay to ensure textarea is enabled in DOM
       const t = setTimeout(() => {
         const el = inputRef.current;
         if (el) {
           el.focus();
-          // move caret to end so user can continue typing
           const len = (el.value || "").length;
           try {
             el.setSelectionRange(len, len);
           } catch (e) {
-            // some environments may not allow setSelectionRange immediately
           }
         }
       }, 60);
@@ -299,8 +291,7 @@ export default function Chatbot() {
   const handleSend = async () => {
     if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
 
-    const lastModel = localStorage.getItem("lastModel") || "grok"; // ya "openai"
-    // Load latest settings from electron storage
+    const lastModel = localStorage.getItem("lastModel") || "grok";
 
     const savedConfig = await window.electronAPI.getModelConfig(lastModel);
     console.log("Loaded model config:", savedConfig);
@@ -373,17 +364,6 @@ export default function Chatbot() {
     }
   };
 
-  // const handleSaveSettings = async () => {
-  //   if (!apiKey) {
-  //     alert("API Key required");
-  //     return;
-  //   }
-
-  //   await window.electronAPI.saveModelConfig({ model: provider, apiKey });
-
-  //   alert("Settings saved!");
-  //   setShowSettings(false);
-  // };
 
   return (
     <div className="h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
@@ -399,7 +379,6 @@ export default function Chatbot() {
         </button>
       </div>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
         {messages.map((msg, i) => {
           const parts = msg.content.split(/```/g);
@@ -425,11 +404,11 @@ export default function Chatbot() {
                           ...oneDark,
                           'pre[class*="language-"]': {
                             ...oneDark['pre[class*="language-"]'],
-                            background: "transparent", // removes gray background
+                            background: "transparent",
                           },
                           'code[class*="language-"]': {
                             ...oneDark['code[class*="language-"]'],
-                            background: "transparent", // ensures fully transparent background
+                            background: "transparent",
                           },
                         }}
                         customStyle={{
@@ -467,7 +446,6 @@ export default function Chatbot() {
                 }
               })}
 
-              {/* Loading dots last assistant message ke andar */}
               {msg.role === "assistant" && i === messages.length - 1 && isWaiting && (
                 <div className="flex justify-center items-center gap-1 mt-1 text-gray-400">
                   <span className="pr-1">Thinking</span>
@@ -549,7 +527,6 @@ export default function Chatbot() {
         </div>
       </div>
 
-      {/* Sidebar */}
       <AnimatePresence>
         {showContext && (
           <div className="fixed inset-0 z-40 flex">
@@ -578,7 +555,6 @@ export default function Chatbot() {
                 </button>
               </div>
 
-              {/* Chats Scrollable */}
               <div className="flex-1 overflow-y-auto p-4 space-y-2 text-sm text-gray-100 scrollbar-thin">
                 <button
                   onClick={startNewConversation}
@@ -606,7 +582,6 @@ export default function Chatbot() {
                         {conv.title || "Untitled Chat"}
                       </button>
 
-                      {/* Delete Icon (Visible on Hover) */}
                       <button
                         onClick={() => handleDeleteConversation(conv._id)}
                         className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-gray-300 transition ml-2"
@@ -620,7 +595,6 @@ export default function Chatbot() {
                 )}
               </div>
 
-              {/* User Section at Bottom */}
               <div className="border-t border-white/20 p-3">
                 {user ? (
                   <div className="relative">

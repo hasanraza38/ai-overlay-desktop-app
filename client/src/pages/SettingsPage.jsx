@@ -97,7 +97,6 @@ export default function SettingsPage() {
             }
         }
 
-        // Gemini key validation
         if (provider.startsWith("gemini")) {
             if (!apiKey.startsWith("AIzaSy") || apiKey.length !== 39) {
                 setNotification({ message: "Gemini key must start with AIzaSy and be 39 characters long", type: "error" });
@@ -149,14 +148,13 @@ export default function SettingsPage() {
     };
 
     const plan = user?.plan || "free";
-    const tokensUsedToday = user?.tokensUsedToday ?? 0; // fallback if not present
+    const tokensUsedToday = user?.tokensUsedToday ?? 0; 
     const apiConfigDisabled = plan === "free" || plan === "basic";
 
     return (
         <div className="min-h-screen flex flex-col bg-[#111] text-white text-sm">
             <Topbar />
 
-            {/* Notification Popup */}
             {notification.message && (
                 <PopupNotification
                     message={notification.message}
@@ -431,9 +429,3 @@ export default function SettingsPage() {
         </div>
     );
 }
-
-
-// AIzaSyB52jgWP4B005I2jbqbnwld271bDjGVrtE
-// AIzaSyD7NWHo - 87p1kUf8E0bTFYStHkoFBw9KF8
-// AIzaSyAUbs664pldvN83mpWxv5Z8tD_9ZtJAGnw
-
