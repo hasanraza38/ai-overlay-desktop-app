@@ -6,7 +6,7 @@ import React from "react";
 export default function Topbar() {
   return (
     <div 
-      className="w-full h-10 bg-white/10 backdrop-blur-md  shadow-b shadow-2xl flex items-center justify-between px-4 "
+      className="w-full h-10 bg-[#212121] shadow-b shadow-2xl flex items-center justify-between px-4 "
       style={{ WebkitAppRegion: "drag" }}
     >
       <div

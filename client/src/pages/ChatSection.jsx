@@ -247,23 +247,23 @@ export default function Chatbot() {
   };
 
   const handleDeleteConversation = async (conversationId) => {
-  try {
-    const token = await window.electronAPI.getToken();
-    
-    await api.delete(`chatbot/conversations/${conversationId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    try {
+      const token = await window.electronAPI.getToken();
 
-    setConversations((prev) => prev.filter((c) => c._id !== conversationId));
+      await api.delete(`chatbot/conversations/${conversationId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    if (activeConversation === conversationId) {
-      setActiveConversation(null);
-      setMessages([]);
+      setConversations((prev) => prev.filter((c) => c._id !== conversationId));
+
+      if (activeConversation === conversationId) {
+        setActiveConversation(null);
+        setMessages([]);
+      }
+    } catch (err) {
+      console.error("Error deleting conversation:", err);
     }
-  } catch (err) {
-    console.error("Error deleting conversation:", err);
-  }
-};
+  };
 
   const [isWaiting, setIsWaiting] = useState(false);
 
@@ -373,7 +373,7 @@ export default function Chatbot() {
             <div
               key={i}
               className={`whitespace-pre-wrap break-words p-3 rounded-xl max-w-[85%] backdrop-blur-sm
-                ${msg.role === "user"
+        ${msg.role === "user"
                   ? "self-end bg-blue-500/20 border border-blue-400/30"
                   : "self-start bg-white/10 border border-white/20"
                 }`}
@@ -406,18 +406,19 @@ export default function Chatbot() {
                   return <p key={idx}>{part}</p>;
                 }
               })}
+
+              {/* Loading dots last assistant message ke andar */}
+              {msg.role === "assistant" && i === messages.length - 1 && isWaiting && (
+                <div className="flex justify-center items-center gap-1 mt-1 text-gray-400">
+                  <span className="pr-1">Thinking</span>
+                  <span className="animate-bounce text-[8px]">●</span>
+                  <span className="animate-bounce delay-150 text-[8px]">●</span>
+                  <span className="animate-bounce delay-300 text-[8px]">●</span>
+                </div>
+              )}
             </div>
           );
         })}
-
-
-        {isWaiting && (
-          <div className="self-start bg-white/10 border border-white/20 p-3 rounded-xl text-sm text-gray-400 max-w-[85%] flex gap-1">
-            <span className="animate-bounce">●</span>
-            <span className="animate-bounce delay-150">●</span>
-            <span className="animate-bounce delay-300">●</span>
-          </div>
-        )}
 
         <div ref={messagesEndRef}></div>
       </div>
