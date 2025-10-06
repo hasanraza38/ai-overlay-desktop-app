@@ -1,11 +1,7 @@
 const { contextBridge, ipcRenderer, clipboard } = require("electron");
 
 
-
-
 contextBridge.exposeInMainWorld("electronAPI", {
-
-  
 openExt: (url) => {
   if (!url) {
     console.error(" No URL provided to openExt");
@@ -19,8 +15,6 @@ openExt: (url) => {
     console.error("Error sending open-external IPC:", err);
   }
 },
-
-
 
   readClipboard: () => {
     try {

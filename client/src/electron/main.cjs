@@ -284,12 +284,6 @@ ipcMain.on("open-external", (event, url) => {
   const iconPath = app.isPackaged
     ? path.join(process.resourcesPath, "icons", iconFile)
     : path.join(__dirname, "../../build/icons", iconFile);
-// 
-  // tray = new Tray(iconPath);
-
-  // const iconPath = app.isPackaged
-  // ? path.join(process.resourcesPath, "icons/512x512.png")
-  // : path.join(__dirname, "../../build/icons/512x512.png");
 
   tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([
