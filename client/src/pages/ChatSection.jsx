@@ -80,7 +80,7 @@ async function streamGroqResponse(
           const json = JSON.parse(data);
           const token = json.token;
           if (token) onChunk(token);
-        } catch {}
+        } catch { }
       }
     }
   }
@@ -256,7 +256,7 @@ export default function Chatbot() {
         body: JSON.stringify({ title: "New Chat" }),
       });
 
-     
+
       const newConv = await res.json();
 
       setConversations((prev) => [newConv, ...prev]);
@@ -458,11 +458,9 @@ export default function Chatbot() {
           );
         })}
 
-
-
-
         <div ref={messagesEndRef}></div>
       </div>
+
 
       {/* Input */}
       <div className="p-1 border-t border-white/20 bg-white/5 backdrop-blur-md">
@@ -504,11 +502,13 @@ export default function Chatbot() {
                 clearInterval(streamingInterval.current);
                 tokenQueue.current = [];
                 setIsStreaming(false);
+                setIsWaiting(false); // ✅ stop the "Thinking..." dots
               }}
               className="p-2 text-red-400 hover:text-red-500"
             >
               <FiStopCircle size={26} />
             </button>
+
           ) : (
             <button
               onClick={handleSend}
@@ -521,6 +521,8 @@ export default function Chatbot() {
         </div>
       </div>
 
+
+      {/* Context Sidebar */}
       <AnimatePresence>
         {showContext && (
           <div className="fixed inset-0 z-40 flex">
@@ -543,7 +545,7 @@ export default function Chatbot() {
                 <h2 className="text-lg font-semibold text-gray-200">Chats</h2>
 
                 <button onClick={() => setShowContext(false)} className="cursor-pointer text-gray-400 hover:text-gray-200 transition">
-               
+
                   <FiX size={20} />
                 </button>
               </div>
@@ -563,9 +565,8 @@ export default function Chatbot() {
                   conversations.map((conv) => (
                     <div
                       key={conv._id}
-                      className={`group flex items-center justify-between w-full px-2 py-1 rounded hover:bg-white/20 ${
-                        activeConversation === conv._id ? "bg-white/10" : ""
-                      }`}
+                      className={`group flex items-center justify-between w-full px-2 py-1 rounded hover:bg-white/20 ${activeConversation === conv._id ? "bg-white/10" : ""
+                        }`}
                     >
                       {/* Chat Title Button */}
                       <button
@@ -587,6 +588,7 @@ export default function Chatbot() {
                   <p className="text-gray-400">No chats yet</p>
                 )}
               </div>
+
 
               <div className="border-t border-white/20 p-3">
                 {user ? (
@@ -633,6 +635,7 @@ export default function Chatbot() {
           </div>
         )}
       </AnimatePresence>
+
 
       {showSettings && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
