@@ -20,8 +20,8 @@ api.interceptors.request.use(
       }
     } catch (error) {
       console.error("Error retrieving token for headers:", error);
-    }
-    return config;
+    }    
+   return config;
   },
   (error) => {
     console.error("Request interceptor error:", error);

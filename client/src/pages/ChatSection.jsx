@@ -13,7 +13,6 @@ import Topbar from "../components/Topbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { api } from "../Instance/api";
-import log from "electronmon/src/log";
 
 async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, provider, apiKey) {
 
@@ -133,13 +132,12 @@ export default function Chatbot() {
           return;
         }
 
-        const res = await api("dashboard/user");
-        console.log("User API response:", res);
+        const res = await api.get("dashboard/user");
         if (res.status !== 200) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
 
-        const data =  res.data;
+        const data = res.data;
         if (data.success) {
           setUser(data.data);
         } else {
@@ -194,7 +192,7 @@ export default function Chatbot() {
 
   const fetchConversations = async () => {
     try {
-      const res = await api("chatbot/conversations");
+      const res = await api.get("chatbot/conversations");
       console.log(res.data)
       setConversations(res.data || []);
     } catch (err) {
@@ -204,7 +202,7 @@ export default function Chatbot() {
 
   const loadConversation = async (id) => {
     try {
-      const res = await api(`chatbot/conversations/${id}`);
+      const res = await api.get(`chatbot/conversations/${id}`);
       console.log(res.data);
 
       const formatted = [];
@@ -248,6 +246,7 @@ export default function Chatbot() {
 
   const handleDeleteConversation = async (conversationId) => {
     try {
+
       const token = await window.electronAPI.getToken();
       const res = await api(`chatbot/conversations/${conversationId}`);
 
@@ -353,7 +352,6 @@ export default function Chatbot() {
           className="flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
         >
           <BiConversation size={18} />
-          <span>Chats</span>
         </button>
       </div>
 
@@ -527,20 +525,20 @@ export default function Chatbot() {
                 {user ? (
                   <div className="relative">
                     <button
-  onClick={() => setUserMenuOpen(!userMenuOpen)}
-  className="flex items-center gap-2 w-full px-2 py-2 rounded hover:bg-white/10 text-white"
->
-  {user.avatar ? (
-    <img
-      src={user.avatar}
-      alt="avatar"
-      className="w-8 h-8 rounded-full object-cover"
-    />
-  ) : (
-    <FiUser className="w-8 h-8 text-gray-400 bg-gray-700 rounded-full p-1" />
-  )}
-  <span className="text-sm font-medium">{user.name || "User"}</span>
-</button>
+                      onClick={() => setUserMenuOpen(!userMenuOpen)}
+                      className="flex items-center gap-2 w-full px-2 py-2 rounded hover:bg-white/10 text-white"
+                    >
+                      {user.avatar ? (
+                        <img
+                          src={user.avatar}
+                          alt="avatar"
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <FiUser className="w-8 h-8 text-gray-400 bg-gray-700 rounded-full p-1" />
+                      )}
+                      <span className="text-sm font-medium">{user.name || "User"}</span>
+                    </button>
 
 
                     {userMenuOpen && (
