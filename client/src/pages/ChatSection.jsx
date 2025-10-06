@@ -13,7 +13,7 @@ import Topbar from "../components/Topbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { api } from "../Instance/api";
-import log from "electronmon/src/log";
+// import log from "electronmon/src/log";
 
 async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, provider, apiKey) {
 
@@ -228,7 +228,7 @@ export default function Chatbot() {
 
     try {
       const token = await window.electronAPI.getToken();
-      const res = await fetch("https://ai-overlay.vercel.app/api/v1/chatbot/conversations", {
+      const res = await fetch("http://localhost:4000/api/v1/chatbot/conversations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -365,7 +365,7 @@ export default function Chatbot() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/20 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
         {messages.map((msg, i) => {
           const parts = msg.content.split(/```/g);
           return (
