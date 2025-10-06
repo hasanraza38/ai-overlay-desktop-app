@@ -199,12 +199,12 @@ ipcMain.on("open-external", (event, url) => {
         webPreferences: { nodeIntegration: false },
       });
 
-      loginWindow.loadURL("http://localhost:4000/api/v1/auth/google");
+      loginWindow.loadURL("https://ai-overlay.vercel.app/api/v1/auth/google");
 
       loginWindow.webContents.on("will-redirect", async (event, url) => {
         if (
           url.startsWith(
-            "http://localhost:4000/api/v1/auth/google/callback"
+            "https://ai-overlay.vercel.app/api/v1/auth/google/callback"
           )
         ) {
           try {

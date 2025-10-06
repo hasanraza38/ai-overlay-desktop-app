@@ -33,13 +33,13 @@ async function streamGroqResponse(
   let endpoint = "";
 
   if (provider === "grok") {
-    endpoint = "http://localhost:4000/api/v1/chatbot";
+    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot";
     console.log("Using Grok endpoint");
   } else if (provider === "openai-4.0-mini") {
-    endpoint = "http://localhost:4000/api/v1/chatbot/openai";
+    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot/openai";
     console.log("Using OpenAI endpoint");
   } else if (provider === "gemini-2.0-flash") {
-    endpoint = "http://localhost:4000/api/v1/chatbot/gemini";
+    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot/gemini";
     console.log("Using Gemini endpoint");
   } else {
     throw new Error("Invalid provider selected");
@@ -248,7 +248,7 @@ export default function Chatbot() {
     try {
       const token = await window.electronAPI.getToken();
 
-      const res = await fetch("http://localhost:4000/api/v1/chatbot/conversations", {
+      const res = await fetch("https://ai-overlay.vercel.app/api/v1/chatbot/conversations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
