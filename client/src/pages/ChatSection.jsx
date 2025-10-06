@@ -14,6 +14,8 @@ import Topbar from "../components/Topbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { api } from "../Instance/api";
+
+
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 // import log from "electronmon/src/log";
@@ -26,6 +28,7 @@ async function streamGroqResponse(
   provider,
   apiKey
 ) {
+
   console.log("Provider selected:", provider);
 
   let endpoint = "";
@@ -136,8 +139,7 @@ export default function Chatbot() {
           return;
         }
 
-        const res = await api("dashboard/user");
-        console.log("User API response:", res);
+        const res = await api.get("dashboard/user");
         if (res.status !== 200) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
@@ -218,8 +220,9 @@ export default function Chatbot() {
 
   const fetchConversations = async () => {
     try {
-      const res = await api("chatbot/conversations");
-      console.log(res.data);
+
+      const res = await api.get("chatbot/conversations");
+
       setConversations(res.data || []);
     } catch (err) {
       console.error("Error fetching conversations:", err);
@@ -228,7 +231,7 @@ export default function Chatbot() {
 
   const loadConversation = async (id) => {
     try {
-      const res = await api(`chatbot/conversations/${id}`);
+      const res = await api.get(`chatbot/conversations/${id}`);
       console.log(res.data);
 
       const formatted = [];
@@ -394,7 +397,6 @@ export default function Chatbot() {
           className="flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
         >
           <BiConversation size={18} />
-          <span>Chats</span>
         </button>
       </div>
 
@@ -628,7 +630,6 @@ export default function Chatbot() {
                         {user.name || "User"}
                       </span>
                     </button>
-
                     {userMenuOpen && (
                       <div className="absolute bottom-12 left-0 w-48 bg-gray-800/90 backdrop-blur-md border border-white/20 rounded-lg shadow-lg p-2 text-sm z-50">
                         <button

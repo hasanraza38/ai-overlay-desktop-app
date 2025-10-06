@@ -8,6 +8,7 @@ const {
   session,
   ipcMain,
   screen,
+  shell
 } = require("electron");
 const path = require("path");
 const keytar = require("keytar");
@@ -99,6 +100,15 @@ function createWindow() {
 app.whenReady().then(() => {
   clipboard.clear();
 
+
+ipcMain.on("open-external", (event, url) => {
+  if (url && typeof url === "string") {
+    shell.openExternal(url).catch((err) =>
+      console.error("Failed to open external URL:", err)
+    );
+  }
+});
+
   ipcMain.handle("get-token", async () => {
     try {
       return (await keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)) || null;
@@ -122,41 +132,13 @@ app.whenReady().then(() => {
     }
   });
 
-  // // ====== NEW SINGLE MODEL CONFIG HANDLER ======
-  // const KEYTAR_MODEL_SERVICE = "my-electron-app-model-config";
 
-  // // Save config (model = username, apiKey = password)
-  // ipcMain.handle("save-model-config", async (event, { model, apiKey }) => {
-  //   try {
-  //     await keytar.setPassword(KEYTAR_MODEL_SERVICE, model, apiKey);
-  //     return true;
-  //   } catch (err) {
-  //     console.error("Error saving model config:", err);
-  //     return false;
-  //   }
-  // });
-
-  // // Get config
-  // ipcMain.handle("get-model-config", async (event, model) => {
-  //   try {
-  //     const apiKey = await keytar.getPassword(KEYTAR_MODEL_SERVICE, model);
-  //     if (!apiKey) return null;
-  //     return { model, apiKey };
-  //   } catch (err) {
-  //     console.error("Error retrieving model config:", err);
-  //     return null;
-  //   }
-  // });
 
   const KEYTAR_MODEL_SERVICE = "my-electron-app-model-config";
 
-  // Save config
   ipcMain.handle("save-model-config", async (event, { model, apiKey }) => {
     try {
-
       await keytar.setPassword(KEYTAR_MODEL_SERVICE, model, apiKey);
-
-
       return true;
     } catch (err) {
       console.error("Error saving model config:", err);
@@ -164,7 +146,6 @@ app.whenReady().then(() => {
     }
   });
 
-  // Get config
   ipcMain.handle("get-model-config", async (event, model) => {
     if (!model) {
       console.error("Model is required for keytar lookup");
@@ -180,7 +161,6 @@ app.whenReady().then(() => {
     }
   });
 
-  // Remove config
   ipcMain.handle("remove-model-config", async (event, model) => {
     try {
       await keytar.deletePassword(KEYTAR_MODEL_SERVICE, model);
