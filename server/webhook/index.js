@@ -11,7 +11,7 @@ export const hook = async (req, res) => {
       event = JSON.parse(rawBody);
       console.log("Parsed event:", event);
     } catch (err) {
-      console.log(`❌ Error parsing JSON: ${err.message}`);
+      console.log(`Error parsing JSON: ${err.message}`);
       return res.status(400).send(`Webhook Error: Invalid JSON`);
     }
 
@@ -21,7 +21,7 @@ export const hook = async (req, res) => {
       const amount = payment.amount;
       const email = payment.user;
 
-      console.log(`✅ Payment successful: order ${orderId}, amount ${amount}, customer ${email}`);
+      console.log(`Payment successful: order ${orderId}, amount ${amount}, customer ${email}`);
 
       let plan = null;
       if (amount === 1000) plan = "basic";
@@ -37,7 +37,7 @@ export const hook = async (req, res) => {
         const user = await User.findOne({ email });
         if (user) {
           user.plan = plan || "basic";
-          user.tokensUsedToday = 0; // reset usage
+          user.tokensUsedToday = 0; 
           user.planExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
           await user.save();
 
@@ -45,14 +45,14 @@ export const hook = async (req, res) => {
           await paymentDoc.save();
         }
 
-        console.log("✅ DB updated: Payment + User upgraded");
+        console.log("DB updated: Payment + User upgraded");
       } catch (dbError) {
         console.error("Database error:", dbError);
       }
     } 
     else if (event.data?.type === "payment:failed" || event.data?.type === "charge.disputed") {
       const orderId = event.data?.notification?.metadata?.order_id;
-      console.log(`❌ ${event.data?.type} for order ${orderId}`);
+      console.log(`${event.data?.type} for order ${orderId}`);
 
       try {
         await Payment.findOneAndUpdate(

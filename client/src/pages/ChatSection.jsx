@@ -6,6 +6,7 @@ import {
   FiStopCircle,
   FiTrash2,
   FiUser,
+  FiCheck,
 } from "react-icons/fi";
 import { BiConversation } from "react-icons/bi";
 import { Plus } from "lucide-react";
@@ -13,9 +14,19 @@ import Topbar from "../components/Topbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { api } from "../Instance/api";
+
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 // import log from "electronmon/src/log";
 
-async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, provider, apiKey) {
+async function streamGroqResponse(
+  userMessage,
+  onChunk,
+  onDone,
+  conversationId,
+  provider,
+  apiKey
+) {
 
   console.log("Provider selected:", provider);
 
@@ -24,17 +35,14 @@ async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, 
   if (provider === "grok") {
     endpoint = "http://localhost:4000/api/v1/chatbot";
     console.log("Using Grok endpoint");
-
   } else if (provider === "openai-4.0-mini") {
     endpoint = "http://localhost:4000/api/v1/chatbot/openai";
     console.log("Using OpenAI endpoint");
-
   } else if (provider === "gemini-2.0-flash") {
     endpoint = "http://localhost:4000/api/v1/chatbot/gemini";
     console.log("Using Gemini endpoint");
   } else {
     throw new Error("Invalid provider selected");
-
   }
 
   const token = await window.electronAPI.getToken();
@@ -53,7 +61,6 @@ async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, 
       apiKey,
     }),
   });
-
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
@@ -74,7 +81,7 @@ async function streamGroqResponse(userMessage, onChunk, onDone, conversationId, 
           const json = JSON.parse(data);
           const token = json.token;
           if (token) onChunk(token);
-        } catch { }
+        } catch {}
       }
     }
   }
@@ -87,11 +94,9 @@ export default function Chatbot() {
   const [showContext, setShowContext] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [copied, setCopied] = useState(false);
-
+  const [copied, setCopied] = useState(null);
   const [provider, setProvider] = useState("");
   const [apiKey, setApiKey] = useState("");
-
 
   const [user, setUser] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -103,12 +108,14 @@ export default function Chatbot() {
   const messagesEndRef = useRef(null);
   const tokenQueue = useRef([]);
   const streamingInterval = useRef(null);
-
+  const inputRef = useRef(null);
 
   useEffect(() => {
     const loadProviderKey = async () => {
       try {
-        const allConfigs = await window.electron.invoke("get-all-model-configs");
+        const allConfigs = await window.electron.invoke(
+          "get-all-model-configs"
+        );
         if (allConfigs && allConfigs[provider]) {
           setApiKey(allConfigs[provider].apiKey);
         } else {
@@ -121,8 +128,6 @@ export default function Chatbot() {
     loadProviderKey();
   }, [provider]);
 
-
-
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -133,8 +138,7 @@ export default function Chatbot() {
           return;
         }
 
-        const res = await api("dashboard/user");
-        console.log("User API response:", res);
+        const res = await api.get("dashboard/user");
         if (res.status !== 200) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
@@ -187,6 +191,27 @@ export default function Chatbot() {
   }, [messages]);
 
   useEffect(() => {
+    if (!isStreaming) {
+      // small delay to ensure textarea is enabled in DOM
+      const t = setTimeout(() => {
+        const el = inputRef.current;
+        if (el) {
+          el.focus();
+          // move caret to end so user can continue typing
+          const len = (el.value || "").length;
+          try {
+            el.setSelectionRange(len, len);
+          } catch (e) {
+            // some environments may not allow setSelectionRange immediately
+          }
+        }
+      }, 60);
+
+      return () => clearTimeout(t);
+    }
+  }, [isStreaming]);
+
+  useEffect(() => {
     if (showContext) {
       fetchConversations();
     }
@@ -194,8 +219,9 @@ export default function Chatbot() {
 
   const fetchConversations = async () => {
     try {
-      const res = await api("chatbot/conversations");
-      console.log(res.data)
+
+      const res = await api.get("chatbot/conversations");
+
       setConversations(res.data || []);
     } catch (err) {
       console.error("Error fetching conversations:", err);
@@ -204,7 +230,7 @@ export default function Chatbot() {
 
   const loadConversation = async (id) => {
     try {
-      const res = await api(`chatbot/conversations/${id}`);
+      const res = await api.get(`chatbot/conversations/${id}`);
       console.log(res.data);
 
       const formatted = [];
@@ -228,6 +254,7 @@ export default function Chatbot() {
 
     try {
       const token = await window.electronAPI.getToken();
+
       const res = await fetch("http://localhost:4000/api/v1/chatbot/conversations", {
         method: "POST",
         headers: {
@@ -236,6 +263,8 @@ export default function Chatbot() {
         },
         body: JSON.stringify({ title: "New Chat" }),
       });
+
+     
       const newConv = await res.json();
 
       setConversations((prev) => [newConv, ...prev]);
@@ -270,11 +299,8 @@ export default function Chatbot() {
   const handleSend = async () => {
     if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
 
-
-
     const lastModel = localStorage.getItem("lastModel") || "grok"; // ya "openai"
     // Load latest settings from electron storage
-
 
     const savedConfig = await window.electronAPI.getModelConfig(lastModel);
     console.log("Loaded model config:", savedConfig);
@@ -285,7 +311,11 @@ export default function Chatbot() {
     const combinedMessage = copiedText ? copiedText + "\n\n" + input : input;
     const userMessage = { role: "user", content: combinedMessage };
 
-    setMessages((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
+    setMessages((prev) => [
+      ...prev,
+      userMessage,
+      { role: "assistant", content: "" },
+    ]);
     setInput("");
     setCopiedText("");
     setIsStreaming(true);
@@ -326,9 +356,15 @@ export default function Chatbot() {
       }
     }, 40);
 
-    await streamGroqResponse(combinedMessage, onChunk, onDone, activeConversation, currentProvider, currentApiKey);
+    await streamGroqResponse(
+      combinedMessage,
+      onChunk,
+      onDone,
+      activeConversation,
+      currentProvider,
+      currentApiKey
+    );
   };
-
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -349,7 +385,6 @@ export default function Chatbot() {
   //   setShowSettings(false);
   // };
 
-
   return (
     <div className="h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
       <Topbar />
@@ -361,7 +396,6 @@ export default function Chatbot() {
           className="flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
         >
           <BiConversation size={18} />
-          <span>Chats</span>
         </button>
       </div>
 
@@ -373,9 +407,11 @@ export default function Chatbot() {
             <div
               key={i}
               className={`whitespace-pre-wrap break-words p-3 rounded-xl max-w-[85%] backdrop-blur-sm
+
         ${msg.role === "user"
                   ? "self-end bg-blue-500/20 border border-blue-400/30"
                   : "self-start bg-white/10 border border-white/20"
+
                 }`}
             >
               {parts.map((part, idx) => {
@@ -383,19 +419,43 @@ export default function Chatbot() {
                   const code = part.replace(/^[a-z]+\n/, "");
                   return (
                     <div key={idx} className="relative group my-2">
-                      <pre className="overflow-x-auto text-sm p-2 rounded-lg bg-black/40 border border-white/20 scrollbar-thin">
-                        <code>{code}</code>
-                      </pre>
+                      <SyntaxHighlighter
+                        language={part.match(/^[a-z]+/)?.[0] || "javascript"}
+                        style={{
+                          ...oneDark,
+                          'pre[class*="language-"]': {
+                            ...oneDark['pre[class*="language-"]'],
+                            background: "transparent", // removes gray background
+                          },
+                          'code[class*="language-"]': {
+                            ...oneDark['code[class*="language-"]'],
+                            background: "transparent", // ensures fully transparent background
+                          },
+                        }}
+                        customStyle={{
+                          borderRadius: "0.75rem",
+                          padding: "0.75rem",
+                          background: "transparent", // no background
+                          border: "1px solid rgba(255,255,255,0.2)",
+                          fontSize: "0.85rem",
+                          overflowX: "auto",
+                        }}
+                        wrapLongLines={true}
+                        showLineNumbers={false}
+                      >
+                        {code}
+                      </SyntaxHighlighter>
+
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(code);
-                          setCopied(true);
+                          setCopied(idx); // use index as unique reference
                           setTimeout(() => setCopied(false), 2000);
                         }}
                         className="absolute top-1 right-1 p-1 rounded bg-white/10 hover:bg-white/20 transition"
                       >
-                        {copied ? (
-                          <span className="text-xs text-gray-300">Copied</span>
+                        {copied === idx ? (
+                          <FiCheck size={14} className="text-gray-300" />
                         ) : (
                           <FiCopy size={14} className="text-gray-300" />
                         )}
@@ -419,6 +479,15 @@ export default function Chatbot() {
             </div>
           );
         })}
+
+
+        {isWaiting && (
+          <div className="self-start bg-white/10 border border-white/20 p-3 rounded-xl text-sm text-gray-400 max-w-[85%] flex gap-1">
+            <span className="animate-bounce">●</span>
+            <span className="animate-bounce delay-150">●</span>
+            <span className="animate-bounce delay-300">●</span>
+          </div>
+        )}
 
         <div ref={messagesEndRef}></div>
       </div>
@@ -448,6 +517,7 @@ export default function Chatbot() {
 
         <div className="relative flex items-end max-w-4xl mx-auto w-full rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-1">
           <textarea
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -468,7 +538,11 @@ export default function Chatbot() {
               <FiStopCircle size={26} />
             </button>
           ) : (
-            <button onClick={handleSend} disabled={isStreaming} className="p-2 text-white/70 hover:text-white">
+            <button
+              onClick={handleSend}
+              disabled={isStreaming}
+              className="p-2 text-white/70 hover:text-white"
+            >
               <FiArrowUpCircle size={26} />
             </button>
           )}
@@ -496,7 +570,10 @@ export default function Chatbot() {
             >
               <div className="flex justify-between items-center border-b border-white/20 p-4">
                 <h2 className="text-lg font-semibold text-gray-200">Chats</h2>
-                <button onClick={() => setShowContext(false)} className="text-gray-400 hover:text-gray-200 transition">
+                <button
+                  onClick={() => setShowContext(false)}
+                  className="text-gray-400 hover:text-gray-200 transition"
+                >
                   <FiX size={20} />
                 </button>
               </div>
@@ -510,13 +587,16 @@ export default function Chatbot() {
                   <Plus size={16} /> New Chat
                 </button>
 
-                <h3 className="text-xs uppercase text-gray-400 mb-2">Recent Chats</h3>
+                <h3 className="text-xs uppercase text-gray-400 mb-2">
+                  Recent Chats
+                </h3>
                 {conversations.length > 0 ? (
                   conversations.map((conv) => (
                     <div
                       key={conv._id}
-                      className={`group flex items-center justify-between w-full px-2 py-1 rounded hover:bg-white/20 ${activeConversation === conv._id ? "bg-white/10" : ""
-                        }`}
+                      className={`group flex items-center justify-between w-full px-2 py-1 rounded hover:bg-white/20 ${
+                        activeConversation === conv._id ? "bg-white/10" : ""
+                      }`}
                     >
                       {/* Chat Title Button */}
                       <button
@@ -538,7 +618,6 @@ export default function Chatbot() {
                 ) : (
                   <p className="text-gray-400">No chats yet</p>
                 )}
-
               </div>
 
               {/* User Section at Bottom */}
@@ -558,9 +637,10 @@ export default function Chatbot() {
                       ) : (
                         <FiUser className="w-8 h-8 text-gray-400 bg-gray-700 rounded-full p-1" />
                       )}
-                      <span className="text-sm font-medium">{user.name || "User"}</span>
+                      <span className="text-sm font-medium">
+                        {user.name || "User"}
+                      </span>
                     </button>
-
                     {userMenuOpen && (
                       <div className="absolute bottom-12 left-0 w-48 bg-gray-800/90 backdrop-blur-md border border-white/20 rounded-lg shadow-lg p-2 text-sm z-50">
                         <button
@@ -599,13 +679,21 @@ export default function Chatbot() {
 
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowPopup(false)} />
-          <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 
-                          rounded-xl shadow-lg p-4 max-w-sm w-full text-center">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowPopup(false)}
+          />
+          <div
+            className="relative bg-white/10 backdrop-blur-xl border border-white/20 
+                          rounded-xl shadow-lg p-4 max-w-sm w-full text-center"
+          >
             <h3 className="text-sm font-semibold text-gray-200 mb-2">
               Copied Text
             </h3>
-            <p className="text-xs text-gray-300 whitespace-pre-line">
+            <p
+              className="text-xs text-gray-300 whitespace-pre-wrap break-words text-left 
+             max-h-32 overflow-y-auto leading-relaxed px-2 py-1 rounded-md bg-black/20"
+            >
               {copiedText}
             </p>
             <button

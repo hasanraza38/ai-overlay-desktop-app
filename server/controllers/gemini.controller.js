@@ -107,7 +107,7 @@ export const getGeminiResponse = async (req, res) => {
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
-    const user = await validatePlan(req, model, !!apiKey);
+    const user = await validatePlan(userId, model, !!apiKey);
 
     let conversation;
     if (!conversationId) {

@@ -1,8 +1,27 @@
 const { contextBridge, ipcRenderer, clipboard } = require("electron");
 
-console.log("preload js file show");
+
+
 
 contextBridge.exposeInMainWorld("electronAPI", {
+
+  
+openExt: (url) => {
+  if (!url) {
+    console.error(" No URL provided to openExt");
+    return;
+  }
+
+  try {
+    ipcRenderer.send("open-external", url);
+    console.log("Sent open-external IPC message");
+  } catch (err) {
+    console.error("Error sending open-external IPC:", err);
+  }
+},
+
+
+
   readClipboard: () => {
     try {
       const text = clipboard.readText();
@@ -68,7 +87,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   resizeWindow: (width, height, resizable = false) =>
     ipcRenderer.send("resize-window", { width, height, resizable }),
 
-  // ==== New unified model config methods ====
   saveModelConfig: ({ model, apiKey }) =>
     ipcRenderer.invoke("save-model-config", { model, apiKey }),
 

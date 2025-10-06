@@ -19,13 +19,13 @@ export default function Wellcome() {
                 <div className="flex flex-col gap-8">
                     <button
                         onClick={() => navigate("/signup")}
-                        className="text-[14px] w-[300px] bg-purple-600 text-white py-3 rounded-[8px] font-medium hover:bg-purple-500 transition shadow-md"
+                        className="text-[14px] w-[300px] cursor-pointer bg-purple-600 text-white py-3 rounded-[8px] font-medium hover:bg-purple-500 transition shadow-md"
                     >
                         Get Started
                     </button>
                     <button
                         onClick={() => navigate("/signin")}
-                        className="text-white text-[14px] w-[300px] border border-gray-300 py-3 rounded-[8px] font-medium hover:bg-gray-900 transition"
+                        className="text-white text-[14px] cursor-pointer w-[300px] border border-gray-300 py-3 rounded-[8px] font-medium hover:bg-gray-900 transition"
                     >
                         Sign in
                     </button>

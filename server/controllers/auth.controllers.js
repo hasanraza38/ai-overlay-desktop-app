@@ -117,11 +117,12 @@ const googleCallback = async (req, res) => {
 
 
 const sendOTP = async (req, res) => {
-  const { email } = req.body;
+
+  try {
+     const { email } = req.body;
 
   const user = await User.findOne({ email });
   if (!user) return res.status(404).json({ message: "User not found" });
-  console.log(user);
 
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -134,6 +135,12 @@ const sendOTP = async (req, res) => {
   await sendOTPEmail(email, otp);
 
   res.status(200).json({ message: "OTP sent to email" });
+    
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+ 
 };
 
 
