@@ -334,9 +334,7 @@ export default function Signin() {
                             </div>
                         </div>
 
-                        {/* Animated Content Area */}
                         <div className="p-6 relative min-h-[200px] overflow-hidden">
-                            {/* Step 1: Enter Email */}
                             <div className={`transition-all duration-300 transform ${forgotStep === 1 && !isAnimating
                                 ? 'translate-x-0 opacity-100'
                                 : forgotStep === 1
@@ -370,7 +368,6 @@ export default function Signin() {
                                 </form>
                             </div>
 
-                            {/* Step 2: Enter OTP */}
                             <div className={`transition-all duration-300 transform ${forgotStep === 2 && !isAnimating
                                 ? 'translate-x-0 opacity-100'
                                 : forgotStep === 2
@@ -408,7 +405,6 @@ export default function Signin() {
                                 </form>
                             </div>
 
-                            {/* Step 3: Enter New Password */}
                             <div className={`transition-all duration-300 transform ${forgotStep === 3 && !isAnimating
                                 ? 'translate-x-0 opacity-100'
                                 : forgotStep === 3

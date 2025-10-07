@@ -7,6 +7,7 @@ import {
   FiTrash2,
   FiUser,
   FiCheck,
+  FiChevronDown
 } from "react-icons/fi";
 import { BiConversation } from "react-icons/bi";
 import { Plus } from "lucide-react";
@@ -32,13 +33,13 @@ async function streamGroqResponse(
   let endpoint = "";
 
   if (provider === "grok") {
-    endpoint = "http://localhost:4000/api/v1/chatbot";
+    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot";
     console.log("Using Grok endpoint");
   } else if (provider === "openai-4.0-mini") {
-    endpoint = "http://localhost:4000/api/v1/chatbot/openai";
+    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot/openai";
     console.log("Using OpenAI endpoint");
   } else if (provider === "gemini-2.0-flash") {
-    endpoint = "http://localhost:4000/api/v1/chatbot/gemini";
+    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot/gemini";
     console.log("Using Gemini endpoint");
   } else {
     throw new Error("Invalid provider selected");
@@ -96,7 +97,7 @@ export default function Chatbot() {
   const [copied, setCopied] = useState(null);
   const [provider, setProvider] = useState("");
   const [apiKey, setApiKey] = useState("");
-
+  const [selectedModel, setSelectedModel] = useState('gpt-4');
   const [user, setUser] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -247,7 +248,7 @@ export default function Chatbot() {
     try {
       const token = await window.electronAPI.getToken();
 
-      const res = await fetch("http://localhost:4000/api/v1/chatbot/conversations", {
+      const res = await fetch("https://ai-overlay.vercel.app/api/v1/chatbot/conversations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -448,7 +449,6 @@ export default function Chatbot() {
 
               {msg.role === "assistant" && i === messages.length - 1 && isWaiting && (
                 <div className="flex justify-center items-center gap-1 mt-1 text-gray-400">
-                  <span className="pr-1">Thinking</span>
                   <span className="animate-bounce text-[8px]">●</span>
                   <span className="animate-bounce delay-150 text-[8px]">●</span>
                   <span className="animate-bounce delay-300 text-[8px]">●</span>
@@ -457,6 +457,7 @@ export default function Chatbot() {
             </div>
           );
         })}
+
 
         <div ref={messagesEndRef}></div>
       </div>
@@ -486,6 +487,8 @@ export default function Chatbot() {
         )}
 
         <div className="relative flex items-end max-w-4xl mx-auto w-full rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-1">
+      
+
           <textarea
             ref={inputRef}
             value={input}
@@ -519,10 +522,13 @@ export default function Chatbot() {
             </button>
           )}
         </div>
+
       </div>
 
 
       {/* Context Sidebar */}
+
+
       <AnimatePresence>
         {showContext && (
           <div className="fixed inset-0 z-40 flex">
@@ -588,6 +594,7 @@ export default function Chatbot() {
                   <p className="text-gray-400">No chats yet</p>
                 )}
               </div>
+
 
 
               <div className="border-t border-white/20 p-3">

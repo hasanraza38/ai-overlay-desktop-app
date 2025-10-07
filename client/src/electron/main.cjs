@@ -199,12 +199,12 @@ ipcMain.on("open-external", (event, url) => {
         webPreferences: { nodeIntegration: false },
       });
 
-      loginWindow.loadURL("http://localhost:4000/api/v1/auth/google");
+      loginWindow.loadURL("https://ai-overlay.vercel.app/api/v1/auth/google");
 
       loginWindow.webContents.on("will-redirect", async (event, url) => {
         if (
           url.startsWith(
-            "http://localhost:4000/api/v1/auth/google/callback"
+            "https://ai-overlay.vercel.app/api/v1/auth/google/callback"
           )
         ) {
           try {
@@ -284,12 +284,6 @@ ipcMain.on("open-external", (event, url) => {
   const iconPath = app.isPackaged
     ? path.join(process.resourcesPath, "icons", iconFile)
     : path.join(__dirname, "../../build/icons", iconFile);
-// 
-  // tray = new Tray(iconPath);
-
-  // const iconPath = app.isPackaged
-  // ? path.join(process.resourcesPath, "icons/512x512.png")
-  // : path.join(__dirname, "../../build/icons/512x512.png");
 
   tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([

@@ -14,7 +14,7 @@ import safepay from "../config/safepayconfig.js";
       token,
       orderId: orderId || `SUB-${Date.now()}`, 
       cancelUrl: cancelUrl || "https://www.google.com/",
-      redirectUrl: redirectUrl || "http://localhost:3000/success",
+      redirectUrl: redirectUrl || "https://ai-overlay-7dhq.vercel.app/success",
       source: "custom",
       webhooks: true,
     });
