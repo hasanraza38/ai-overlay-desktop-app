@@ -293,6 +293,8 @@ export default function Chatbot() {
 
   const [isWaiting, setIsWaiting] = useState(false);
 
+ 
+
   const handleSend = async () => {
     if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
 
