@@ -129,7 +129,14 @@ export default function Signup({ setIsAuthenticated }) {
                         className="w-[300px] text-[14px] h-[40px] cursor-pointer text-base font-semibold text-white rounded-lg bg-purple-600 hover:bg-purple-700 mt-3 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
                         disabled={loadingSignup}
                     >
-                     {loadingSignup ? "Creating Account..." : "Create Free Account"}
+                     {/* {loadingSignup ? "Creating Account..." : "Create Free Account"} */}
+                     {loadingSignup ? (
+                        <span>
+                            <span className="loader"></span> Creating Account...
+                        </span>
+                     ) : (
+                        "Create Free Account"
+                     )}
                     </button>
                 </form>
 
