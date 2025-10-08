@@ -41,8 +41,8 @@ export default function Chatbot() {
   const [isWaiting, setIsWaiting] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
-  
-// ref
+
+  // ref
   const messagesEndRef = useRef(null);
   const tokenQueue = useRef([]);
   const streamingInterval = useRef(null);
@@ -150,7 +150,7 @@ export default function Chatbot() {
   }, [showContext]);
 
 
- const loadConversation = async (id) => {
+  const loadConversation = async (id) => {
     try {
       const res = await api.get(`chatbot/conversations/${id}`);
 
@@ -169,7 +169,7 @@ export default function Chatbot() {
   };
 
 
- const fetchConversations = async () => {
+  const fetchConversations = async () => {
     try {
 
       const res = await api.get("chatbot/conversations");
@@ -210,6 +210,16 @@ export default function Chatbot() {
   const handleSend = async () => {
     if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
 
+    const MAX_WORDS = 1200; // set your backend limit here
+
+    const combinedMessage = copiedText ? copiedText + "\n\n" + input : input;
+    const wordCount = countWords(combinedMessage);
+
+    if (wordCount > MAX_WORDS) {
+      console.error(` ye error he bahi Your prompt is too long (${wordCount} words). Maximum allowed is ${MAX_WORDS} words.`);
+      return; // stop sending
+    }
+
     const lastModel = localStorage.getItem("lastModel") || "grok";
 
     const savedConfig = await window.electronAPI.getModelConfig(lastModel);
@@ -217,7 +227,7 @@ export default function Chatbot() {
     const currentProvider = savedConfig?.model || "grok";
     const currentApiKey = savedConfig?.apiKey || "";
 
-    const combinedMessage = copiedText ? copiedText + "\n\n" + input : input;
+    
     const userMessage = { role: "user", content: combinedMessage };
 
     setMessages((prev) => [
@@ -285,6 +295,10 @@ export default function Chatbot() {
     }
   };
 
+  function countWords(text) {
+    return text.trim().split(/\s+/).length;
+  }
+
 
   return (
     <div className="h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
@@ -299,7 +313,7 @@ export default function Chatbot() {
           <BiConversation size={18} />
         </button>
       </div>
-     
+
 
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
         {messages.length === 0 ? (
