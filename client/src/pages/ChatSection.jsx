@@ -391,87 +391,7 @@ export default function Chatbot() {
 
 
       {/* 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
-        {messages.map((msg, i) => {
-          const parts = msg.content.split(/```/g);
-          return (
-            <div
-              key={i}
-              className={`whitespace-pre-wrap break-words p-3 rounded-xl max-w-[85%] backdrop-blur-sm
-
-        ${msg.role === "user"
-                  ? "self-end bg-blue-500/20 border border-blue-400/30"
-                  : "self-start bg-white/10 border border-white/20"
-
-                }`}
-            >
-              {parts.map((part, idx) => {
-                if (idx % 2 === 1) {
-                  const code = part.replace(/^[a-z]+\n/, "");
-                  return (
-                    <div key={idx} className="relative group my-2">
-                      <SyntaxHighlighter
-                        language={part.match(/^[a-z]+/)?.[0] || "javascript"}
-                        style={{
-                          ...oneDark,
-                          'pre[class*="language-"]': {
-                            ...oneDark['pre[class*="language-"]'],
-                            background: "transparent",
-                          },
-                          'code[class*="language-"]': {
-                            ...oneDark['code[class*="language-"]'],
-                            background: "transparent",
-                          },
-                        }}
-                        customStyle={{
-                          borderRadius: "0.75rem",
-                          padding: "0.75rem",
-                          background: "transparent", // no background
-                          border: "1px solid rgba(255,255,255,0.2)",
-                          fontSize: "0.85rem",
-                          overflowX: "auto",
-                        }}
-                        wrapLongLines={true}
-                        showLineNumbers={false}
-                      >
-                        {code}
-                      </SyntaxHighlighter>
-
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(code);
-                          setCopied(idx); // use index as unique reference
-                          setTimeout(() => setCopied(false), 2000);
-                        }}
-                        className="absolute top-1 right-1 p-1 rounded bg-white/10 hover:bg-white/20 transition"
-                      >
-                        {copied === idx ? (
-                          <FiCheck size={14} className="text-gray-300" />
-                        ) : (
-                          <FiCopy size={14} className="text-gray-300" />
-                        )}
-                      </button>
-                    </div>
-                  );
-                } else {
-                  return <p key={idx}>{part}</p>;
-                }
-              })}
-
-              {msg.role === "assistant" && i === messages.length - 1 && isWaiting && (
-                <div className="flex justify-center items-center gap-1 mt-1 text-gray-400">
-                  <span className="animate-bounce text-[8px]">●</span>
-                  <span className="animate-bounce delay-150 text-[8px]">●</span>
-                  <span className="animate-bounce delay-300 text-[8px]">●</span>
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-
-        <div ref={messagesEndRef}></div>
-      </div> */}
+      
 
 
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
@@ -608,7 +528,7 @@ export default function Chatbot() {
               }}
               className="p-2 rounded-[50%] opacity-75 bg-white text-red-400 hover:text-red-500 cursor-pointer"
             >
-              <TbPlayerStopFilled size={22} className="text-black" />
+              <TbPlayerStopFilled size={20} className="text-black" />
             </button>
 
           ) : (
