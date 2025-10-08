@@ -37,7 +37,8 @@ export const getChatbotResponse = async (req, res) => {
       const token = chunk?.choices?.[0]?.delta?.content || "";
       if (token) {
         fullResponse += token;
-        res.write(`data: ${JSON.stringify({ token })}\n\n`);
+        res.write(`data: ${JSON.stringify({ token, conversationId: conversation._id })}\n\n`);
+        // res.write(`data: ${JSON.stringify({ token })}\n\n`);
       }
     }
 
@@ -49,7 +50,9 @@ export const getChatbotResponse = async (req, res) => {
       await User.findByIdAndUpdate(userId, { $inc: { tokensUsedToday: tokenCount } });
     }
 
+    res.write(`data: ${JSON.stringify({ done: true, conversationId: conversation._id })}\n\n`);
     res.write("data: [DONE]\n\n");
+    // res.write("data: [DONE]\n\n");
     res.end();
   } catch (err) {
     console.error("Groq API Error:", err);
