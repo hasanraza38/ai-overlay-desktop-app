@@ -3,7 +3,6 @@ import {
   FiX,
   FiCopy,
   FiArrowUpCircle,
-  // FiStopCircle,
   FiTrash2,
   FiUser,
   FiCheck,
@@ -17,79 +16,15 @@ import Topbar from "../components/Topbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { api } from "../Instance/api";
-
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { streamGroqResponse } from "../helper/streamGroq";
+import { capitalizeName } from "../helper/capitalName";
 
-async function streamGroqResponse(
-  userMessage,
-  onChunk,
-  onDone,
-  conversationId,
-  provider,
-  apiKey
-) {
 
-  console.log("Provider selected:", provider);
-
-  let endpoint = "";
-
-  if (provider === "grok") {
-    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot";
-    console.log("Using Grok endpoint");
-  } else if (provider === "openai-4.0-mini") {
-    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot/openai";
-    console.log("Using OpenAI endpoint");
-  } else if (provider === "gemini-2.0-flash") {
-    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot/gemini";
-    console.log("Using Gemini endpoint");
-  } else {
-    throw new Error("Invalid provider selected");
-  }
-
-  const token = await window.electronAPI.getToken();
-
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify({
-      userInput: userMessage,
-      context: "general",
-      conversationId,
-      model: provider,
-      apiKey,
-    }),
-  });
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    const chunk = decoder.decode(value, { stream: true });
-    const lines = chunk.split("\n").filter((line) => line.trim());
-    for (const line of lines) {
-      if (line.startsWith("data: ")) {
-        const data = line.replace("data: ", "");
-        if (data === "[DONE]") {
-          onDone();
-          return;
-        }
-        try {
-          const json = JSON.parse(data);
-          const token = json.token;
-          if (token) onChunk(token);
-        } catch { }
-      }
-    }
-  }
-}
 
 export default function Chatbot() {
+  // states
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [copiedText, setCopiedText] = useState("");
@@ -103,10 +38,11 @@ export default function Chatbot() {
   const [user, setUser] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-
+  const [isWaiting, setIsWaiting] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
-
+  
+// ref
   const messagesEndRef = useRef(null);
   const tokenQueue = useRef([]);
   const streamingInterval = useRef(null);
@@ -173,6 +109,7 @@ export default function Chatbot() {
     }
   };
 
+
   useEffect(() => {
     if (window.electronAPI?.onClipboardUpdate) {
       const unsubscribe = window.electronAPI.onClipboardUpdate((text) => {
@@ -212,25 +149,14 @@ export default function Chatbot() {
     }
   }, [showContext]);
 
-  const fetchConversations = async () => {
-    try {
 
-      const res = await api.get("chatbot/conversations");
-
-      setConversations(res.data || []);
-    } catch (err) {
-      console.error("Error fetching conversations:", err);
-    }
-  };
-
-  const loadConversation = async (id) => {
+ const loadConversation = async (id) => {
     try {
       const res = await api.get(`chatbot/conversations/${id}`);
-      console.log(res.data);
 
       const formatted = [];
       res.data.forEach((chat) => {
-        formatted.push({ role: "user", content: chat.prompt });
+        formatted.push({ role: "user", content: chat.context ? chat.context + "\n\n" + chat.prompt : chat.prompt });
         formatted.push({ role: "assistant", content: chat.response });
       });
 
@@ -242,32 +168,23 @@ export default function Chatbot() {
     }
   };
 
+
+ const fetchConversations = async () => {
+    try {
+
+      const res = await api.get("chatbot/conversations");
+
+      setConversations(res.data || []);
+    } catch (err) {
+      console.error("Error fetching conversations:", err);
+    }
+  };
+
   const startNewConversation = async () => {
     setShowContext(false);
     setMessages([]);
     setActiveConversation(null);
 
-    try {
-      const token = await window.electronAPI.getToken();
-
-      const res = await fetch("https://ai-overlay.vercel.app/api/v1/chatbot/conversations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ title: "New Chat" }),
-      });
-
-
-      const newConv = await res.json();
-
-      setConversations((prev) => [newConv, ...prev]);
-      setActiveConversation(newConv._id);
-      setShowContext(false);
-    } catch (err) {
-      console.error("Error creating new conversation:", err);
-    }
   };
 
   const handleDeleteConversation = async (conversationId) => {
@@ -289,7 +206,6 @@ export default function Chatbot() {
     }
   };
 
-  const [isWaiting, setIsWaiting] = useState(false);
 
   const handleSend = async () => {
     if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
@@ -297,7 +213,6 @@ export default function Chatbot() {
     const lastModel = localStorage.getItem("lastModel") || "grok";
 
     const savedConfig = await window.electronAPI.getModelConfig(lastModel);
-    console.log("Loaded model config:", savedConfig);
 
     const currentProvider = savedConfig?.model || "grok";
     const currentApiKey = savedConfig?.apiKey || "";
@@ -316,7 +231,6 @@ export default function Chatbot() {
     setIsWaiting(true);
 
     const onChunk = (token) => {
-      // if (isWaiting) setIsWaiting(false);
       setIsWaiting(false);
       tokenQueue.current.push(token);
     };
@@ -351,14 +265,18 @@ export default function Chatbot() {
     }, 40);
 
     await streamGroqResponse(
-      combinedMessage,
+      input,
       onChunk,
       onDone,
       activeConversation,
       currentProvider,
-      currentApiKey
+      currentApiKey,
+      setActiveConversation,
+      copiedText
     );
   };
+
+
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -367,13 +285,7 @@ export default function Chatbot() {
     }
   };
 
-  function capitalizeName(name) {
-    if (!name) return "";
-    return name
-      .split(/[\s._]+/) // space, dot, underscore handle karega
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-  }
+
   return (
     <div className="h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
       <Topbar />
@@ -387,21 +299,13 @@ export default function Chatbot() {
           <BiConversation size={18} />
         </button>
       </div>
-
-
-
-      {/* 
-      
-
+     
 
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
         {messages.length === 0 ? (
           <div className="flex-1 flex items-center justify-center text-center text-gray-400">
             <div>
               <h2 className="opacity-75 text-[20px] font-semibold text-white">How can i help you? {capitalizeName(user?.name || "User")}</h2>
-              {/* <p className="text-sm text-gray-400 mt-2">
-                Start a new conversation or ask something to begin chatting.
-              </p> */}
             </div>
           </div>
         ) : (
@@ -480,8 +384,6 @@ export default function Chatbot() {
 
 
 
-
-
       {/* Input */}
       <div className="p-1 border-t border-white/20 bg-white/5 backdrop-blur-md">
         {copiedText && (
@@ -528,7 +430,7 @@ export default function Chatbot() {
               }}
               className="p-2 rounded-[50%] opacity-75 bg-white text-red-400 hover:text-red-500 cursor-pointer"
             >
-              <TbPlayerStopFilled size={20} className="text-black" />
+              <TbPlayerStopFilled size={18} className="text-black" />
             </button>
 
           ) : (
