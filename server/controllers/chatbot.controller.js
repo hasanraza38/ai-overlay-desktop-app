@@ -37,14 +37,12 @@ export const getChatbotResponse = async (req, res) => {
       const token = chunk?.choices?.[0]?.delta?.content || "";
       if (token) {
         fullResponse += token;
-        res.write(`data: ${JSON.stringify({ token, conversationId: conversation._id })}\n\n`);
-        // res.write(`data: ${JSON.stringify({ token })}\n\n`);
+        res.write(`data: ${JSON.stringify({ token })}\n\n`);
       }
     }
 
     await Chat.create({ userId, conversationId: conversation._id, prompt: userInput, response: fullResponse, context: context || "" });
 
-    // ✅ Track tokens (free plan only)
     if (user.plan === "free") {
       const tokenCount = countTokens(fullResponse);
       await User.findByIdAndUpdate(userId, { $inc: { tokensUsedToday: tokenCount } });
@@ -52,7 +50,6 @@ export const getChatbotResponse = async (req, res) => {
 
     res.write(`data: ${JSON.stringify({ done: true, conversationId: conversation._id })}\n\n`);
     res.write("data: [DONE]\n\n");
-    // res.write("data: [DONE]\n\n");
     res.end();
   } catch (err) {
     console.error("Groq API Error:", err);
