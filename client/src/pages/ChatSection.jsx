@@ -150,7 +150,7 @@ export default function Chatbot() {
   }, [showContext]);
 
 
- const loadConversation = async (id) => {
+  const loadConversation = async (id) => {
     try {
       const res = await api.get(`chatbot/conversations/${id}`);
 
@@ -169,7 +169,7 @@ export default function Chatbot() {
   };
 
 
- const fetchConversations = async () => {
+  const fetchConversations = async () => {
     try {
 
       const res = await api.get("chatbot/conversations");
@@ -229,6 +229,8 @@ export default function Chatbot() {
     setCopiedText("");
     setIsStreaming(true);
     setIsWaiting(true);
+
+
 
     const onChunk = (token) => {
       setIsWaiting(false);
@@ -299,7 +301,7 @@ export default function Chatbot() {
           <BiConversation size={18} />
         </button>
       </div>
-     
+
 
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
         {messages.length === 0 ? (
