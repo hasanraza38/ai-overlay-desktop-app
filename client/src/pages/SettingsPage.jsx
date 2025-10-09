@@ -188,7 +188,6 @@ export default function SettingsPage() {
                 </button>
                 <div className="flex items-center gap-1">
                     <Settings className="w-5 h-5 text-purple-400" />
-                    <span className="font-semibold">Settings</span>
                 </div>
             </div>
 

@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@plugin "@tailwindcss/typography";
 /* Global Custom Scrollbar for Electron (Dark Theme) */
 
 /* Applies to everything */
