@@ -41,12 +41,12 @@ function App() {
       )}
       <Route path="/chatbot" element={<ProtectedRoute><ChatSection /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+      <Route path="/pricingplan" element={<PricingPlan />} />
+
       <Route path="/signin" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signin />} />
       <Route path="/signup" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Signup setIsAuthenticated={setIsAuthenticated} />} />
 
-      <Route path="/" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} />
-
-      <Route path="/pricingplan" element={<PricingPlan />} />
+      <Route path="*" element={isAuthenticated ? <Navigate to="/chatbot" /> : <Navigate to="/signup" />} />
 
     </Routes>
   );

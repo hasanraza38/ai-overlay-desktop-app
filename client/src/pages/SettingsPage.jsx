@@ -42,7 +42,7 @@ export default function SettingsPage() {
 
     const navigate = useNavigate();
 
-    const handleBack = () => navigate("/chatbot");
+    const handleBack = () => {navigate("/chatbot"); console.log("Navigating back to /chatbot");};
     const handleCancel = () => {
         setIsEditing(false);
     }
