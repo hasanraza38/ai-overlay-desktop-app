@@ -252,11 +252,13 @@ export default function Chatbot() {
 
       const res = await api.get("chatbot/conversations");
 
+
       setConversations(res.data || []);
     } catch (err) {
       console.error("Error fetching conversations:", err);
     }
   };
+
 
   const loadConversation = async (id) => {
     try {
@@ -281,6 +283,9 @@ export default function Chatbot() {
     setShowContext(false);
     setMessages([]);
     setActiveConversation(null);
+
+
+  const fetchConversations = async () => {
 
     try {
       const token = await window.electronAPI.getToken();
@@ -363,6 +368,8 @@ export default function Chatbot() {
     setCopiedText("");
     setIsStreaming(true);
     setIsWaiting(true);
+
+
 
     const onChunk = (token) => {
       setIsWaiting(false);
@@ -454,7 +461,6 @@ export default function Chatbot() {
         </div>
 
       {/* </div> */}
-
 
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
         {messages.length === 0 ? (

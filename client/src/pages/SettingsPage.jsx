@@ -166,7 +166,8 @@ export default function SettingsPage() {
     };
 
     const plan = user?.plan || "free";
-    const tokensUsedToday = user?.tokensUsedToday ?? 0; 
+    const isFreePlan = plan === "free";
+    const tokensUsedToday =  isFreePlan ? user?.tokensUsedToday : "Unlimited"; 
     const apiConfigDisabled = plan === "free" || plan === "basic";
 
     return (

@@ -80,6 +80,7 @@ Continue or update the last response accordingly. Do NOT start a new topic.`;
       await User.findByIdAndUpdate(userId, { $inc: { tokensUsedToday: tokenCount } });
     }
 
+    res.write(`data: ${JSON.stringify({ done: true, conversationId: conversation._id })}\n\n`);
     res.write("data: [DONE]\n\n");
     res.end();
   } catch (err) {
