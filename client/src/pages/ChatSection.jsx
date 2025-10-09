@@ -186,9 +186,41 @@ export default function Chatbot() {
     }
   }, []);
 
+  // useEffect(() => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // }, [messages]);
+
+
+
+  const shouldAutoScroll = useRef(true);
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    const chatContainer = messagesEndRef.current?.parentElement;
+    if (!chatContainer) return;
+
+    const handleScroll = () => {
+      // agar user khud upar scroll kare to auto scroll band ho jaye
+      const isNearBottom =
+        chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 50;
+      shouldAutoScroll.current = isNearBottom;
+    };
+
+    chatContainer.addEventListener("scroll", handleScroll);
+    return () => chatContainer.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!isStreaming && shouldAutoScroll.current) {
+      const timer = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 50); // chhota delay to prevent instant scroll during user scroll
+      return () => clearTimeout(timer);
+    }
+  }, [messages, isStreaming]);
+
+
+
+
 
   useEffect(() => {
     if (!isStreaming) {
@@ -298,80 +330,6 @@ export default function Chatbot() {
 
   const [isWaiting, setIsWaiting] = useState(false);
 
-  // const handleSend = async () => {
-  //   if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
-
-  //   const lastModel = localStorage.getItem("lastModel") || "grok";
-
-  //   const savedConfig = await window.electronAPI.getModelConfig(lastModel);
-  //   console.log("Loaded model config:", savedConfig);
-
-  //   const currentProvider = savedConfig?.model || "grok";
-  //   const currentApiKey = savedConfig?.apiKey || "";
-
-  //   const combinedMessage = copiedText ? copiedText + "\n\n" + input : input;
-  //   const userMessage = { role: "user", content: combinedMessage };
-
-  //   setMessages((prev) => [
-  //     ...prev,
-  //     userMessage,
-  //     { role: "assistant", content: "" },
-  //   ]);
-  //   setInput("");
-  //   setCopiedText("");
-  //   setIsStreaming(true);
-  //   setIsWaiting(true);
-
-  //   const onChunk = (token) => {
-  //     // if (isWaiting) setIsWaiting(false);
-  //     setIsWaiting(false);
-  //     tokenQueue.current.push(token);
-  //   };
-
-  //   const onDone = () => {
-  //     setIsWaiting(false);
-  //     const flushInterval = setInterval(() => {
-  //       if (tokenQueue.current.length === 0) {
-  //         clearInterval(flushInterval);
-  //         clearInterval(streamingInterval.current);
-  //         setIsStreaming(false);
-  //       } else {
-  //         const token = tokenQueue.current.shift();
-  //         setMessages((prev) => {
-  //           const updated = [...prev];
-  //           updated[updated.length - 1].content += token;
-  //           return updated;
-  //         });
-  //       }
-  //     }, 50);
-  //   };
-
-  //   streamingInterval.current = setInterval(() => {
-  //     if (tokenQueue.current.length > 0) {
-  //       const token = tokenQueue.current.shift();
-  //       setMessages((prev) => {
-  //         const updated = [...prev];
-  //         updated[updated.length - 1].content += token;
-  //         return updated;
-  //       });
-  //     }
-  //   }, 40);
-
-  //   await streamGroqResponse(
-  //     combinedMessage,
-  //     onChunk,
-  //     onDone,
-  //     activeConversation,
-  //     currentProvider,
-  //     currentApiKey
-  //   );
-  // };
-
-
-
-
-
-
 
 
   const handleSend = async () => {
@@ -379,16 +337,16 @@ export default function Chatbot() {
 
     const combinedMessage = copiedText ? copiedText + "\n\n" + input : input;
 
-    
-    const wordCount = combinedMessage.trim().split(/\s+/).length;
-    if (wordCount > 1200) {
+
+    const Token = combinedMessage.trim().split(/\s+/).length;
+    if (Token > 8000) {
       setNotification({
-        message: "You cannot send more than 1200 words per message. Please shorten your prompt.",
+        message: "Your prompt exceeds 8000 tokens per minute. Please reduce its length.",
         type: "error",
       });
-      return; 
+      return;
     }
-   
+
 
     const lastModel = localStorage.getItem("lastModel") || "grok";
 
@@ -460,10 +418,6 @@ export default function Chatbot() {
 
 
 
-
-
-
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -499,7 +453,11 @@ export default function Chatbot() {
         </button>
       </div>
 
+      {/* <div>
+        <button>
 
+        </button>
+      </div> */}
 
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
         {messages.length === 0 ? (
