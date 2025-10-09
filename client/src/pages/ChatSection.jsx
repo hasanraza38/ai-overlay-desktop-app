@@ -186,9 +186,41 @@ export default function Chatbot() {
     }
   }, []);
 
+  // useEffect(() => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // }, [messages]);
+
+
+
+  const shouldAutoScroll = useRef(true);
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    const chatContainer = messagesEndRef.current?.parentElement;
+    if (!chatContainer) return;
+
+    const handleScroll = () => {
+      // agar user khud upar scroll kare to auto scroll band ho jaye
+      const isNearBottom =
+        chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 50;
+      shouldAutoScroll.current = isNearBottom;
+    };
+
+    chatContainer.addEventListener("scroll", handleScroll);
+    return () => chatContainer.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!isStreaming && shouldAutoScroll.current) {
+      const timer = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 50); // chhota delay to prevent instant scroll during user scroll
+      return () => clearTimeout(timer);
+    }
+  }, [messages, isStreaming]);
+
+
+
+
 
   useEffect(() => {
     if (!isStreaming) {
@@ -293,23 +325,23 @@ export default function Chatbot() {
 
   const [isWaiting, setIsWaiting] = useState(false);
 
- 
+
 
   const handleSend = async () => {
     if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
 
     const combinedMessage = copiedText ? copiedText + "\n\n" + input : input;
 
-    
-    const wordCount = combinedMessage.trim().split(/\s+/).length;
-    if (wordCount > 1200) {
+
+    const Token = combinedMessage.trim().split(/\s+/).length;
+    if (Token > 8000) {
       setNotification({
-        message: "You cannot send more than 1200 words per message. Please shorten your prompt.",
+        message: "Your prompt exceeds 8000 tokens per minute. Please reduce its length.",
         type: "error",
       });
-      return; 
+      return;
     }
-   
+
 
     const lastModel = localStorage.getItem("lastModel") || "grok";
 
@@ -374,10 +406,6 @@ export default function Chatbot() {
       currentApiKey
     );
   };
-
-
-
-
 
 
 
