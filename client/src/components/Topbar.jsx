@@ -22,14 +22,14 @@ export default function Topbar() {
       >
         <button
           onClick={() => window.electronAPI.minimizeApp()}
-          className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors"
+          className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors"
         >
           <VscChromeMinimize className="w-4 h-4 text-gray-200" />
         </button>
 
         <button
           onClick={() => window.electronAPI.closeApp()}
-          className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-red-500/80 transition-colors"
+          className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-md hover:bg-red-500/80 transition-colors"
         >
           <RiCloseFill className="w-5 h-5 text-gray-200" />
         </button>
