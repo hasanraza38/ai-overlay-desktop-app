@@ -559,7 +559,7 @@ export default function Chatbot() {
                               {children}
                             </a>
                           ),
-                         
+
                         }}
                       >
                         {part}
@@ -575,6 +575,12 @@ export default function Chatbot() {
                     <span className="animate-bounce delay-300 text-[8px]">●</span>
                   </div>
                 )}
+                
+                 {msg.role === "assistant" && i === messages.length - 1 && isStreaming && !isWaiting && (
+                  <span className="text-white/80 animate-pulse ml-1">▍</span>
+                )}
+               
+
               </div>
             );
           })
