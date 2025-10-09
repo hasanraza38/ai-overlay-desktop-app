@@ -247,17 +247,17 @@ export default function Chatbot() {
     }
   }, [showContext]);
 
-  const fetchConversations = async () => {
-    try {
+  // const fetchConversations = async () => {
+  //   try {
 
-      const res = await api.get("chatbot/conversations");
+  //     const res = await api.get("chatbot/conversations");
 
 
-      setConversations(res.data || []);
-    } catch (err) {
-      console.error("Error fetching conversations:", err);
-    }
-  };
+  //     setConversations(res.data || []);
+  //   } catch (err) {
+  //     console.error("Error fetching conversations:", err);
+  //   }
+  // };2
 
 
   const loadConversation = async (id) => {
@@ -284,7 +284,7 @@ export default function Chatbot() {
     setMessages([]);
     setActiveConversation(null);
 
-
+  }
   const fetchConversations = async () => {
 
     try {
@@ -443,7 +443,7 @@ export default function Chatbot() {
         type={notification.type}
         onClose={() => setNotification({ message: "", type: "error" })}
       />
-      {/* <div className="flex items-center justify-between border-b border-white/20 bg-black/20 backdrop-blur-md h-12 px-4"> */}
+      <div className="flex items-center justify-between border-b border-white/20 bg-black/20 backdrop-blur-md h-12">
         {/* Controls */}
         <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">
           <button
@@ -454,13 +454,12 @@ export default function Chatbot() {
           </button>
         </div>
 
-        <div>
-          <button>
-            <Ellipsis className="animate-pulse" />
+        <div className="pr-5" >
+          <button className="cursor-pointer">
+            <Ellipsis />
           </button>
         </div>
-
-      {/* </div> */}
+      </div>
 
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
         {messages.length === 0 ? (
