@@ -128,7 +128,7 @@ export default function Chatbot() {
     }
   }, []);
 
- 
+
   const shouldAutoScroll = useRef(true);
 
   useEffect(() => {
@@ -181,48 +181,48 @@ export default function Chatbot() {
 
 
   const loadConversation = async (id) => {
-  try {
-    const res = await api.get(`chatbot/conversations/${id}`);
+    try {
+      const res = await api.get(`chatbot/conversations/${id}`);
 
-    const data = Array.isArray(res.data) ? res.data : [];
+      const data = Array.isArray(res.data) ? res.data : [];
 
-    const formatted = data.flatMap((chat) => {
-      const parts = [];
+      const formatted = data.flatMap((chat) => {
+        const parts = [];
 
-      if (chat?.context) {
-        parts.push({
-          role: "user",
-          content: chat.context || "",
-          type: "context",
-        });
-      }
+        if (chat?.context) {
+          parts.push({
+            role: "user",
+            content: chat.context || "",
+            type: "context",
+          });
+        }
 
-      if (chat?.prompt) {
-        parts.push({
-          role: "user",
-          content: chat.prompt || "",
-          type: "prompt",
-        });
-      }
+        if (chat?.prompt) {
+          parts.push({
+            role: "user",
+            content: chat.prompt || "",
+            type: "prompt",
+          });
+        }
 
-      if (chat?.response) {
-        parts.push({
-          role: "assistant",
-          content: chat.response || "",
-          type: "response",
-        });
-      }
+        if (chat?.response) {
+          parts.push({
+            role: "assistant",
+            content: chat.response || "",
+            type: "response",
+          });
+        }
 
-      return parts;
-    });
+        return parts;
+      });
 
-    setMessages(formatted);
-    setActiveConversation(id);
-    setShowContext(false);
-  } catch (err) {
-    console.error("Error loading conversation:", err);
-  }
-};
+      setMessages(formatted);
+      setActiveConversation(id);
+      setShowContext(false);
+    } catch (err) {
+      console.error("Error loading conversation:", err);
+    }
+  };
 
 
 
@@ -398,7 +398,7 @@ export default function Chatbot() {
           </div>
         ) : (
           messages?.map((msg, i) => {
-            if (!msg || typeof msg.content !== "string") return null; 
+            if (!msg || typeof msg.content !== "string") return null;
 
             const parts = msg?.content?.split(/```/g);
 
@@ -540,14 +540,26 @@ export default function Chatbot() {
                               {...props}
                             />
                           ),
-                          a: ({ node, ...props }) => (
+                          a: ({ node, href, children, ...props }) => (
                             <a
                               {...props}
-                              className="text-blue-400 hover:underline hover:text-blue-300"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            />
+                              href={href}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                if (href) {
+                                  if (window?.electronAPI?.openExt) {
+                                    window.electronAPI.openExt(href);
+                                  } else {
+                                    window.open(href, "_blank");
+                                  }
+                                }
+                              }}
+                              className="text-blue-400 hover:underline hover:text-blue-300 cursor-pointer"
+                            >
+                              {children}
+                            </a>
                           ),
+                         
                         }}
                       >
                         {part}
@@ -751,7 +763,7 @@ export default function Chatbot() {
       </AnimatePresence>
 
 
-      {     
+      {
         showSettings && (
           <div className="fixed inset-0 flex items-center justify-center z-50">
             {/* Backdrop */}
