@@ -774,7 +774,7 @@
 
 
 
-
+``
 
 
 
@@ -814,12 +814,11 @@ import Topbar from "../components/Topbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { api } from "../Instance/api";
-import PopupNotification from "../components/PopupNotification";
-import { Ellipsis } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { streamGroqResponse } from "../helper/streamGroq";
 import { capitalizeName } from "../helper/capitalName";
+import PopupNotification from "../components/PopupNotification";
 
 
 
@@ -838,14 +837,12 @@ export default function Chatbot() {
   const [user, setUser] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [notification, setNotification] = useState({ message: "", type: "error" });
-
-
   const [isWaiting, setIsWaiting] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
-  
-// ref
+  const [notification, setNotification] = useState({ message: "", type: "error" });
+
+  // ref
   const messagesEndRef = useRef(null);
   const tokenQueue = useRef([]);
   const streamingInterval = useRef(null);
@@ -924,9 +921,34 @@ export default function Chatbot() {
     }
   }, []);
 
+  // useEffect(() => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // }, [messages]);
+
+const shouldAutoScroll = useRef(true);
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    const chatContainer = messagesEndRef.current?.parentElement;
+    if (!chatContainer) return;
+
+    const handleScroll = () => {
+      const isNearBottom =
+        chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 50;
+      shouldAutoScroll.current = isNearBottom;
+    };
+    chatContainer.addEventListener("scroll", handleScroll);
+    return () => chatContainer.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!isStreaming && shouldAutoScroll.current) {
+      const timer = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 50); // chhota delay to prevent instant scroll during user scroll
+      return () => clearTimeout(timer);
+    }
+  }, [messages, isStreaming]);
+
 
   useEffect(() => {
     if (!isStreaming) {
@@ -952,20 +974,8 @@ export default function Chatbot() {
     }
   }, [showContext]);
 
-  // const fetchConversations = async () => {
-  //   try {
 
-  //     const res = await api.get("chatbot/conversations");
-
-
-  //     setConversations(res.data || []);
-  //   } catch (err) {
-  //     console.error("Error fetching conversations:", err);
-  //   }
-  // };2
-
-
- const loadConversation = async (id) => {
+  const loadConversation = async (id) => {
     try {
       const res = await api.get(`chatbot/conversations/${id}`);
 
@@ -983,16 +993,17 @@ export default function Chatbot() {
     }
   };
 
+
+
+
   const startNewConversation = async () => {
     setShowContext(false);
     setMessages([]);
     setActiveConversation(null);
 
-  }
+  };
+
   const fetchConversations = async () => {
-
-
- const fetchConversations = async () => {
     try {
 
       const res = await api.get("chatbot/conversations");
@@ -1003,12 +1014,6 @@ export default function Chatbot() {
     }
   };
 
-  const startNewConversation = async () => {
-    setShowContext(false);
-    setMessages([]);
-    setActiveConversation(null);
-
-  };
 
   const handleDeleteConversation = async (conversationId) => {
     try {
@@ -1033,6 +1038,17 @@ export default function Chatbot() {
   const handleSend = async () => {
     if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
 
+    const combinedMessage = copiedText ? copiedText + "\n\n" + input : input;
+
+    const Token = combinedMessage.trim().split(/\s+/).length;
+    if (Token > 8000) {
+      setNotification({
+        message: "Your prompt exceeds 8000 tokens per minute. Please reduce its length.",
+        type: "error",
+      });
+      return;
+    }
+
     const lastModel = localStorage.getItem("lastModel") || "grok";
 
     const savedConfig = await window.electronAPI.getModelConfig(lastModel);
@@ -1040,7 +1056,6 @@ export default function Chatbot() {
     const currentProvider = savedConfig?.model || "grok";
     const currentApiKey = savedConfig?.apiKey || "";
 
-    const combinedMessage = copiedText ? copiedText + "\n\n" + input : input;
     const userMessage = { role: "user", content: combinedMessage };
 
     setMessages((prev) => [
@@ -1088,6 +1103,7 @@ export default function Chatbot() {
     }, 40);
 
     await streamGroqResponse(
+      // combinedMessage,
       input,
       onChunk,
       onDone,
@@ -1114,28 +1130,11 @@ export default function Chatbot() {
       <Topbar />
 
       {/* Popup Notification */}
-      <PopupNotification
+       <PopupNotification
         message={notification.message}
         type={notification.type}
         onClose={() => setNotification({ message: "", type: "error" })}
       />
-      <div className="flex items-center justify-between border-b border-white/20 bg-black/20 backdrop-blur-md h-12">
-        {/* Controls */}
-        <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">
-          <button
-            onClick={() => setShowContext(true)}
-            className="cursor-pointer flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
-          >
-            <BiConversation size={18} />
-          </button>
-        </div>
-
-        <div className="pr-5" >
-          <button className="cursor-pointer">
-            <Ellipsis />
-          </button>
-        </div>
-      </div>
 
       {/* Controls */}
       <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">
@@ -1146,7 +1145,13 @@ export default function Chatbot() {
           <BiConversation size={18} />
         </button>
       </div>
-     
+
+      <div>
+        <button>
+
+        </button>
+      </div>
+
 
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
         {messages.length === 0 ? (
