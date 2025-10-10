@@ -22,6 +22,9 @@ import { streamGroqResponse } from "../helper/streamGroq";
 import { capitalizeName } from "../helper/capitalName";
 import PopupNotification from "../components/PopupNotification";
 import DropdownMenu from "../components/DropdownMenu";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
 
 
 export default function Chatbot() {
@@ -42,6 +45,9 @@ export default function Chatbot() {
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
   const [notification, setNotification] = useState({ message: "", type: "error" });
+  const [openContexts, setOpenContexts] = useState(false);
+
+
 
   const messagesEndRef = useRef(null);
   const tokenQueue = useRef([]);
@@ -120,6 +126,7 @@ export default function Chatbot() {
     }
   }, []);
 
+
   const shouldAutoScroll = useRef(true);
 
   useEffect(() => {
@@ -170,14 +177,41 @@ export default function Chatbot() {
   }, [showContext]);
 
 
+
   const loadConversation = async (id) => {
     try {
       const res = await api.get(`chatbot/conversations/${id}`);
 
-      const formatted = [];
-      res.data.forEach((chat) => {
-        formatted.push({ role: "user", content: chat.context ? chat.context + "\n\n" + chat.prompt : chat.prompt });
-        formatted.push({ role: "assistant", content: chat.response });
+      const data = Array.isArray(res.data) ? res.data : [];
+
+      const formatted = data.flatMap((chat) => {
+        const parts = [];
+
+        if (chat?.context) {
+          parts.push({
+            role: "user",
+            content: chat.context || "",
+            type: "context",
+          });
+        }
+
+        if (chat?.prompt) {
+          parts.push({
+            role: "user",
+            content: chat.prompt || "",
+            type: "prompt",
+          });
+        }
+
+        if (chat?.response) {
+          parts.push({
+            role: "assistant",
+            content: chat.response || "",
+            type: "response",
+          });
+        }
+
+        return parts;
       });
 
       setMessages(formatted);
@@ -245,6 +279,7 @@ const startNewConversation = async () => {
       return;
     }
 
+
     const lastModel = localStorage.getItem("lastModel") || "grok";
 
     const savedConfig = await window.electronAPI.getModelConfig(lastModel);
@@ -252,11 +287,13 @@ const startNewConversation = async () => {
     const currentProvider = savedConfig?.model || "grok";
     const currentApiKey = savedConfig?.apiKey || "";
 
-    const userMessage = { role: "user", content: combinedMessage };
+    const userContext = { role: "user", content: copiedText ? copiedText : "", type: "context" };
+    const userPrompt = { role: "user", content: input, type: "prompt" };
 
     setMessages((prev) => [
       ...prev,
-      userMessage,
+      userContext ? userContext : null,
+      userPrompt,
       { role: "assistant", content: "" },
     ]);
     setInput("");
@@ -299,7 +336,6 @@ const startNewConversation = async () => {
     }, 40);
 
     await streamGroqResponse(
-      // combinedMessage,
       input,
       onChunk,
       onDone,
@@ -342,9 +378,13 @@ const startNewConversation = async () => {
       />
 
 
+
       {/* Controls */}
       <div className="flex bg-[#212121] justify-between items-center p-3 border-b border-white/20 text-white">
        
+
+      <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">
+
         <button
           onClick={() => setShowContext(true)}
           className="cursor-pointer flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
@@ -357,46 +397,92 @@ const startNewConversation = async () => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
+
+
         {messages.length === 0 ? (
           <div className="flex-1 flex items-center justify-center text-center text-gray-400">
             <div>
-              <h2 className="opacity-75 text-[20px] font-semibold text-white">How can i help you? {capitalizeName(user?.name || "User")}</h2>
+              <h2 className="opacity-75 text-[20px] font-semibold text-white">
+                How can I help you? {capitalizeName(user?.name || "User")}
+              </h2>
             </div>
           </div>
         ) : (
-          messages.map((msg, i) => {
-            const parts = msg.content.split(/```/g);
+          messages?.map((msg, i) => {
+            if (!msg || typeof msg.content !== "string") return null;
+
+            const parts = msg?.content?.split(/```/g);
+
+            if (msg.type === "context") {
+              if (msg.content.trim() === "") return null;
+              return (
+                <div
+                  key={i}
+                  className="self-end bg-blue-500/10 border border-blue-400/30 rounded-2xl backdrop-blur-sm p-3 max-w-[80%] mb-2 transition-all"
+                >
+                  <button
+                    onClick={() => setOpenContexts(!openContexts)}
+                    className="flex items-center justify-between w-full text-blue-300 text-sm font-medium"
+                  >
+                    <div className="flex items-center gap-2">
+                      <FiUser size={14} />
+                      <span>Context</span>
+                    </div>
+                    <FiChevronDown
+                      size={16}
+                      className={`transform transition-transform duration-200 ${openContexts ? "rotate-180" : ""}`}
+                    />
+                  </button>
+
+                  {openContexts && (
+                    <div className="mt-2 text-gray-200 text-[14px] whitespace-pre-wrap leading-relaxed bg-white/5 border border-white/10 p-3 rounded-md">
+                      {msg.content}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
             return (
               <div
                 key={i}
-                className={`whitespace-pre-wrap break-words p-3 rounded-xl max-w-[85%] backdrop-blur-sm
-            ${msg.role === "user"
+                className={`whitespace-pre-wrap break-words p-4 rounded-2xl backdrop-blur-sm transition-all duration-200
+          ${msg.role === "user"
                     ? "self-end bg-blue-500/20 border border-blue-400/30"
                     : "self-start bg-white/10 border border-white/20"
-                  }`}
+                  }
+              max-w-[90%] sm:max-w-[80%] md:max-w-[70%] lg:max-w-[65%] xl:max-w-[55%]
+             `}
               >
                 {parts.map((part, idx) => {
                   if (idx % 2 === 1) {
+                    const codeLang = part.match(/^[a-z]+/)?.[0] || "plaintext";
                     const code = part.replace(/^[a-z]+\n/, "");
                     return (
-                      <div key={idx} className="relative group my-2">
+                      <div key={idx} className="relative group my-3">
                         <SyntaxHighlighter
-                          language={part.match(/^[a-z]+/)?.[0] || "javascript"}
+                          language={codeLang}
                           style={{
                             ...oneDark,
-                            'pre[class*="language-"]': { ...oneDark['pre[class*="language-"]'], background: "transparent" },
-                            'code[class*="language-"]': { ...oneDark['code[class*="language-"]'], background: "transparent" },
+                            'pre[class*="language-"]': {
+                              ...oneDark['pre[class*="language-"]'],
+                              background: "transparent",
+                            },
+                            'code[class*="language-"]': {
+                              ...oneDark['code[class*="language-"]'],
+                              background: "transparent",
+                            },
                           }}
                           customStyle={{
                             borderRadius: "0.75rem",
-                            padding: "0.75rem",
-                            background: "transparent",
-                            border: "1px solid rgba(255,255,255,0.2)",
+                            padding: "1rem",
+                            background: "rgba(255,255,255,0.05)",
+                            border: "1px solid rgba(255,255,255,0.15)",
                             fontSize: "0.85rem",
+                            lineHeight: 1.6,
                             overflowX: "auto",
                           }}
-                          wrapLongLines={true}
-                          showLineNumbers={false}
+                          wrapLongLines
                         >
                           {code}
                         </SyntaxHighlighter>
@@ -405,9 +491,9 @@ const startNewConversation = async () => {
                           onClick={() => {
                             navigator.clipboard.writeText(code);
                             setCopied(idx);
-                            setTimeout(() => setCopied(false), 2000);
+                            setTimeout(() => setCopied(null), 2000);
                           }}
-                          className="absolute top-1 right-1 p-1 rounded bg-white/10 hover:bg-white/20 transition"
+                          className="absolute top-2 right-2 p-1.5 rounded bg-white/10 hover:bg-white/20 transition"
                         >
                           {copied === idx ? (
                             <FiCheck size={14} className="text-gray-300" />
@@ -418,17 +504,95 @@ const startNewConversation = async () => {
                       </div>
                     );
                   } else {
-                    return <p key={idx}>{part}</p>;
+                    return (
+                      <ReactMarkdown
+                        key={idx}
+                        remarkPlugins={[remarkGfm]}
+                        className="prose prose-invert max-w-none text-gray-200 leading-relaxed"
+                        components={{
+                          h1: ({ node, ...props }) => (
+                            <h1
+                              className="text-2xl md:text-3xl font-bold text-white mt-4 mb-2 border-b border-white/10 pb-1"
+                              {...props}
+                            />
+                          ),
+                          h2: ({ node, ...props }) => (
+                            <h2
+                              className="text-xl md:text-2xl font-semibold text-white mt-3 mb-1"
+                              {...props}
+                            />
+                          ),
+                          h3: ({ node, ...props }) => (
+                            <h3
+                              className="text-lg md:text-xl font-semibold text-white mt-2 mb-1"
+                              {...props}
+                            />
+                          ),
+                          p: ({ node, ...props }) => (
+                            <p
+                              className="text-gray-200 text-[15px] md:text-[16px] mb-3 leading-relaxed"
+                              {...props}
+                            />
+                          ),
+                          ul: ({ node, ...props }) => (
+                            <ul
+                              className="list-disc list-inside space-y-1 ml-4 text-gray-200 text-[15px] md:text-[16px]"
+                              {...props}
+                            />
+                          ),
+                          ol: ({ node, ...props }) => (
+                            <ol
+                              className="list-decimal list-inside space-y-1 ml-4 text-gray-200 text-[15px] md:text-[16px]"
+                              {...props}
+                            />
+                          ),
+                          blockquote: ({ node, ...props }) => (
+                            <blockquote
+                              className="border-l-4 border-blue-500 pl-3 italic text-gray-300 bg-white/5 p-2 rounded-md my-3"
+                              {...props}
+                            />
+                          ),
+                          a: ({ node, href, children, ...props }) => (
+                            <a
+                              {...props}
+                              href={href}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                if (href) {
+                                  if (window?.electronAPI?.openExt) {
+                                    window.electronAPI.openExt(href);
+                                  } else {
+                                    window.open(href, "_blank");
+                                  }
+                                }
+                              }}
+                              className="text-blue-400 hover:underline hover:text-blue-300 cursor-pointer"
+                            >
+                              {children}
+                            </a>
+                          ),
 
+                        }}
+                      >
+                        {part}
+                      </ReactMarkdown>
+                    );
                   }
                 })}
+
                 {msg.role === "assistant" && i === messages.length - 1 && isWaiting && (
-                  <div className="flex justify-center items-center gap-1 mt-1 text-gray-400">
+                  <div className="flex justify-center items-center gap-1 mt-2 text-gray-400">
                     <span className="animate-bounce text-[8px]">●</span>
                     <span className="animate-bounce delay-150 text-[8px]">●</span>
                     <span className="animate-bounce delay-300 text-[8px]">●</span>
                   </div>
                 )}
+                
+                 {msg.role === "assistant" && i === messages.length - 1 && isStreaming && !isWaiting && (
+                  <span className="text-white/80 animate-pulse ml-1">▍</span>
+                )}
+               
+
               </div>
             );
           })
@@ -449,7 +613,7 @@ const startNewConversation = async () => {
                flex items-center justify-between cursor-pointer"
             onClick={() => setShowPopup(true)}
           >
-            <span className="font-medium text-gray-300">Copied Text</span>
+            <span className="font-medium text-gray-300">Context</span>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -617,45 +781,49 @@ const startNewConversation = async () => {
       </AnimatePresence>
 
 
-      {showSettings && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowSettings(false)}
-          />
-        </div>
-      )}
-
-      {showPopup && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setShowPopup(false)}
-          />
-          <div
-            className="relative bg-white/10 backdrop-blur-xl border border-white/20 
-                          rounded-xl shadow-lg p-4 max-w-sm w-full text-center"
-          >
-            <h3 className="text-sm font-semibold text-gray-200 mb-2">
-              Copied Text
-            </h3>
-            <p
-              className="text-xs text-gray-300 whitespace-pre-wrap break-words text-left 
-             max-h-32 overflow-y-auto leading-relaxed px-2 py-1 rounded-md bg-black/20"
-            >
-              {copiedText}
-            </p>
-            <button
-              onClick={() => setShowPopup(false)}
-              className="cursor-pointer mt-3 px-3 py-1 text-xs rounded-lg bg-white/20 
-                       hover:bg-white/30 text-gray-200 transition"
-            >
-              Close
-            </button>
+      {
+        showSettings && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowSettings(false)}
+            />
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+
+      {
+        showPopup && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setShowPopup(false)}
+            />
+            <div
+              className="relative bg-white/10 backdrop-blur-xl border border-white/20 
+                          rounded-xl shadow-lg p-4 max-w-sm w-full text-center"
+            >
+              <h3 className="text-sm font-semibold text-gray-200 mb-2">
+                Copied Text
+              </h3>
+              <p
+                className="text-xs text-gray-300 whitespace-pre-wrap break-words text-left 
+             max-h-32 overflow-y-auto leading-relaxed px-2 py-1 rounded-md bg-black/20"
+              >
+                {copiedText}
+              </p>
+              <button
+                onClick={() => setShowPopup(false)}
+                className="cursor-pointer mt-3 px-3 py-1 text-xs rounded-lg bg-white/20 
+                       hover:bg-white/30 text-gray-200 transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )
+      }
+    </div >
   );
 }
