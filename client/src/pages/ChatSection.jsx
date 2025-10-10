@@ -365,7 +365,7 @@ export default function Chatbot() {
   ];
 
   return (
-    <div className="h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
+    <div className=" h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
       <Topbar />
 
       {/* Popup Notification */}
@@ -375,9 +375,7 @@ export default function Chatbot() {
         onClose={() => setNotification({ message: "", type: "error" })}
       />
 
-     
       {/* Controls */}
-      {/* <div className="flex border border-white bg-[#212121] justify-between items-center p-3  text-white"> */}
 
       <div className="flex w-full justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20 ">
         <button
@@ -390,7 +388,6 @@ export default function Chatbot() {
         {/* Right dropdown */}
         <DropdownMenu items={menuItems} />
       </div>
-      {/* </div> */}
 
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
         {messages.length === 0 ? (
