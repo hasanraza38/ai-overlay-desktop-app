@@ -42,7 +42,11 @@ export default function SettingsPage() {
 
     const navigate = useNavigate();
 
-    const handleBack = () => {navigate("/chatbot"); console.log("Navigating back to /chatbot");};
+    // const handleBack = () => {
+    //     navigate("-1"); 
+    //     console.log("Navigating back to /chatbot");
+    // };
+
     const handleCancel = () => {
         setIsEditing(false);
     }
@@ -131,6 +135,8 @@ export default function SettingsPage() {
             setIsEditing(false);
         } catch (err) {
             setNotification({ message: "Failed to save settings", type: "error" });
+            console.log(err);
+            
         }
     };
 
@@ -183,7 +189,7 @@ export default function SettingsPage() {
             )}
 
             <div className="bg-black/40 backdrop-blur-md border-b border-white/10 px-4 py-2 flex items-center justify-between">
-                <button onClick={handleBack} className="p-1 rounded hover:bg-white/10">
+                <button onClick={() => navigate("/chatbot")} className="p-1 rounded hover:bg-white/10 cursor-pointer">
                     <ArrowLeft className="w-4 h-4" />
                 </button>
                 <div className="flex items-center gap-1">

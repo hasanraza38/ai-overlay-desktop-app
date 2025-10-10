@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Ellipsis, MoreVertical, Settings, Trash } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const MenuItem = ({ icon, label, onClick }) => (
   <li>
@@ -17,6 +18,7 @@ const MenuItem = ({ icon, label, onClick }) => (
 export default function DropdownMenu({ items = [] }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+    const navigate = useNavigate();
 
   // Close the dropdown if the user clicks outside of it
   useEffect(() => {
@@ -45,7 +47,7 @@ export default function DropdownMenu({ items = [] }) {
 
       {/* Dropdown Panel */}
       <div
-        className={`absolute z-50 right-0 mt-2 w-48 cursor-pointer rounded-md bg-red-800 shadow-lg ring-1 ring-white/10 p-1 transition-all duration-200 ease-in-out
+        className={`absolute z-50 right-0 mt-2 w-48 cursor-pointer rounded-md bg-neutral-700 shadow-lg ring-1 ring-white/10 p-1 transition-all duration-200 ease-in-out
           ${isOpen
             ? "opacity-100 scale-100"
             : "opacity-0 scale-95"
@@ -58,7 +60,7 @@ export default function DropdownMenu({ items = [] }) {
               icon={item.icon}
               label={item.label}
               onClick={() => {
-                item.action();
+                navigate("/settings")
                 setIsOpen(false);
               }}
             />

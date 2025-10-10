@@ -161,7 +161,10 @@ export default function Chatbot() {
           try {
             el.setSelectionRange(len, len);
 
-          } catch (e) {}
+          } catch (e) {
+            console.log(e);
+            
+          }
 
         }
       }, 60);
@@ -495,7 +498,7 @@ export default function Chatbot() {
                             setCopied(idx);
                             setTimeout(() => setCopied(null), 2000);
                           }}
-                          className="absolute top-2 right-2 p-1.5 rounded bg-white/10 hover:bg-white/20 transition"
+                          className="absolute top-2 right-2 p-1.5  rounded-md bg-white/10 hover:bg-white/20 transition"
                         >
                           {copied === idx ? (
                             <FiCheck size={14} className="text-gray-300" />
