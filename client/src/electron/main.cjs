@@ -8,7 +8,7 @@ const {
   session,
   ipcMain,
   screen,
-  shell
+  shell,
 } = require("electron");
 const path = require("path");
 const keytar = require("keytar");
@@ -100,14 +100,13 @@ function createWindow() {
 app.whenReady().then(() => {
   clipboard.clear();
 
-
-ipcMain.on("open-external", (event, url) => {
-  if (url && typeof url === "string") {
-    shell.openExternal(url).catch((err) =>
-      console.error("Failed to open external URL:", err)
-    );
-  }
-});
+  ipcMain.on("open-external", (event, url) => {
+    if (url && typeof url === "string") {
+      shell
+        .openExternal(url)
+        .catch((err) => console.error("Failed to open external URL:", err));
+    }
+  });
 
   ipcMain.handle("get-token", async () => {
     try {
@@ -131,8 +130,6 @@ ipcMain.on("open-external", (event, url) => {
       return false;
     }
   });
-
-
 
   const KEYTAR_MODEL_SERVICE = "my-electron-app-model-config";
 
@@ -203,9 +200,7 @@ ipcMain.on("open-external", (event, url) => {
 
       loginWindow.webContents.on("will-redirect", async (event, url) => {
         if (
-          url.startsWith(
-            "http://localhost:4000/api/v1/auth/google/callback"
-          )
+          url.startsWith("http://localhost:4000/api/v1/auth/google/callback")
         ) {
           try {
             const fetch = (await import("node-fetch")).default;
@@ -242,6 +237,25 @@ ipcMain.on("open-external", (event, url) => {
       mainWindow.setSize(width, height);
       mainWindow.setResizable(resizable);
       if (resizable) mainWindow.center();
+    }
+  });
+
+  ipcMain.handle("toggleWindowPosition", () => {
+    if (!mainWindow) return;
+
+    const display = screen.getPrimaryDisplay();
+    const { width } = display.workAreaSize;
+
+    const [x, y] = mainWindow.getPosition();
+    const [w, h] = mainWindow.getSize();
+
+    // If window is on left → move to right
+    if (x < width / 2 - w / 2) {
+      mainWindow.setPosition(width - w - 10, y);
+    }
+    // If window is on right → move to left
+    else {
+      mainWindow.setPosition(10, y);
     }
   });
 

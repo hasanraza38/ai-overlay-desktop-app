@@ -1,6 +1,4 @@
 
-
-
 // DropdownMenu.jsx
 import { useState, useEffect, useRef } from "react";
 import { Ellipsis, MoreVertical, Settings, Trash } from "lucide-react";
@@ -36,11 +34,11 @@ export default function DropdownMenu({ items = [] }) {
   }, []);
 
   return (
-    <div ref={dropdownRef} className="relative">
+    <div ref={dropdownRef} className="relative ">
       {/* Menu Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="cursor-pointer p-2 rounded-full hover:bg-neutral-700/80 transition-colors"
+        className="cursor-pointer p-2 rounded-full bg-white/10 hover:bg-white/30 transition-colors"
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
@@ -49,11 +47,10 @@ export default function DropdownMenu({ items = [] }) {
 
       {/* Dropdown Panel */}
       <div
-        className={`absolute z-10 right-0 mt-2 w-48 origin-top-right cursor-pointer rounded-md bg-neutral-800 shadow-lg ring-1 ring-white/10 p-1 transition-all duration-200 ease-in-out
-          ${
-            isOpen
-              ? "opacity-100 scale-100"
-              : "opacity-0 scale-95 pointer-events-none"
+        className={`absolute z-50 right-0 mt-2 w-48 cursor-pointer rounded-md bg-red-800 shadow-lg ring-1 ring-white/10 p-1 transition-all duration-200 ease-in-out
+          ${isOpen
+            ? "opacity-100 scale-100"
+            : "opacity-0 scale-95"
           }`}
       >
         <ul role="menu" aria-orientation="vertical">
@@ -64,7 +61,7 @@ export default function DropdownMenu({ items = [] }) {
               label={item.label}
               onClick={() => {
                 item.action();
-                setIsOpen(false); // Close menu after action
+                setIsOpen(false);
               }}
             />
           ))}
