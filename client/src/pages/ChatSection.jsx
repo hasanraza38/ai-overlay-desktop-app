@@ -133,9 +133,9 @@ export default function Chatbot() {
     const handleScroll = () => {
       const isNearBottom =
         chatContainer.scrollHeight -
+
         chatContainer.scrollTop -
-        chatContainer.clientHeight <
-        50;
+        chatContainer.clientHeight < 50;
       shouldAutoScroll.current = isNearBottom;
     };
     chatContainer.addEventListener("scroll", handleScroll);
@@ -160,7 +160,9 @@ export default function Chatbot() {
           const len = (el.value || "").length;
           try {
             el.setSelectionRange(len, len);
-          } catch (e) { }
+
+          } catch (e) {}
+
         }
       }, 60);
 
@@ -357,10 +359,12 @@ export default function Chatbot() {
       icon: <Settings size={16} />,
       label: "Settings",
       action: () =>
-      (onclick = () => {
-        navigate("/settings");
-        setUserMenuOpen(false);
-      }),
+
+        (onclick = () => {
+          navigate("/settings");
+          setUserMenuOpen(false);
+        }),
+
     },
   ];
 
@@ -375,9 +379,10 @@ export default function Chatbot() {
         onClose={() => setNotification({ message: "", type: "error" })}
       />
 
-      {/* Controls */}
 
-      <div className="flex w-full justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20 ">
+     
+      {/* controls */}
+      <div className="flex bg-[#212121] justify-between items-center p-3 border-b border-white/20 text-white">
         <button
           onClick={() => setShowContext(true)}
           className="cursor-pointer flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
@@ -385,11 +390,12 @@ export default function Chatbot() {
           <BiConversation size={18} />
         </button>
 
-        {/* Right dropdown */}
+
         <DropdownMenu items={menuItems} />
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
+      <div className="flex-1 overflow-y-auto  p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
+
         {messages.length === 0 ? (
           <div className="flex-1 flex items-center justify-center text-center text-gray-400">
             <div>
@@ -421,8 +427,11 @@ export default function Chatbot() {
                     </div>
                     <FiChevronDown
                       size={16}
-                      className={`transform transition-transform duration-200 ${openContexts ? "rotate-180" : ""
-                        }`}
+
+                      className={`transform transition-transform duration-200 ${
+                        openContexts ? "rotate-180" : ""
+                      }`}
+
                     />
                   </button>
 
@@ -439,10 +448,11 @@ export default function Chatbot() {
               <div
                 key={i}
                 className={`whitespace-pre-wrap break-words p-4 rounded-2xl backdrop-blur-sm transition-all duration-200
-          ${msg.role === "user"
-                    ? "self-end bg-blue-500/20 border border-blue-400/30"
-                    : "self-start bg-white/10 border border-white/20"
-                  }
+          ${
+            msg.role === "user"
+              ? "self-end bg-blue-500/20 border border-blue-400/30"
+              : "self-start bg-white/10 border border-white/20"
+          }
               max-w-[90%] sm:max-w-[80%] md:max-w-[70%] lg:max-w-[65%] xl:max-w-[55%]
              `}
               >
@@ -585,12 +595,6 @@ export default function Chatbot() {
                     </div>
                   )}
 
-                {msg.role === "assistant" &&
-                  i === messages.length - 1 &&
-                  isStreaming &&
-                  !isWaiting && (
-                    <span className="text-white/80 animate-pulse ml-1">▍</span>
-                  )}
               </div>
             );
           })
@@ -702,8 +706,9 @@ export default function Chatbot() {
                   conversations.map((conv) => (
                     <div
                       key={conv._id}
-                      className={`group flex items-center justify-between w-full px-2 py-1 rounded hover:bg-white/20 ${activeConversation === conv._id ? "bg-white/10" : ""
-                        }`}
+                      className={`group flex items-center justify-between w-full px-2 py-1 rounded hover:bg-white/20 ${
+                        activeConversation === conv._id ? "bg-white/10" : ""
+                      }`}
                     >
                       {/* Chat Title Button */}
                       <button

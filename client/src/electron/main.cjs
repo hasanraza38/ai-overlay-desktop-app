@@ -258,6 +258,22 @@ app.whenReady().then(() => {
       mainWindow.setPosition(10, y);
     }
   });
+ipcMain.on("window-toggle-maximize", () => {
+  console.log("toggle maximize triggered");
+  if (mainWindow) {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+      console.log("window restored");
+    } else {
+      mainWindow.maximize();
+      console.log("window maximized");
+    }
+  }
+});
+
+
+
+
 
   ipcMain.on("save-token", async (event, token) => {
     try {

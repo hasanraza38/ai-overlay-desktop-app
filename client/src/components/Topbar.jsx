@@ -55,10 +55,18 @@ import { Columns2 } from 'lucide-react';
 import React from "react";
 
 export default function Topbar() {
+
+  const handleDoubleClick = () => {
+    console.log("double click detected");
+    window.electronAPI.toggleMaximize();
+  };
+
   return (
-    <div
-      className="w-full h-10 bg-[#212121] shadow-b shadow-2xl flex items-center justify-between px-4"
+
+    <div 
+      className="w-full h-10 bg-[#212121]  shadow-b shadow-2xl flex items-center justify-between px-4 "
       style={{ WebkitAppRegion: "drag" }}
+      onDoubleClick={handleDoubleClick}
     >
       {/* Left Logo */}
       <div

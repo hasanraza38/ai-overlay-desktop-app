@@ -43,6 +43,11 @@ contextBridge.exposeInMainWorld("electronAPI", {
   minimizeApp: () => ipcRenderer.send("window-minimize"),
   maximizeApp: () => ipcRenderer.send("window-maximize"),
   toggleWindowPosition: () => ipcRenderer.invoke("toggleWindowPosition"),
+  toggleMaximize: () => {
+    console.log("sending toggle-maximize"); // debug log
+    ipcRenderer.send("window-toggle-maximize");
+  },
+  
 
   saveToken: (token) => {
     try {
