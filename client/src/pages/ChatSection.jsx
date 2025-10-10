@@ -287,12 +287,12 @@ export default function Chatbot() {
     const currentProvider = savedConfig?.model || "grok";
     const currentApiKey = savedConfig?.apiKey || "";
 
-    const userContext = { role: "user", content: copiedText, type: "context" };
+    const userContext = { role: "user", content: copiedText ? copiedText : "", type: "context" };
     const userPrompt = { role: "user", content: input, type: "prompt" };
 
     setMessages((prev) => [
       ...prev,
-      userContext,
+      userContext ? userContext : null,
       userPrompt,
       { role: "assistant", content: "" },
     ]);
@@ -368,7 +368,6 @@ export default function Chatbot() {
         onClose={() => setNotification({ message: "", type: "error" })}
       />
 
-      {/* Controls */}
       <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">
         <button
           onClick={() => setShowContext(true)}
@@ -403,6 +402,7 @@ export default function Chatbot() {
             const parts = msg?.content?.split(/```/g);
 
             if (msg.type === "context") {
+              if (msg.content.trim() === "") return null;
               return (
                 <div
                   key={i}
