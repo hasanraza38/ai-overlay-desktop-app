@@ -11,7 +11,7 @@ import {
 import { MdOutlineArrowUpward } from "react-icons/md";
 import { TbPlayerStopFilled } from "react-icons/tb";
 import { BiConversation } from "react-icons/bi";
-import { Plus } from "lucide-react";
+import { LogOut, Plus, Settings } from "lucide-react";
 import Topbar from "../components/Topbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -21,13 +21,14 @@ import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { streamGroqResponse } from "../helper/streamGroq";
 import { capitalizeName } from "../helper/capitalName";
 import PopupNotification from "../components/PopupNotification";
+import DropdownMenu from "../components/DropdownMenu";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 
 
 export default function Chatbot() {
-  // states
+ 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [copiedText, setCopiedText] = useState("");
@@ -37,7 +38,6 @@ export default function Chatbot() {
   const [copied, setCopied] = useState(null);
   const [provider, setProvider] = useState("");
   const [apiKey, setApiKey] = useState("");
-  const [selectedModel, setSelectedModel] = useState('gpt-4');
   const [user, setUser] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -49,7 +49,6 @@ export default function Chatbot() {
 
 
 
-  // ref
   const messagesEndRef = useRef(null);
   const tokenQueue = useRef([]);
   const streamingInterval = useRef(null);
@@ -115,7 +114,6 @@ export default function Chatbot() {
       console.error("Error during logout:", err);
     }
   };
-
 
   useEffect(() => {
     if (window.electronAPI?.onClipboardUpdate) {
@@ -224,14 +222,17 @@ export default function Chatbot() {
     }
   };
 
+const startNewConversation = async () => {
+  clearInterval(streamingInterval.current);
+  tokenQueue.current = [];
+  setIsStreaming(false);
+  setIsWaiting(false);
 
+  setShowContext(false);
+  setMessages([]);
+  setActiveConversation(null);
+};
 
-  const startNewConversation = async () => {
-    setShowContext(false);
-    setMessages([]);
-    setActiveConversation(null);
-    setCopiedText("");
-  };
 
   const fetchConversations = async () => {
     try {
@@ -243,7 +244,6 @@ export default function Chatbot() {
       console.error("Error fetching conversations:", err);
     }
   };
-
 
   const handleDeleteConversation = async (conversationId) => {
     try {
@@ -348,7 +348,6 @@ export default function Chatbot() {
   };
 
 
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -356,6 +355,16 @@ export default function Chatbot() {
     }
   };
 
+
+  // for setting dropdown
+  const menuItems = [
+    {
+      icon: <Settings size={16} />,
+      label: "Settings",
+      action: () => onclick = () => {navigate("/settings"); setUserMenuOpen(false); } ,
+    },
+    
+  ];
 
   return (
     <div className="h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
@@ -368,21 +377,24 @@ export default function Chatbot() {
         onClose={() => setNotification({ message: "", type: "error" })}
       />
 
+
+
+      {/* Controls */}
+      <div className="flex bg-[#212121] justify-between items-center p-3 border-b border-white/20 text-white">
+       
+
       <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">
+
         <button
           onClick={() => setShowContext(true)}
           className="cursor-pointer flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
         >
           <BiConversation size={18} />
         </button>
+
+        {/* Right dropdown */}
+         <DropdownMenu items={menuItems} />
       </div>
-
-      <div>
-        <button>
-
-        </button>
-      </div>
-
 
       <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
 
