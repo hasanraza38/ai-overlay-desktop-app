@@ -1,20 +1,19 @@
 const { contextBridge, ipcRenderer, clipboard } = require("electron");
 
-
 contextBridge.exposeInMainWorld("electronAPI", {
-openExt: (url) => {
-  if (!url) {
-    console.error(" No URL provided to openExt");
-    return;
-  }
+  openExt: (url) => {
+    if (!url) {
+      console.error(" No URL provided to openExt");
+      return;
+    }
 
-  try {
-    ipcRenderer.send("open-external", url);
-    console.log("Sent open-external IPC message");
-  } catch (err) {
-    console.error("Error sending open-external IPC:", err);
-  }
-},
+    try {
+      ipcRenderer.send("open-external", url);
+      console.log("Sent open-external IPC message");
+    } catch (err) {
+      console.error("Error sending open-external IPC:", err);
+    }
+  },
 
   readClipboard: () => {
     try {
@@ -43,6 +42,7 @@ openExt: (url) => {
   closeApp: () => ipcRenderer.send("window-close"),
   minimizeApp: () => ipcRenderer.send("window-minimize"),
   maximizeApp: () => ipcRenderer.send("window-maximize"),
+  toggleWindowPosition: () => ipcRenderer.invoke("toggleWindowPosition"),
   toggleMaximize: () => {
     console.log("sending toggle-maximize"); // debug log
     ipcRenderer.send("window-toggle-maximize");

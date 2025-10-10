@@ -133,9 +133,9 @@ export default function Chatbot() {
     const handleScroll = () => {
       const isNearBottom =
         chatContainer.scrollHeight -
-          chatContainer.scrollTop -
-          chatContainer.clientHeight <
-        50;
+
+        chatContainer.scrollTop -
+        chatContainer.clientHeight < 50;
       shouldAutoScroll.current = isNearBottom;
     };
     chatContainer.addEventListener("scroll", handleScroll);
@@ -160,7 +160,9 @@ export default function Chatbot() {
           const len = (el.value || "").length;
           try {
             el.setSelectionRange(len, len);
+
           } catch (e) {}
+
         }
       }, 60);
 
@@ -357,15 +359,17 @@ export default function Chatbot() {
       icon: <Settings size={16} />,
       label: "Settings",
       action: () =>
+
         (onclick = () => {
           navigate("/settings");
           setUserMenuOpen(false);
         }),
+
     },
   ];
 
   return (
-    <div className="h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
+    <div className=" h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
       <Topbar />
 
       {/* Popup Notification */}
@@ -374,6 +378,7 @@ export default function Chatbot() {
         type={notification.type}
         onClose={() => setNotification({ message: "", type: "error" })}
       />
+
 
      
       {/* controls */}
@@ -385,10 +390,12 @@ export default function Chatbot() {
           <BiConversation size={18} />
         </button>
 
+
         <DropdownMenu items={menuItems} />
       </div>
 
       <div className="flex-1 overflow-y-auto  p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
+
         {messages.length === 0 ? (
           <div className="flex-1 flex items-center justify-center text-center text-gray-400">
             <div>
@@ -420,9 +427,11 @@ export default function Chatbot() {
                     </div>
                     <FiChevronDown
                       size={16}
+
                       className={`transform transition-transform duration-200 ${
                         openContexts ? "rotate-180" : ""
                       }`}
+
                     />
                   </button>
 
@@ -585,6 +594,7 @@ export default function Chatbot() {
                       </span>
                     </div>
                   )}
+
               </div>
             );
           })
