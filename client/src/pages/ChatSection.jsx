@@ -365,7 +365,7 @@ export default function Chatbot() {
   ];
 
   return (
-    <div className="z-0 h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
+    <div className="h-screen flex flex-col text-zinc-300 bg-black/30 backdrop-blur-3xl shadow-2xl border border-white/20">
       <Topbar />
 
       {/* Popup Notification */}

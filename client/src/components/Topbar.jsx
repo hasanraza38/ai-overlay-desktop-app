@@ -44,8 +44,14 @@
 
 
 import { Brain, MoveHorizontal } from "lucide-react";
+import { X } from 'lucide-react';
+import { SeparatorVertical } from 'lucide-react';
 import { RiCloseFill } from "react-icons/ri";
 import { VscChromeMinimize } from "react-icons/vsc";
+import { Minimize2 } from 'lucide-react';
+import { SquareX } from 'lucide-react';
+import { PanelBottomClose } from 'lucide-react';
+import { Columns2 } from 'lucide-react';
 import React from "react";
 
 export default function Topbar() {
@@ -72,15 +78,15 @@ export default function Topbar() {
           onClick={() => window.electronAPI.minimizeApp()}
           className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors"
         >
-          <VscChromeMinimize className="w-4 h-4 text-gray-200" />
+          <Minimize2 className="w-4 h-4 text-gray-200" />
         </button>
 
         {/* Move (left/right toggle) */}
         <button
           onClick={() => window.electronAPI.toggleWindowPosition()}
-          className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors"
+          className="cursor-pointer w-8 h-8 flex items-center hover:bg-white/10 justify-center rounded-md transition-colors"
         >
-          <MoveHorizontal className="w-4 h-4 text-gray-200" />
+           <SeparatorVertical  className="w-4 h-4 text-gray-200" />
         </button>
 
         {/* Close */}
@@ -88,7 +94,7 @@ export default function Topbar() {
           onClick={() => window.electronAPI.closeApp()}
           className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-md hover:bg-red-500/80 transition-colors"
         >
-          <RiCloseFill className="w-5 h-5 text-gray-200" />
+          <X  className="w-4 h-4 text-gray-200" />
         </button>
       </div>
     </div>
