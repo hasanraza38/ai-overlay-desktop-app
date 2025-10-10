@@ -6,7 +6,7 @@ import {
   FiTrash2,
   FiUser,
   FiCheck,
-  FiChevronDown
+  FiChevronDown,
 } from "react-icons/fi";
 import { MdOutlineArrowUpward } from "react-icons/md";
 import { TbPlayerStopFilled } from "react-icons/tb";
@@ -25,10 +25,7 @@ import DropdownMenu from "../components/DropdownMenu";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-
-
 export default function Chatbot() {
- 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [copiedText, setCopiedText] = useState("");
@@ -44,10 +41,11 @@ export default function Chatbot() {
   const [isWaiting, setIsWaiting] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
-  const [notification, setNotification] = useState({ message: "", type: "error" });
+  const [notification, setNotification] = useState({
+    message: "",
+    type: "error",
+  });
   const [openContexts, setOpenContexts] = useState(false);
-
-
 
   const messagesEndRef = useRef(null);
   const tokenQueue = useRef([]);
@@ -126,7 +124,6 @@ export default function Chatbot() {
     }
   }, []);
 
-
   const shouldAutoScroll = useRef(true);
 
   useEffect(() => {
@@ -135,7 +132,10 @@ export default function Chatbot() {
 
     const handleScroll = () => {
       const isNearBottom =
-        chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 50;
+        chatContainer.scrollHeight -
+          chatContainer.scrollTop -
+          chatContainer.clientHeight <
+        50;
       shouldAutoScroll.current = isNearBottom;
     };
     chatContainer.addEventListener("scroll", handleScroll);
@@ -151,7 +151,6 @@ export default function Chatbot() {
     }
   }, [messages, isStreaming]);
 
-
   useEffect(() => {
     if (!isStreaming) {
       const t = setTimeout(() => {
@@ -161,8 +160,7 @@ export default function Chatbot() {
           const len = (el.value || "").length;
           try {
             el.setSelectionRange(len, len);
-          } catch (e) {
-          }
+          } catch (e) {}
         }
       }, 60);
 
@@ -175,8 +173,6 @@ export default function Chatbot() {
       fetchConversations();
     }
   }, [showContext]);
-
-
 
   const loadConversation = async (id) => {
     try {
@@ -222,21 +218,19 @@ export default function Chatbot() {
     }
   };
 
-const startNewConversation = async () => {
-  clearInterval(streamingInterval.current);
-  tokenQueue.current = [];
-  setIsStreaming(false);
-  setIsWaiting(false);
+  const startNewConversation = async () => {
+    clearInterval(streamingInterval.current);
+    tokenQueue.current = [];
+    setIsStreaming(false);
+    setIsWaiting(false);
 
-  setShowContext(false);
-  setMessages([]);
-  setActiveConversation(null);
-};
-
+    setShowContext(false);
+    setMessages([]);
+    setActiveConversation(null);
+  };
 
   const fetchConversations = async () => {
     try {
-
       const res = await api.get("chatbot/conversations");
 
       setConversations(res.data || []);
@@ -264,7 +258,6 @@ const startNewConversation = async () => {
     }
   };
 
-
   const handleSend = async () => {
     if ((!input.trim() && !copiedText.trim()) || isStreaming) return;
 
@@ -273,12 +266,12 @@ const startNewConversation = async () => {
     const Token = combinedMessage.trim().split(/\s+/).length;
     if (Token > 8000) {
       setNotification({
-        message: "Your prompt exceeds 8000 tokens per minute. Please reduce its length.",
+        message:
+          "Your prompt exceeds 8000 tokens per minute. Please reduce its length.",
         type: "error",
       });
       return;
     }
-
 
     const lastModel = localStorage.getItem("lastModel") || "grok";
 
@@ -287,7 +280,11 @@ const startNewConversation = async () => {
     const currentProvider = savedConfig?.model || "grok";
     const currentApiKey = savedConfig?.apiKey || "";
 
-    const userContext = { role: "user", content: copiedText ? copiedText : "", type: "context" };
+    const userContext = {
+      role: "user",
+      content: copiedText ? copiedText : "",
+      type: "context",
+    };
     const userPrompt = { role: "user", content: input, type: "prompt" };
 
     setMessages((prev) => [
@@ -347,7 +344,6 @@ const startNewConversation = async () => {
     );
   };
 
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -355,15 +351,17 @@ const startNewConversation = async () => {
     }
   };
 
-
   // for setting dropdown
   const menuItems = [
     {
       icon: <Settings size={16} />,
       label: "Settings",
-      action: () => onclick = () => {navigate("/settings"); setUserMenuOpen(false); } ,
+      action: () =>
+        (onclick = () => {
+          navigate("/settings");
+          setUserMenuOpen(false);
+        }),
     },
-    
   ];
 
   return (
@@ -377,14 +375,9 @@ const startNewConversation = async () => {
         onClose={() => setNotification({ message: "", type: "error" })}
       />
 
-
-
-      {/* Controls */}
+     
+      {/* controls */}
       <div className="flex bg-[#212121] justify-between items-center p-3 border-b border-white/20 text-white">
-       
-
-      <div className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-md border-b border-white/20">
-
         <button
           onClick={() => setShowContext(true)}
           className="cursor-pointer flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 hover:bg-white/30 transition"
@@ -392,13 +385,10 @@ const startNewConversation = async () => {
           <BiConversation size={18} />
         </button>
 
-        {/* Right dropdown */}
-         <DropdownMenu items={menuItems} />
+        <DropdownMenu items={menuItems} />
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
-
-
+      <div className="flex-1 overflow-y-auto  p-6 space-y-4 flex flex-col bg-black/30 backdrop-blur-xl scrollbar-thin">
         {messages.length === 0 ? (
           <div className="flex-1 flex items-center justify-center text-center text-gray-400">
             <div>
@@ -430,7 +420,9 @@ const startNewConversation = async () => {
                     </div>
                     <FiChevronDown
                       size={16}
-                      className={`transform transition-transform duration-200 ${openContexts ? "rotate-180" : ""}`}
+                      className={`transform transition-transform duration-200 ${
+                        openContexts ? "rotate-180" : ""
+                      }`}
                     />
                   </button>
 
@@ -447,10 +439,11 @@ const startNewConversation = async () => {
               <div
                 key={i}
                 className={`whitespace-pre-wrap break-words p-4 rounded-2xl backdrop-blur-sm transition-all duration-200
-          ${msg.role === "user"
-                    ? "self-end bg-blue-500/20 border border-blue-400/30"
-                    : "self-start bg-white/10 border border-white/20"
-                  }
+          ${
+            msg.role === "user"
+              ? "self-end bg-blue-500/20 border border-blue-400/30"
+              : "self-start bg-white/10 border border-white/20"
+          }
               max-w-[90%] sm:max-w-[80%] md:max-w-[70%] lg:max-w-[65%] xl:max-w-[55%]
              `}
               >
@@ -571,7 +564,6 @@ const startNewConversation = async () => {
                               {children}
                             </a>
                           ),
-
                         }}
                       >
                         {part}
@@ -580,19 +572,19 @@ const startNewConversation = async () => {
                   }
                 })}
 
-                {msg.role === "assistant" && i === messages.length - 1 && isWaiting && (
-                  <div className="flex justify-center items-center gap-1 mt-2 text-gray-400">
-                    <span className="animate-bounce text-[8px]">●</span>
-                    <span className="animate-bounce delay-150 text-[8px]">●</span>
-                    <span className="animate-bounce delay-300 text-[8px]">●</span>
-                  </div>
-                )}
-                
-                 {msg.role === "assistant" && i === messages.length - 1 && isStreaming && !isWaiting && (
-                  <span className="text-white/80 animate-pulse ml-1">▍</span>
-                )}
-               
-
+                {msg.role === "assistant" &&
+                  i === messages.length - 1 &&
+                  isWaiting && (
+                    <div className="flex justify-center items-center gap-1 mt-2 text-gray-400">
+                      <span className="animate-bounce text-[8px]">●</span>
+                      <span className="animate-bounce delay-150 text-[8px]">
+                        ●
+                      </span>
+                      <span className="animate-bounce delay-300 text-[8px]">
+                        ●
+                      </span>
+                    </div>
+                  )}
               </div>
             );
           })
@@ -600,8 +592,6 @@ const startNewConversation = async () => {
 
         <div ref={messagesEndRef}></div>
       </div>
-
-
 
       {/* Input */}
       <div className="p-1 border-t border-white/20 bg-white/5 backdrop-blur-md">
@@ -627,8 +617,6 @@ const startNewConversation = async () => {
         )}
 
         <div className="relative flex items-end max-w-4xl mx-auto w-full rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-1">
-
-
           <textarea
             ref={inputRef}
             value={input}
@@ -651,7 +639,6 @@ const startNewConversation = async () => {
             >
               <TbPlayerStopFilled size={18} className="text-black" />
             </button>
-
           ) : (
             <button
               onClick={handleSend}
@@ -660,12 +647,9 @@ const startNewConversation = async () => {
             >
               <MdOutlineArrowUpward size={22} className="text-black" />
             </button>
-
           )}
         </div>
-
       </div>
-
 
       {/* Context Sidebar */}
       <AnimatePresence>
@@ -689,8 +673,10 @@ const startNewConversation = async () => {
               <div className="flex h-13 justify-between items-center border-b border-white/20 p-4">
                 <h2 className="text-lg font-semibold text-gray-200">Chats</h2>
 
-                <button onClick={() => setShowContext(false)} className="cursor-pointer text-gray-400 hover:text-gray-200 transition">
-
+                <button
+                  onClick={() => setShowContext(false)}
+                  className="cursor-pointer text-gray-400 hover:text-gray-200 transition"
+                >
                   <FiX size={20} />
                 </button>
               </div>
@@ -710,8 +696,9 @@ const startNewConversation = async () => {
                   conversations.map((conv) => (
                     <div
                       key={conv._id}
-                      className={`group flex items-center justify-between w-full px-2 py-1 rounded hover:bg-white/20 ${activeConversation === conv._id ? "bg-white/10" : ""
-                        }`}
+                      className={`group flex items-center justify-between w-full px-2 py-1 rounded hover:bg-white/20 ${
+                        activeConversation === conv._id ? "bg-white/10" : ""
+                      }`}
                     >
                       {/* Chat Title Button */}
                       <button
@@ -780,50 +767,45 @@ const startNewConversation = async () => {
         )}
       </AnimatePresence>
 
+      {showSettings && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowSettings(false)}
+          />
+        </div>
+      )}
 
-      {
-        showSettings && (
-          <div className="fixed inset-0 flex items-center justify-center z-50">
-            {/* Backdrop */}
-            <div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={() => setShowSettings(false)}
-            />
-          </div>
-        )
-      }
-
-      {
-        showPopup && (
-          <div className="fixed inset-0 flex items-center justify-center z-50">
-            <div
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-              onClick={() => setShowPopup(false)}
-            />
-            <div
-              className="relative bg-white/10 backdrop-blur-xl border border-white/20 
+      {showPopup && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowPopup(false)}
+          />
+          <div
+            className="relative bg-white/10 backdrop-blur-xl border border-white/20 
                           rounded-xl shadow-lg p-4 max-w-sm w-full text-center"
-            >
-              <h3 className="text-sm font-semibold text-gray-200 mb-2">
-                Copied Text
-              </h3>
-              <p
-                className="text-xs text-gray-300 whitespace-pre-wrap break-words text-left 
+          >
+            <h3 className="text-sm font-semibold text-gray-200 mb-2">
+              Copied Text
+            </h3>
+            <p
+              className="text-xs text-gray-300 whitespace-pre-wrap break-words text-left 
              max-h-32 overflow-y-auto leading-relaxed px-2 py-1 rounded-md bg-black/20"
-              >
-                {copiedText}
-              </p>
-              <button
-                onClick={() => setShowPopup(false)}
-                className="cursor-pointer mt-3 px-3 py-1 text-xs rounded-lg bg-white/20 
+            >
+              {copiedText}
+            </p>
+            <button
+              onClick={() => setShowPopup(false)}
+              className="cursor-pointer mt-3 px-3 py-1 text-xs rounded-lg bg-white/20 
                        hover:bg-white/30 text-gray-200 transition"
-              >
-                Close
-              </button>
-            </div>
+            >
+              Close
+            </button>
           </div>
-        )
-      }
-    </div >
+        </div>
+      )}
+    </div>
   );
 }

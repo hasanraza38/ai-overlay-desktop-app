@@ -1,11 +1,6 @@
-
-
-
-// DropdownMenu.jsx
 import { useState, useEffect, useRef } from "react";
 import { Ellipsis, MoreVertical, Settings, Trash } from "lucide-react";
 
-// A single, reusable menu item component
 const MenuItem = ({ icon, label, onClick }) => (
   <li>
     <button

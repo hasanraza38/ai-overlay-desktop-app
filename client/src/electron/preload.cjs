@@ -43,6 +43,11 @@ openExt: (url) => {
   closeApp: () => ipcRenderer.send("window-close"),
   minimizeApp: () => ipcRenderer.send("window-minimize"),
   maximizeApp: () => ipcRenderer.send("window-maximize"),
+  toggleMaximize: () => {
+    console.log("sending toggle-maximize"); // debug log
+    ipcRenderer.send("window-toggle-maximize");
+  },
+  
 
   saveToken: (token) => {
     try {
