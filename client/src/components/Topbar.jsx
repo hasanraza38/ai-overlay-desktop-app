@@ -4,10 +4,17 @@ import { VscChromeMinimize } from "react-icons/vsc";
 import React from "react";
 
 export default function Topbar() {
+
+  const handleDoubleClick = () => {
+    console.log("double click detected");
+    window.electronAPI.toggleMaximize();
+  };
+
   return (
     <div 
-      className="w-full h-10 bg-[#212121] shadow-b shadow-2xl flex items-center justify-between px-4 "
+      className="w-full h-10 bg-[#212121]  shadow-b shadow-2xl flex items-center justify-between px-4 "
       style={{ WebkitAppRegion: "drag" }}
+      onDoubleClick={handleDoubleClick}
     >
       <div
         className="flex items-center gap-2 text-purple-400 font-semibold select-none"

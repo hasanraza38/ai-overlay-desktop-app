@@ -245,6 +245,23 @@ ipcMain.on("open-external", (event, url) => {
     }
   });
 
+ipcMain.on("window-toggle-maximize", () => {
+  console.log("toggle maximize triggered");
+  if (mainWindow) {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+      console.log("window restored");
+    } else {
+      mainWindow.maximize();
+      console.log("window maximized");
+    }
+  }
+});
+
+
+
+
+
   ipcMain.on("save-token", async (event, token) => {
     try {
       await keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, token);
