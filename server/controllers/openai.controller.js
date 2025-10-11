@@ -1,4 +1,3 @@
-import Conversation from "../models/conversation.model.js";
 import Chat from "../models/chats.model.js";
 import User from "../models/user.model.js";
 import OpenAI from "openai";

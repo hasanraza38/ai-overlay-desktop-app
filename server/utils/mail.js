@@ -1,18 +1,12 @@
-import nodemailer from "nodemailer";
 import { generateEmailTemplate } from "./mailTemplate.js";
+import { createTransporter } from "../config/nodemailer.js";
 
 
 
 const sendOTPEmail = async (to, otp) => {
   try {
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.EMAIL_PASS,
-      },
-    })
+    const transporter = createTransporter();
     const html = generateEmailTemplate("otp", { otp });
 
     await transporter.sendMail({
@@ -30,13 +24,7 @@ const sendOTPEmail = async (to, otp) => {
 
 const sendWelcomeEmail = async (to, name) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    const transporter = createTransporter();
     const html = generateEmailTemplate("welcome", { name });
 
     await transporter.sendMail({
