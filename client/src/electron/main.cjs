@@ -196,11 +196,11 @@ app.whenReady().then(() => {
         webPreferences: { nodeIntegration: false },
       });
 
-      loginWindow.loadURL("http://localhost:4000/api/v1/auth/google");
+      loginWindow.loadURL("https://ai-overlay.vercel.app/api/v1/auth/google");
 
       loginWindow.webContents.on("will-redirect", async (event, url) => {
         if (
-          url.startsWith("http://localhost:4000/api/v1/auth/google/callback")
+          url.startsWith("https://ai-overlay.vercel.app/api/v1/auth/google/callback")
         ) {
           try {
             const fetch = (await import("node-fetch")).default;

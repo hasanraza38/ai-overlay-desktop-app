@@ -11,11 +11,11 @@ export async function streamGroqResponse(
   let endpoint = "";
 
   if (provider === "grok") {
-    endpoint = "http://localhost:4000/api/v1/chatbot";
+    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot";
   } else if (provider === "openai-4.0-mini") {
-    endpoint = "http://localhost:4000/api/v1/chatbot/openai";
+    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot/openai";
   } else if (provider === "gemini-2.0-flash") {
-    endpoint = "http://localhost:4000/api/v1/chatbot/gemini";
+    endpoint = "https://ai-overlay.vercel.app/api/v1/chatbot/gemini";
   } else {
     throw new Error("Invalid provider selected");
   }

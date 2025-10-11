@@ -42,10 +42,7 @@ export default function SettingsPage() {
 
     const navigate = useNavigate();
 
-    // const handleBack = () => {
-    //     navigate("-1"); 
-    //     console.log("Navigating back to /chatbot");
-    // };
+    
 
     const handleCancel = () => {
         setIsEditing(false);
@@ -262,7 +259,9 @@ export default function SettingsPage() {
                             value={apiKey}
                             onChange={(e) => setApiKey(e.target.value)}
                             placeholder={apiConfigDisabled ? " Upgrade plan to use API key" : "Enter API key"}
-                            className="cursor-pointer w-full h-12 p-4 text-[15px] rounded-[10px] bg-white/10 border border-white/20 outline-none text-sm"
+                           className={`w-full h-12 p-4 text-[15px] rounded-[10px] bg-white/10 border border-white/20 outline-none text-sm ${
+                               isEditing ? "cursor-text" : "cursor-not-allowed"
+                           }`}
                             disabled={apiConfigDisabled || !isEditing}
                         />
                         <div className="relative" ref={dropdownRef}>
@@ -270,7 +269,9 @@ export default function SettingsPage() {
                                 onClick={() =>
                                     !apiConfigDisabled && isEditing && setIsDropdownOpen(!isDropdownOpen)
                                 }
-                                className="cursor-pointer w-full h-12 mt-2 p-4 text-[15px] rounded-[10px] bg-white/10 flex items-center justify-between text-sm"
+                               className={`w-full h-12 mt-2 p-4 text-[15px] rounded-[10px] bg-white/10 flex items-center justify-between text-sm ${
+                               isEditing ? "cursor-pointer" : "cursor-not-allowed"
+                              }`}
                                 disabled={apiConfigDisabled}
                             >
                                 <span className="capitalize">{provider}</span>

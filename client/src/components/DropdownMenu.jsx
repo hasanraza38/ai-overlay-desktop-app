@@ -38,7 +38,7 @@ export default function DropdownMenu({ items = [] }) {
       {/* Menu Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="cursor-pointer p-2 rounded-full hover:bg-white/30 transition-colors"
+        className="cursor-pointer p-2 rounded-lg hover:bg-white/30 transition-colors"
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
