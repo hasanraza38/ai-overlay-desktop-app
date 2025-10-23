@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import {
   FiX,
   FiCopy,
-  FiArrowUpCircle,
   FiTrash2,
   FiUser,
   FiCheck,
@@ -11,7 +10,7 @@ import {
 import { MdOutlineArrowUpward } from "react-icons/md";
 import { TbPlayerStopFilled } from "react-icons/tb";
 import { BiConversation } from "react-icons/bi";
-import { LogOut, Plus, Settings } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
 import Topbar from "../components/Topbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -146,7 +145,7 @@ export default function Chatbot() {
     if (!isStreaming && shouldAutoScroll.current) {
       const timer = setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 50); // chhota delay to prevent instant scroll during user scroll
+      }, 50); 
       return () => clearTimeout(timer);
     }
   }, [messages, isStreaming]);
