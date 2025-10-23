@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
       return;
     }
 
+    
     try {
       ipcRenderer.send("open-external", url);
       console.log("Sent open-external IPC message");
