@@ -36,7 +36,7 @@ export default function AIDownloadPage() {
       if (platform.includes("win") || userAgent.includes("windows")) {
         setUserOS("windows");
         setDownloadLink(
-          "https://github.com/hasanraza38/release/releases/download/v1.0.0/AI.Overlay.Setup.0.0.0.exe"
+           "https://github.com/hasanraza38/ai-overlay-desktop-app/releases/download/window-build/AI.Overlay.Setup.0.0.0.exe"
         );
         setDownloadLabel("Download for Windows");
       } else if (platform.includes("mac") || userAgent.includes("mac")) {
@@ -46,13 +46,13 @@ export default function AIDownloadPage() {
       } else if (platform.includes("linux") || userAgent.includes("linux")) {
         setUserOS("linux");
         setDownloadLink(
-          "https://github.com/hasanraza38/release/releases/download/v.1.0.1/AI.Overlay-0.0.0.AppImage"
+          "https://github.com/hasanraza38/ai-overlay-desktop-app/releases/download/v1.0.0/AI.Overlay-0.0.0.AppImage"
         );
         setDownloadLabel("Download for Linux");
       } else {
         setUserOS("windows");
         setDownloadLink(
-          "https://github.com/hasanraza38/release/releases/download/v1.0.0/AI.Overlay.Setup.0.0.0.exe"
+          "https://github.com/hasanraza38/ai-overlay-desktop-app/releases/download/window-build/AI.Overlay.Setup.0.0.0.exe"
         );
         setDownloadLabel("Download");
       }
@@ -3271,7 +3271,7 @@ export default function AIDownloadPage() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-fade-in-up delay-300">
               <a
-                href="https://github.com/hasanraza38/release/releases/download/v1.0.0/AI.Overlay.Setup.0.0.0.exe"
+                href="https://github.com/hasanraza38/ai-overlay-desktop-app/releases/download/window-build/AI.Overlay.Setup.0.0.0.exe"
                 download="AIOverlayProSetup.exe"
                 className="group px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl font-semibold text-lg hover:shadow-xl hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-2"
               >
@@ -3516,7 +3516,7 @@ export default function AIDownloadPage() {
             <div className="grid md:grid-cols-3 gap-6">
               {/* Windows */}
               <a
-                href="https://github.com/hasanraza38/release/releases/download/v1.0.0/AI.Overlay.Setup.0.0.0.exe"
+                href="https://github.com/hasanraza38/ai-overlay-desktop-app/releases/download/window-build/AI.Overlay.Setup.0.0.0.exe"
                 download="AIOverlayProSetup.exe"
                 className="group relative p-8 rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-900/40 backdrop-blur-sm border border-white/10 hover:border-blue-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20"
               >
@@ -6690,7 +6690,7 @@ export default function AIDownloadPage() {
                 {isLinuxDropdownOpen && (
                   <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 rounded-xl border border-white/10 overflow-hidden backdrop-blur-xl z-50 shadow-2xl">
                     <a
-                      href="https://github.com/hasanraza38/release/releases/download/v.1.0.1/ai-overlay_0.0.0_amd64.deb"
+                      href="https://github.com/hasanraza38/ai-overlay-desktop-app/releases/download/v1.0.0/ai-overlay_0.0.0_amd64.deb"
                       download="AIOverlay_0.0.0_amd64.deb"
                       className="flex items-center space-x-4 px-6 py-4 hover:bg-white/5 transition-colors group border-b border-white/5"
                       onClick={() => setIsLinuxDropdownOpen(false)}
@@ -6721,7 +6721,7 @@ export default function AIDownloadPage() {
                     </a>
 
                     <a
-                      href="https://github.com/hasanraza38/release/releases/download/v.1.0.1/AI.Overlay-0.0.0.AppImage"
+                      href="https://github.com/hasanraza38/ai-overlay-desktop-app/releases/download/v1.0.0/AI.Overlay-0.0.0.AppImage"
                       download="AIOverlay-0.0.0.AppImage"
                       className="flex items-center space-x-4 px-6 py-4 hover:bg-white/5 transition-colors group"
                       onClick={() => setIsLinuxDropdownOpen(false)}

@@ -81,6 +81,8 @@ const PricingPlan = () => {
             const response = await api.post("payment/checkout", {
                 amount: plan.price,
                 orderId: `SUB-${Date.now()}`,
+                redirectUrl: `https://aioverlaydesktop.vercel.app/success`,
+                cancelUrl: `https://aioverlaydesktop.vercel.app/cancel`,
             });
 
             if (response.data.url) {
